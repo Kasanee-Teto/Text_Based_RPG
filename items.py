@@ -35,7 +35,7 @@ class Health_Potions(Items):
         super().__init__(name, value)
         self.heals = heals
 
-    def uses(self , entity):
+    def uses( self , entity ):
         entity.hp += self.heals
         print (f"{entity.name} drank {self.name} and healed {self.heals} HP")
     
