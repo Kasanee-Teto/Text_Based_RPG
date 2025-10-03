@@ -1,10 +1,11 @@
-from Character_RPG import character
+from character.character import Character
 
 class Enemy(Character):
-    def __init__(self, name, hp, attack, defense, exp_reward):
+    def __init__(self, name, hp, attack, defense, exp_reward=0):
         super().__init__(name, hp, attack, defense)
         self.exp_reward = exp_reward
         self.defeated = 0
+        self.status_effects = []
 
     def scale_difficulty(self):
         factor = 1 + (0.2 * self.defeated)
@@ -16,8 +17,12 @@ class Enemy(Character):
     def mark_defeated(self):
         self.defeated += 1
         print(f"{self.name} telah dikalahkan {self.defeated} kali, jadi lebih kuat!")
-        
-# --- SUBCLASS ENEMY SPESIAL ---
+
+    def attack(self, target):
+        damage = max(0, self.attack_power - target.defense)
+        target.take_damage(damage)
+        print(f"{self.name} menyerang {target.name} dan menyebabkan {damage} damage!")
+
 class Goblin(Enemy):
     def attack(self, target):
         super().attack(target)
@@ -28,13 +33,11 @@ class Wolf(Enemy):
         target.status_effects.append("bleeding")
         print(f"{target.name} terkena bleeding!")
 
-
 class Ogre(Enemy):
     def attack(self, target):
         super().attack(target)
         target.status_effects.append("weakened")
         print(f"{target.name} stat turun sementara (weakened)!")
-
 
 class Vampire(Enemy):
     def attack(self, target):
@@ -42,7 +45,6 @@ class Vampire(Enemy):
         heal = int(self.attack_power * 0.3)
         self.hp += heal
         print(f"{self.name} menyedot darah! HP pulih {heal}.")
-
 
 class Demon(Enemy):
     def attack(self, target):
@@ -53,5 +55,4 @@ class Demon(Enemy):
         print(f"{target.name} stat turun sementara (weakened)!")
         heal = int(self.attack_power * 0.3)
         self.hp += heal
-        print(f"{self.name} menyedot d arah! HP pulih {heal}.")
-
+        print(f"{self.name} menyedot darah! HP pulih {heal}.")
