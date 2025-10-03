@@ -35,7 +35,7 @@ class Health_Potions(Items):
         super().__init__(name, value)
         self.heals = heals
 
-    def uses(self):
+    def uses( self , entity ):
         entity.hp += self.heals
         print (f"{entity.name} drank {self.name} and healed {self.heals} HP")
     
@@ -43,5 +43,6 @@ Small_HPotion = Health_Potions("Small Health Potion",10,25)
 Medium_HPotion = Health_Potions("Medium Health Potion",20,35)
 Large_HPotion = Health_Potions("Medium Health Potion",30,50)
 XL_HPotion = Health_Potions("The dev is too lazy to make potion names",40,80)
+
 
 
