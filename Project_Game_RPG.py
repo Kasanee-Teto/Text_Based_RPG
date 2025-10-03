@@ -1,30 +1,12 @@
-from character import Character
-from items import Short_bow,Short_Sword,Fists,Health_Potions,Leather_Armor,Wizards_Robe
-from Enemy_RPG import Demon , Vampire . Orge , Wolf , Goblin
+from character.character import Player
+from character.enemy import Goblin, Wolf, Ogre, Vampire, Demon
 
-class Player(Character):
-    def __init__(self, name):
-        super().__init__(name, hp=100, attack=15, defense=10)
-        self.exp = 0
-        self.level = 1
-        self.status_effects = [] 
-
-    def level_up(self):
-        self.level += 1
-        self.hp += 20
-        self.attack_power += 5
-        self.defense += 2
-        print(f"{self.name} naik level! Sekarang level {self.level}.")
-
-
-#Menu
 def menu():
     print("=== MENU RPG SEDERHANA ===")
     print("1. Mulai Game")
     print("2. Keluar")
     pilihan = input("Pilih menu: ")
     return pilihan
-
 
 def main():
     while True:
@@ -39,11 +21,5 @@ def main():
         else:
             print("Pilihan tidak valid!\n")
 
-
-#Program
 if __name__ == "__main__":
     main()
-
-
-
-
