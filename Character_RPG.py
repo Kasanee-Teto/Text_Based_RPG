@@ -23,8 +23,8 @@ class Character:
 
 
 class Player(Character):
-    def __init__(self, name , weapon , armor):
-        super().__init__(name, hp=100, attack=15, defense=5)
+    def __init__(self, name , hp , attack , defense ):
+        super().__init__(name, hp, attack, defense)
         self.weapon = Fists
         self.armor = Leather_Armor
         self.defense = defense + self.armor.defense
@@ -33,6 +33,11 @@ class Player(Character):
         self.level = 1
         self.role = None
 
+    def equip_weapon( self, weapon ):
+        self.weapon = weapon
+
+    def equip_armor ( self , armor ):
+        self.armor = armor 
 
     def level_up(self):
         self.level += 1
@@ -49,3 +54,4 @@ class Player(Character):
             role.apply_bonus(self)
         else :
             print("Belum bisa memilih Role!")
+
