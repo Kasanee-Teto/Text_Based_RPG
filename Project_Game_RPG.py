@@ -1,4 +1,5 @@
 from character import Character
+from Enemy_RPG import demon
 
 class Player(Character):
     def __init__(self, name):
@@ -14,23 +15,6 @@ class Player(Character):
         self.defense += 2
         print(f"{self.name} naik level! Sekarang level {self.level}.")
 
-
-class Enemy(Character):
-    def __init__(self, name, hp, attack, defense, exp_reward):
-        super().__init__(name, hp, attack, defense)
-        self.exp_reward = exp_reward
-        self.defeated = 0
-
-    def scale_difficulty(self):
-        factor = 1 + (0.2 * self.defeated)
-        scaled_hp = int(self.hp * factor)
-        scaled_attack = int(self.attack_power * factor)
-        scaled_defense = int(self.defense * factor)
-        return {"hp": scaled_hp, "attack": scaled_attack, "defense": scaled_defense}
-
-    def mark_defeated(self):
-        self.defeated += 1
-        print(f"{self.name} telah dikalahkan {self.defeated} kali, jadi lebih kuat!")
 
 #Menu
 def menu():
@@ -58,4 +42,5 @@ def main():
 #Program
 if __name__ == "__main__":
     main()
+
 
