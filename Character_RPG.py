@@ -1,5 +1,4 @@
 from Role import Role
-from items import Short_bow,Short_Sword,Fists,Health_Potions,Leather_Armor,Wizards_Robe
 
 class Character:
     def __init__(self, name, hp, attack, defense):
@@ -54,4 +53,5 @@ class Player(Character):
             role.apply_bonus(self)
         else :
             print("Belum bisa memilih Role!")
+
 
