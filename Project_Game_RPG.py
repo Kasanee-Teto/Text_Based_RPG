@@ -1,5 +1,5 @@
 from character import Character
-from Enemy_RPG import demon
+from Enemy_RPG import Demon , Vampire . Orge , Wolf , Goblin
 
 class Player(Character):
     def __init__(self, name):
@@ -42,5 +42,6 @@ def main():
 #Program
 if __name__ == "__main__":
     main()
+
 
 
