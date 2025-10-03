@@ -1,9 +1,11 @@
 from Role import Role
+from items import Short_bow,Short_Sword,Fists,Health_Potions,Leather_Armor,Wizards_Robe
+
 class Character:
     def __init__(self, name, hp, attack, defense):
         self.name = name
         self.hp = hp
-        self.attack_power = attack
+        self.attack_power = attack 
         self.defense = defense
 
     def is_alive(self):
@@ -14,18 +16,23 @@ class Character:
         if self.hp < 0:
             self.hp = 0
 
-    def attack(self, target):
+    def attacks(self, target):
         damage = max(0, self.attack_power - target.defense)
         target.take_damage(damage)
         print(f"{self.name} menyerang {target.name} dan menyebabkan {damage} damage!")
 
 
 class Player(Character):
-    def __init__(self, name):
+    def __init__(self, name , weapon , armor):
         super().__init__(name, hp=100, attack=15, defense=5)
+        self.weapon = Fists
+        self.armor = Leather_Armor
+        self.defense = defense + self.armor.defense
+        self.attack_power = attack + self.weapon.damage
         self.exp = 0
         self.level = 1
         self.role = None
+
 
     def level_up(self):
         self.level += 1
