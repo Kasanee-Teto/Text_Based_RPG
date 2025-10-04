@@ -36,11 +36,11 @@ def main():
                 print()
                 
                 #Bikin Enemy biasa
-                e1 = Goblin
+                e1 = Goblin()
                 e2 = Ogre
                 e3 = Wolf
 
-                enemy_list=[e1, e2, e3]
+                enemy_list=[e1]
                 random_enemy = random.choice(enemy_list)
                 print(f"\n{player.name} VS {random_enemy.name}")
                 print("=========================")
@@ -48,7 +48,7 @@ def main():
                 #Pertarungan
                 while player.is_alive() and random_enemy.is_alive():
                     input("\nTekan ENTER untuk menyerang...")
-                    player.attack(random_enemy)
+                    player.attacks(random_enemy)
 
                     #Hp Enemy
                     print(f"{random_enemy.name} : {random_enemy.hp}")
@@ -58,7 +58,7 @@ def main():
                         break
 
                 # Giliran Musuh
-                    random_enemy.attack(player)
+                    random_enemy.attacks(player)
                     if not player.is_alive():
                         print(f"{player.name} kalah! {random_enemy.name} menang!")
                         print()
