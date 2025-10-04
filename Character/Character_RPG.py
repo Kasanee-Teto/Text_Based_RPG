@@ -1,4 +1,5 @@
-from Role import Role
+from .Role import Role
+from items import Leather_armor,Fists
 class Character:
     def __init__(self, name, hp, attack, defense):
         self.name = name
@@ -68,3 +69,4 @@ class Player(Character):
             print(f"{self.name} is weakened! ATK {self.attack_power}->{weakened_atk_demon}, DEF {self.defense}->{weakened_def_demon}")
             self.attack_power = weakened_atk_demon
             self.defense = weakened_atk_demon
+
