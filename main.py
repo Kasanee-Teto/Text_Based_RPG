@@ -1,9 +1,9 @@
-from Character.Character_RPG import Player
-from Character.Enemy_RPG import Goblin, Wolf, Ogre, Vampire, Demon
-from Character.Role import Warrior,Mage,Archer,Healer
-from items import Leather_Armor,Short_bow,Short_Sword
-import random
+from Character_RPG import Player
+from Enemy_RPG import goblin, spider, skeleton, zombie, Wolf, Ogre, Vampire, Demon
+from items import Weapon, Armor, Health_Potions
+from Role import Warrior, Archer, Mage, Healer
 from save_game_RPG import save_games, load_game
+import random
 
 player = None
 
@@ -29,41 +29,39 @@ while True :
             else:
                 player = Player(name)
                 print(f"Player {player.name} has been created!")
-                
-                 #Bikin Enemy biasa
-                e1 = Goblin()
-                e2 = Ogre #uh just add the stats on Enemy_RPG
-                e3 = Wolf
+            
+            # bikin musuh
+            e1 = goblin("Goblin",100,10,2,6)
+            e2 = spider("Spider",50,5,1,2)
+            e3 = skeleton("Goblin",100,10,2,7)
 
-                enemy_list=[e1]
-                random_enemy = random.choice(enemy_list)
-                print(f"\n{player.name} VS {random_enemy.name}")
-                print("=========================")
+            enemy_list=[e1, e2, e3]
+            random_enemy = random.choice(enemy_list)
+            print(f"\n{player.name} VS {random_enemy.name}")
+            print("=========================")
 
-                #Pertarungan
-                while player.is_alive() and random_enemy.is_alive():
-                    input("\nTekan ENTER untuk menyerang...")
-                    player.attacks(random_enemy)
+            #Pertarungan
+            while player.is_alive() and random_enemy.is_alive():
+                input("\nTekan ENTER untuk menyerang...")
+                player.attack(random_enemy)
 
-                    #Hp Enemy
-                    print(f"{random_enemy.name} : {random_enemy.hp}")
+                #Hp Enemy
+                print(f"{random_enemy.name} : {random_enemy.hp}")
+                print()
+                if not random_enemy.is_alive():
+                    print(f"{random_enemy.name} kalah! {player.name} menang!")
+                    break
+
+            # Giliran Musuh
+                random_enemy.attack(player)
+                if not player.is_alive():
+                    print(f"{player.name} kalah! {random_enemy.name} menang!")
                     print()
-                    if not random_enemy.is_alive():
-                        print(f"{random_enemy.name} kalah! {player.name} menang!")
-                        break
-
-                    # Giliran Musuh
-                    random_enemy.attacks(player)
-
-                    if not player.is_alive():
-                            print(f"{player.name} kalah! {random_enemy.name} menang!")
-                            print()
-                            break
-                        
-                    else :
-                        print("Game already Started!")
-                        print()
-
+                    break
+                
+        else :
+            print("Game already Started!")
+            print()
 
     elif choice == 2:
         if player is not None :
@@ -119,5 +117,3 @@ while True :
     elif choice == 6:
         print("Exiting game...")
         break
-
-
