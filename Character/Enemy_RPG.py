@@ -1,4 +1,4 @@
-from character.character import Character
+from .Character_RPG import Character
 
 class Enemy(Character):
     def __init__(self, name, hp, attack, defense, exp_reward=0):
@@ -24,8 +24,11 @@ class Enemy(Character):
         print(f"{self.name} menyerang {target.name} dan menyebabkan {damage} damage!")
 
 class Goblin(Enemy):
+    def __init__(self):
+        super().__init__("Goblin", 100, 20, 2, 10)
     def attack(self, target):
         super().attack(target)
+
 
 class Wolf(Enemy):
     def attack(self, target):
