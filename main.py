@@ -29,6 +29,39 @@ while True :
             else:
                 player = Player(name)
                 print(f"Player {player.name} has been created!")
+                
+                 #Bikin Enemy biasa
+                e1 = Goblin()
+                e2 = Ogre #uh just add the stats on Enemy_RPG
+                e3 = Wolf
+
+                enemy_list=[e1]
+                random_enemy = random.choice(enemy_list)
+                print(f"\n{player.name} VS {random_enemy.name}")
+                print("=========================")
+
+                #Pertarungan
+                while player.is_alive() and random_enemy.is_alive():
+                    input("\nTekan ENTER untuk menyerang...")
+                    player.attacks(random_enemy)
+
+                    #Hp Enemy
+                    print(f"{random_enemy.name} : {random_enemy.hp}")
+                    print()
+                    if not random_enemy.is_alive():
+                        print(f"{random_enemy.name} kalah! {player.name} menang!")
+                        break
+
+                # Giliran Musuh
+                    random_enemy.attacks(player)
+                    if not player.is_alive():
+                        print(f"{player.name} kalah! {random_enemy.name} menang!")
+                        print()
+                        break
+                        
+            else :
+                print("Game already Started!")
+                print()
         else :
             print("Game already Started!")
             print()
@@ -87,4 +120,5 @@ while True :
     elif choice == 6:
         print("Exiting game...")
         break
+
 
