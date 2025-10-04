@@ -24,6 +24,12 @@ class Enemy(Character):
         print(f"{self.name} menyerang {target.name} dan menyebabkan {damage} damage!")
 
 class Goblin(Enemy):
+    def __init__(self, name, hp, attack, defense, exp_reward):
+        name = "Goblin"
+        hp = 100
+        attack = 5 
+        defense = 2
+        super().__init__(name, hp, attack, defense, exp_reward)
     def attack(self, target):
         super().attack(target)
 
