@@ -1,5 +1,5 @@
-from Role import Role
-
+from .Role import Role
+from items import Fists , Leather_Armor
 class Character:
     def __init__(self, name, hp, attack, defense):
         self.name = name
