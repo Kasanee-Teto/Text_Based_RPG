@@ -18,24 +18,8 @@ class Enemy(Character):
         print(f"{self.enemy_name} has been defeated {self.defeated} next time, get stronger!")
 
 # --- SUBCLASS ENEMY SPESIAL ---
-# Normal Enemy
-class Goblin(Enemy):
-    def __init__(self):
-        super().__init__("Goblin", 100, 20, 2, 10)
-    def attack(self, target):
-        super().attack(target)
 
-class spider(Enemy):
-    def attack(self, target):
-        super().attack(target)
-
-class skeleton (Enemy):
-    def attack(self, target):
-        super().attack(target)
-
-class zombie(Enemy):
-    def attack(self, target):
-        super().attack(target)
+Goblin = Enemy("Goblin",100,30,10,40)
 
 # Boss Dungeon
 class Wolf(Enemy):
@@ -80,6 +64,7 @@ class Demon(Enemy):
         heal = int(self.attack_power * 0.5)
         self.enemy_hp += heal
         print(f"{self.enemy_name} drains life and restores {heal} HP!")
+
 
 
 
