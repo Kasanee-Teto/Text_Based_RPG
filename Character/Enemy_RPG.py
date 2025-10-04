@@ -8,9 +8,9 @@ class Enemy(Character):
 
     def scale_difficulty(self):
         factor = 1 + (0.2 * self.defeated)
-        scaled_hp = int(self.enemy_hp * factor)
-        scaled_attack = int(self.enemy_attack * factor)
-        scaled_defense = int(self.enemy_defense * factor)
+        scaled_hp = int(self.hp * factor)
+        scaled_attack = int(self.attack * factor)
+        scaled_defense = int(self.defense * factor)
         return {"hp": scaled_hp, "attack": scaled_attack, "defense": scaled_defense}
 
     def mark_defeated(self):
@@ -80,6 +80,7 @@ class Demon(Enemy):
         heal = int(self.attack_power * 0.5)
         self.enemy_hp += heal
         print(f"{self.enemy_name} drains life and restores {heal} HP!")
+
 
 
 
