@@ -117,3 +117,6 @@ while True :
     elif choice == 6:
         print("Exiting game...")
         break
+
+print("Thank you for playing the game")
+print("Dibuat Oleh : Edbert Chandra, Kindy Lim, Louis Fortino")
