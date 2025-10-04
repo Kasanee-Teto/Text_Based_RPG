@@ -1,7 +1,7 @@
-from Character_RPG import Player
-from Enemy_RPG import goblin, spider, skeleton, zombie, Wolf, Ogre, Vampire, Demon
+from Character.Character_RPG import Player
+from Character.Enemy_RPG import goblin, spider, skeleton, zombie, Wolf, Ogre, Vampire, Demon
 from items import Weapon, Armor, Health_Potions
-from Role import Warrior, Archer, Mage, Healer
+from Character.Role import Warrior, Archer, Mage, Healer
 from save_game_RPG import save_games, load_game
 import random
 
