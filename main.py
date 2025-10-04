@@ -52,19 +52,18 @@ while True :
                         print(f"{random_enemy.name} kalah! {player.name} menang!")
                         break
 
-                # Giliran Musuh
+                    # Giliran Musuh
                     random_enemy.attacks(player)
+
                     if not player.is_alive():
-                        print(f"{player.name} kalah! {random_enemy.name} menang!")
-                        print()
-                        break
+                            print(f"{player.name} kalah! {random_enemy.name} menang!")
+                            print()
+                            break
                         
-            else :
-                print("Game already Started!")
-                print()
-        else :
-            print("Game already Started!")
-            print()
+                    else :
+                        print("Game already Started!")
+                        print()
+
 
     elif choice == 2:
         if player is not None :
