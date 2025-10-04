@@ -19,15 +19,24 @@ class Character:
         damage = max(0, self.attack_power - target.defense)
         target.take_damage(damage)
         print(f"{self.name} attack {target.name} and deals {damage} damage!")
-
-
+        
 class Player(Character):
-    def __init__(self, name):
-        super().__init__(name, hp=100, attack=15, defense=5)
+    def __init__(self, name, hp=100, attack=15, defense=10):
+        super().__init__(name, hp, attack, defense)
+        self.weapon = Fists
+        self.armor = Leather_Armor
+        self.defense = defense + self.armor.defense
+        self.attack_power = attack + self.weapon.damage
         self.exp = 0
         self.level = 1
         self.role = None
-        self.status_effect = []
+        self.status_effects = []
+
+    def equip_weapon(self, weapon):
+        self.weapon = weapon
+
+    def equip_armor(self, armor):
+        self.armor = armor
 
     def level_up(self):
         self.level += 1
@@ -69,5 +78,6 @@ class Player(Character):
             print(f"{self.name} is weakened! ATK {self.attack_power}->{weakened_atk_demon}, DEF {self.defense}->{weakened_def_demon}")
             self.attack_power = weakened_atk_demon
             self.defense = weakened_atk_demon
+
 
 
