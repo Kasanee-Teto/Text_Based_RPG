@@ -15,7 +15,7 @@ class Character:
         if self.hp < 0:
             self.hp = 0
 
-    def attack(self, target):
+    def attacks(self, target):
         damage = max(0, self.attack_power - target.defense)
         target.take_damage(damage)
         print(f"{self.name} attack {target.name} and deals {damage} damage!")
@@ -69,4 +69,5 @@ class Player(Character):
             print(f"{self.name} is weakened! ATK {self.attack_power}->{weakened_atk_demon}, DEF {self.defense}->{weakened_def_demon}")
             self.attack_power = weakened_atk_demon
             self.defense = weakened_atk_demon
+
 
