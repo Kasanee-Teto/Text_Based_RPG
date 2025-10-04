@@ -1,4 +1,4 @@
-from Character_RPG import Player
+from .Character_RPG import Player
 class Enemy:
     def __init__(self, enemy_name, enemy_hp, enemy_attack, enemy_defense, exp_reward):
         self.enemy_name = enemy_name
@@ -80,3 +80,4 @@ class Demon(Enemy):
         heal = int(self.attack_power * 0.5)
         self.enemy_hp += heal
         print(f"{self.enemy_name} drains life and restores {heal} HP!")
+
