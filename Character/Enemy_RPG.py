@@ -22,6 +22,8 @@ class Enemy:
 # --- SUBCLASS ENEMY SPESIAL ---
 # Normal Enemy
 class Goblin(Enemy):
+    def __init__(self):
+        super().__init__("Goblin", 100, 20, 2, 10)
     def attack(self, target):
         super().attack(target)
 
@@ -80,4 +82,5 @@ class Demon(Enemy):
         heal = int(self.attack_power * 0.5)
         self.enemy_hp += heal
         print(f"{self.enemy_name} drains life and restores {heal} HP!")
+
 
