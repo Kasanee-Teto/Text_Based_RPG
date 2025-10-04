@@ -1,25 +1,55 @@
-from .Character_RPG import Player
-class Enemy(Character):
-    def __init__(self, name, hp, attack, defense, exp_reward,defeated):
-        super().__init__(name, hp, attack, defense)
+from Character_RPG import Player
+class Enemy :
+    def __init__(self, name, hp, attack, defense, exp_reward):
+        self.name = name
+        self.hp = hp
+        self.attack_power = attack
+        self.defense = defense
         self.exp_reward = exp_reward
         self.defeated = 0
-        self.status_effects = []
-
+    
     def scale_difficulty(self):
         factor = 1 + (0.2 * self.defeated)
         scaled_hp = int(self.hp * factor)
         scaled_attack = int(self.attack * factor)
         scaled_defense = int(self.defense * factor)
         return {"hp": scaled_hp, "attack": scaled_attack, "defense": scaled_defense}
-
+    
     def mark_defeated(self):
         self.defeated += 1
-        print(f"{self.enemy_name} has been defeated {self.defeated} next time, get stronger!")
+        print(f"{self.name} has been defeated {self.defeated} next time, get stronger!")
+    
+    def is_alive(self):
+        return self.hp > 0
 
-# --- SUBCLASS ENEMY SPESIAL ---
+    def take_damage(self, damage):
+        self.hp -= damage
+        if self.hp < 0:
+            self.hp = 0
 
-Goblin = Enemy("Goblin",100,30,10,40)
+    def attack(self, target):
+        damage = max(0, self.attack_power - target.defense)
+        target.take_damage(damage)
+        print(f"{self.name} menyerang {target.name} dan menyebabkan {damage} damage!")
+
+class goblin(Enemy):
+    def attack(self, target):
+        super().attack(target)
+
+
+class spider(Enemy):
+    def attack(self, target):
+        super().attack(target)
+
+
+class skeleton (Enemy):
+    def attack(self, target):
+        super().attack(target)
+
+
+class zombie(Enemy):
+    def attack(self, target):
+        super().attack(target)
 
 # Boss Dungeon
 class Wolf(Enemy):
@@ -33,7 +63,7 @@ class Wolf(Enemy):
 
 class Ogre(Enemy):
     def __init__(self):
-        super().__init__("Ogre",hp=80, attack=15, defense= 10, exp_reward= 25)
+        super().__init__("Ogre",enemy_hp=80, enemy_attack=15, enemy_defense= 10, exp_reward= 25)
 
     def attack(self, target):
         super().attack(target)
@@ -42,7 +72,7 @@ class Ogre(Enemy):
 
 class Vampire(Enemy):
     def __init__(self):
-        super().__init__("Vampire",hp=60, attack=30, defense= 3, exp_reward= 25)
+        super().__init__("Vampire",enemy_hp=60, enemy_attack=30, enemy_defense= 3, exp_reward= 25)
 
     def attack(self, target):
         super().attack(target)
@@ -53,7 +83,7 @@ class Vampire(Enemy):
 # Last Boss
 class Demon(Enemy):
     def __init__(self):
-        super().__init__("Demon",hp=60, attack=30, defense= 3, exp_reward= 25)
+        super().__init__("Demon",enemy_hp=60, enemy_attack=30, enemy_defense= 3, exp_reward= 25)
         
     def attack(self, target):
         super().attack(target)
@@ -64,9 +94,3 @@ class Demon(Enemy):
         heal = int(self.attack_power * 0.5)
         self.enemy_hp += heal
         print(f"{self.enemy_name} drains life and restores {heal} HP!")
-
-
-
-
-
-
