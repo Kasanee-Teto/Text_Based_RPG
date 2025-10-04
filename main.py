@@ -1,7 +1,8 @@
-from Character_RPG import Player
-from Enemy_RPG import Goblin, spider, skeleton, zombie, Wolf, Ogre, Vampire, Demon
-from items import Weapon, Armor, Health_Potions
-from Role import Warrior, Archer, Mage, Healer
+from Character.Character_RPG import Player
+from Character.Enemy_RPG import Goblin, Wolf, Ogre, Vampire, Demon
+from Character.Role import Warrior,Mage,Archer,Healer
+from items import Leather_Armor,Short_bow,Short_Sword
+import random
 from save_game_RPG import save_games, load_game
 
 player = None
@@ -86,3 +87,4 @@ while True :
     elif choice == 6:
         print("Exiting game...")
         break
+
