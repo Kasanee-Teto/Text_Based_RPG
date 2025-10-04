@@ -1,4 +1,4 @@
-from character.character import Character
+from Character_RPG import Character
 
 class Enemy(Character):
     def __init__(self, name, hp, attack, defense, exp_reward=0):
