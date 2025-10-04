@@ -33,7 +33,7 @@ while True :
             # bikin musuh
             e1 = goblin("Goblin",100,10,2,6)
             e2 = spider("Spider",50,5,1,2)
-            e3 = skeleton("Goblin",100,10,2,7)
+            e3 = skeleton("Skeleton",100,10,2,7)
 
             enemy_list=[e1, e2, e3]
             random_enemy = random.choice(enemy_list)
@@ -120,3 +120,4 @@ while True :
 
 print("Thank you for playing the game")
 print("Dibuat Oleh : Edbert Chandra, Kindy Lim, Louis Fortino")
+
