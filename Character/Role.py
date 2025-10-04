@@ -11,7 +11,6 @@ class Role:
         player.hp += self.bonus_hp
         print(f"{player.name} memilih role {self.name}! (Bonus: +{self.bonus_attack} ATK, +{self.bonus_defense} DEF, +{self.bonus_hp} HP)")
 
-# Role Spesifik
 class Warrior(Role):
     def __init__(self):
         super().__init__("Warrior", bonus_attack=3, bonus_defense=5, bonus_hp=30)
