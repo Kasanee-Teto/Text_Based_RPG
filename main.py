@@ -65,8 +65,10 @@ while True :
             #Boss
             boss_list=[Wolf(),Ogre(),Vampire()]
             random_boss = random.choice(boss_list)
-            print(f"\n{player.name} VS {random_boss.name}")
-            print("=========================")
+            print("===========================")
+            print("       [Boss Fight]      ")
+            print(f"\n         {player.name} VS {random_boss.name}")
+            print("===========================")
             
             #Pertarungan boss
             while player.is_alive() and random_boss.is_alive():
@@ -74,9 +76,9 @@ while True :
 
                 # Giliran Boss
                 random_boss.attack(player)                
-                # Giliaran player
+                # Giliran player
                 player.attack(random_boss)
-
+                print("=========================")
                 #Hp Boss
                 print(f"{random_boss.name} : {random_boss.hp}")
                 print(f"{player.name} : {player.hp}\n")
