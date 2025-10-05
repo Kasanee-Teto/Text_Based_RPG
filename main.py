@@ -43,7 +43,7 @@ while True :
             #Pertarungan
             while player.is_alive() and random_enemy.is_alive():
                 input("\nTekan ENTER untuk menyerang...")
-                player.attack(random_enemy)
+                player.attacks(random_enemy)
 
                 #Hp Enemy
                 print(f"{random_enemy.name} : {random_enemy.hp}")
@@ -53,7 +53,7 @@ while True :
                     break
 
             # Giliran Musuh
-                random_enemy.attack(player)
+                random_enemy.attacks(player)
                 if not player.is_alive():
                     print(f"{player.name} kalah! {random_enemy.name} menang!")
                     print()

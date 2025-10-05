@@ -22,6 +22,7 @@ class Armor(Items):
         self.defense = defense
         self.defense_type = defense_type
 
+Unarmored = Armor ("Unarmored" , 0 , "None" , 0)
 Wizards_Robe = Armor ("Wizard's robe" , 2 , "Magic" , 10 )
 Leather_Armor = Armor ("Leather Armor", 3 , "sharp" , 5)
 

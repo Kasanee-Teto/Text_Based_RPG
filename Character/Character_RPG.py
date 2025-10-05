@@ -1,5 +1,5 @@
 from .Role import Role
-from items import Leather_armor,Fists
+from items import Unarmored,Fists
 
 class Character:
     def __init__(self, name, hp, attack, defense):
@@ -25,7 +25,7 @@ class Player(Character):
     def __init__(self, name, hp=100, attack=15, defense=10):
         super().__init__(name, hp, attack, defense)
         self.weapon = Fists
-        self.armor = Leather_Armor
+        self.armor = Unarmored
         self.defense = defense + self.armor.defense
         self.attack_power = attack + self.weapon.damage
         self.exp = 0

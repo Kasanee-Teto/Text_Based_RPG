@@ -1,4 +1,4 @@
-from Character_RPG import Player
+from .Character_RPG import Player
 class Enemy :
     def __init__(self, name, hp, attack, defense, exp_reward):
         self.name = name
@@ -27,29 +27,29 @@ class Enemy :
         if self.hp < 0:
             self.hp = 0
 
-    def attack(self, target):
+    def attacks(self, target):
         damage = max(0, self.attack_power - target.defense)
         target.take_damage(damage)
         print(f"{self.name} menyerang {target.name} dan menyebabkan {damage} damage!")
 
 class goblin(Enemy):
-    def attack(self, target):
-        super().attack(target)
+    def attacks(self, target):
+        super().attacks(target)
 
 
 class spider(Enemy):
-    def attack(self, target):
-        super().attack(target)
+    def attacks(self, target):
+        super().attacks(target)
 
 
 class skeleton (Enemy):
-    def attack(self, target):
-        super().attack(target)
+    def attacks(self, target):
+        super().attacks(target)
 
 
 class zombie(Enemy):
-    def attack(self, target):
-        super().attack(target)
+    def attacks(self, target):
+        super().attacks(target)
 
 # Boss Dungeon
 class Wolf(Enemy):
