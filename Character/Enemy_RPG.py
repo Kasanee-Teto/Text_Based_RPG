@@ -1,24 +1,12 @@
-from .Character_RPG import Player
-class Enemy :
-    def __init__(self, name, hp, attack, defense, exp_reward):
+from Role import Role
+class Character:
+    def __init__(self, name, hp, attack, defense):
         self.name = name
         self.hp = hp
+        self.max_hp = hp   #Simpan character hp
         self.attack_power = attack
         self.defense = defense
-        self.exp_reward = exp_reward
-        self.defeated = 0
-    
-    def scale_difficulty(self):
-        factor = 1 + (0.2 * self.defeated)
-        scaled_hp = int(self.hp * factor)
-        scaled_attack = int(self.attack * factor)
-        scaled_defense = int(self.defense * factor)
-        return {"hp": scaled_hp, "attack": scaled_attack, "defense": scaled_defense}
-    
-    def mark_defeated(self):
-        self.defeated += 1
-        print(f"{self.name} has been defeated {self.defeated} next time, get stronger!")
-    
+
     def is_alive(self):
         return self.hp > 0
 
@@ -26,71 +14,62 @@ class Enemy :
         self.hp -= damage
         if self.hp < 0:
             self.hp = 0
+    
+    def mark_defeated(self):
+        self.defeated += 1
+        print(f"{self.name} has been defeated {self.defeated} next time, get stronger!")
 
-    def attacks(self, target):
+    def attack(self, target):
         damage = max(0, self.attack_power - target.defense)
         target.take_damage(damage)
-        print(f"{self.name} menyerang {target.name} dan menyebabkan {damage} damage!")
-
-class goblin(Enemy):
-    def attacks(self, target):
-        super().attacks(target)
+        print(f"{self.name} attack {target.name} and deals {damage} damage!")
 
 
-class spider(Enemy):
-    def attacks(self, target):
-        super().attacks(target)
+class Player(Character):
+    def __init__(self, name):
+        super().__init__(name, hp=100, attack=8, defense=2)
+        self.exp = 0
+        self.level = 1
+        self.role = None
+        self.status_effect = []
 
+    def level_up(self):
+        self.level += 1
+        self.hp += 20
+        self.attack_power += 5
+        self.defense += 2
+        print(f"{self.name} level up! Now levels {self.level}.")
+        if self.level == 5 and self.role is None :
+            print(f"{self.name} can now choose a role (Warrior, Mage, Archer, Healer)!")
 
-class skeleton (Enemy):
-    def attacks(self, target):
-        super().attacks(target)
+    def choose_role(self, role):
+        if self.level >=5 and self.role is None:
+            self.role = role
+            role.apply_bonus(self)
+        else :
+            print("Can't select Role yet!")
 
+    def status_effect(self):
+        if "bleeding" in self.status_effect:
+            bleed_damage = 3
+            self.hp -= bleed_damage
+            print(f"{self.name} uffers from bleeding and loses {bleed_damage} HP.")
 
-class zombie(Enemy):
-    def attacks(self, target):
-        super().attacks(target)
+        elif "bleeding_demon" in self.status_effect:
+            bleed_damage_demon = 5
+            self.hp -= bleed_damage_demon
+            print(f"{self.name} uffers from bleeding and loses {bleed_damage_demon} HP.")
 
-# Boss Dungeon
-class Wolf(Enemy):
-    def __init__(self):
-        super().__init__("Wolf",enemy_hp=50, enemy_attack=20, enemy_defense= 5, exp_reward= 25)
+        if "weakened" in self.status_effects:
+            weakened_atk = max(1, int(self.attack_power * 0.8))
+            weakened_def = max(1, int(self.defense * 0.8))
+            print(f"{self.name} is weakened! ATK {self.attack_power}->{weakened_atk}, DEF {self.defense}->{weakened_def}")
+            self.attack_power = weakened_atk
+            self.defense = weakened_def
 
-    def attack(self, target):
-        super().attack(target)
-        target.status_effects.append("bleeding")
-        print(f"{target.name} bleeding!")
-
-class Ogre(Enemy):
-    def __init__(self):
-        super().__init__("Ogre",enemy_hp=80, enemy_attack=15, enemy_defense= 10, exp_reward= 25)
-
-    def attack(self, target):
-        super().attack(target)
-        target.status_effects.append("weakened")
-        print(f"{target.name} stats temporarily down (weakened)!")
-
-class Vampire(Enemy):
-    def __init__(self):
-        super().__init__("Vampire",enemy_hp=60, enemy_attack=30, enemy_defense= 3, exp_reward= 25)
-
-    def attack(self, target):
-        super().attack(target)
-        heal = int(self.attack_power * 0.3)
-        self.hp += heal
-        print(f"{self.name}suck blood! HP recovers {heal}.")
-
-# Last Boss
-class Demon(Enemy):
-    def __init__(self):
-        super().__init__("Demon",enemy_hp=60, enemy_attack=30, enemy_defense= 3, exp_reward= 25)
-        
-    def attack(self, target):
-        super().attack(target)
-        target.status_effects.append("bleeding_demon")
-        print(f"{target.name}  bleeding!")
-        target.status_effects.append("weakened_demon")
-        print(f"{target.name} stats temporarily down (weakened)!")
-        heal = int(self.attack_power * 0.5)
-        self.enemy_hp += heal
-        print(f"{self.enemy_name} drains life and restores {heal} HP!")
+        elif "weakened_demon" in self.status_effect:
+            weakened_atk_demon = max(1, int(self.attack_power * 0.6))
+            weakened_def_demon = max(1, int(self.defense * 0.6))
+            print(f"{self.name} is weakened! ATK {self.attack_power}->{weakened_atk_demon}, DEF {self.defense}->{weakened_def_demon}")
+            self.attack_power = weakened_atk_demon
+            self.defense = weakened_atk_demon
