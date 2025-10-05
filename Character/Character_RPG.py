@@ -1,10 +1,9 @@
-from .Role import Role
-from items import Unarmored,Fists
-
+from Role import Role
 class Character:
     def __init__(self, name, hp, attack, defense):
         self.name = name
         self.hp = hp
+        self.max_hp = hp   #Simpan character hp
         self.attack_power = attack
         self.defense = defense
 
@@ -15,29 +14,24 @@ class Character:
         self.hp -= damage
         if self.hp < 0:
             self.hp = 0
+    
+    def mark_defeated(self):
+        self.defeated += 1
+        print(f"{self.name} has been defeated {self.defeated} next time, get stronger!")
 
-    def attacks(self, target):
+    def attack(self, target):
         damage = max(0, self.attack_power - target.defense)
         target.take_damage(damage)
         print(f"{self.name} attack {target.name} and deals {damage} damage!")
-        
+
+
 class Player(Character):
-    def __init__(self, name, hp=100, attack=15, defense=10):
-        super().__init__(name, hp, attack, defense)
-        self.weapon = Fists
-        self.armor = Unarmored
-        self.defense = defense + self.armor.defense
-        self.attack_power = attack + self.weapon.damage
+    def __init__(self, name):
+        super().__init__(name, hp=100, attack=8, defense=2)
         self.exp = 0
         self.level = 1
         self.role = None
-        self.status_effects = []
-
-    def equip_weapon(self, weapon):
-        self.weapon = weapon
-
-    def equip_armor(self, armor):
-        self.armor = armor
+        self.status_effect = []
 
     def level_up(self):
         self.level += 1
@@ -79,6 +73,3 @@ class Player(Character):
             print(f"{self.name} is weakened! ATK {self.attack_power}->{weakened_atk_demon}, DEF {self.defense}->{weakened_def_demon}")
             self.attack_power = weakened_atk_demon
             self.defense = weakened_atk_demon
-
-
-
