@@ -1,7 +1,7 @@
-from Character.Character_RPG import Player
-from Character.Enemy_RPG import goblin, spider, skeleton, zombie, Wolf, Ogre, Vampire, Demon
+from Character_RPG import Player
+from Enemy_RPG import goblin, spider, skeleton, zombie, Wolf, Ogre, Vampire, Demon
 from items import Weapon, Armor, Health_Potions
-from Character.Role import Warrior, Archer, Mage, Healer
+from Role import Warrior, Archer, Mage, Healer
 from save_game_RPG import save_games, load_game
 import random
 
@@ -29,39 +29,67 @@ while True :
             else:
                 player = Player(name)
                 print(f"Player {player.name} has been created!")
+        else:
+            print(f"\nWelcome, {player.name}!\n")
             
-            # bikin musuh
-            e1 = goblin("Goblin",100,10,2,6)
-            e2 = spider("Spider",50,5,1,2)
-            e3 = skeleton("Skeleton",100,10,2,7)
-
-            enemy_list=[e1, e2, e3]
+            # Musuh biasa
+            enemy_list=[goblin(),spider(),skeleton(),zombie()]
+            # Pilih musuh secara acak
             random_enemy = random.choice(enemy_list)
+
             print(f"\n{player.name} VS {random_enemy.name}")
             print("=========================")
 
             #Pertarungan
             while player.is_alive() and random_enemy.is_alive():
-                input("\nTekan ENTER untuk menyerang...")
-                player.attacks(random_enemy)
 
-                #Hp Enemy
+                #Giliran player
+                input("\nTekan ENTER untuk menyerang...\n")
+                player.attack(random_enemy)
+                # Giliran Musuh
+                random_enemy.attack(player)
+                print(f"{player.name} : {player.hp}")                
                 print(f"{random_enemy.name} : {random_enemy.hp}")
-                print()
+                print("=========================")
+
+
                 if not random_enemy.is_alive():
-                    print(f"{random_enemy.name} kalah! {player.name} menang!")
+                    print(f"{random_enemy.name} Lose! {player.name} Win!")
+                    print(f"{player.name} got : {random_enemy.exp_reward} EXP\n")
+                    break
+            
+                if not player.is_alive():
+                    random_enemy.mark_defeated()
+                    player.hp = player.max_hp #player hp kembali pulih ke hp awal
+                    break
+            #Boss
+            boss_list=[Wolf(),Ogre(),Vampire()]
+            random_boss = random.choice(boss_list)
+            print(f"\n{player.name} VS {random_boss.name}")
+            print("=========================")
+            
+            #Pertarungan boss
+            while player.is_alive() and random_boss.is_alive():
+                input("\nTekan ENTER untuk menyerang...")
+
+                # Giliran Boss
+                random_boss.attack(player)                
+                # Giliaran player
+                player.attack(random_boss)
+
+                #Hp Boss
+                print(f"{random_boss.name} : {random_boss.hp}")
+                print(f"{player.name} : {player.hp}\n")
+                
+                if not random_boss.is_alive():
+                    print(f"{random_boss.name} Lose! {player.name} Win!")
+                    print(f"{player.name} got : {random_boss.exp_reward} exp\n")
                     break
 
-            # Giliran Musuh
-                random_enemy.attacks(player)
                 if not player.is_alive():
-                    print(f"{player.name} kalah! {random_enemy.name} menang!")
-                    print()
+                    random_boss.mark_defeated()
+                    player.hp = player.max_hp #player hp kembali pulih
                     break
-                
-        else :
-            print("Game already Started!")
-            print()
 
     elif choice == 2:
         if player is not None :
@@ -115,9 +143,8 @@ while True :
         player = load_game()
 
     elif choice == 6:
-        print("Exiting game...")
+        print("Exiting game...\n")
         break
 
 print("Thank you for playing the game")
 print("Dibuat Oleh : Edbert Chandra, Kindy Lim, Louis Fortino")
-
