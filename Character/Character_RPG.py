@@ -1,4 +1,4 @@
-from Role import Role
+from Character.Role import *
 class Character:
     def __init__(self, name, hp, attack, defense):
         self.name = name
