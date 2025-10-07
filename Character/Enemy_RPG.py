@@ -1,7 +1,7 @@
 from Character.Character_RPG import *
-from ..items import *
+from items import *
 import random
-from ..inventory import Inventory
+from inventory import Inventory
 
 class Enemy :
     def __init__(self, name, hp, attack, defense, exp_reward):
@@ -99,7 +99,7 @@ class Vampire(Enemy):
 # Last Boss
 class Demon(Enemy):
     def __init__(self):
-        super().__init__("Demon",enemy_hp=60, enemy_attack=30, enemy_defense= 3, exp_reward= 25)
+        super().__init__("Demon",hp=60, attack=30, defense= 3, exp_reward= 25)
         
     def attack(self, target):
         super().attack(target)

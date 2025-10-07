@@ -1,5 +1,5 @@
 from Character.Role import *
-from ..inventory import Inventory
+from inventory import Inventory
 player_inventory = Inventory()
 class Character:
     def __init__(self, name, hp, attack, defense):
