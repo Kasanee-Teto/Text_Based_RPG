@@ -153,6 +153,11 @@ while True :
                 else:
                     player.attack(random_boss)
                 print("=========================")
+                # Giliran Boss
+                random_enemy.attack(player)
+                print(f"{player.name} : {player.hp}")                
+                print(f"{random_enemy.name} : {random_enemy.hp}")
+                print("=========================")
                 # Hp Boss
                 print(f"{random_boss.name} : {random_boss.hp}")
                 print(f"{player.name} : {player.hp}\n")
@@ -220,6 +225,10 @@ while True :
                         print("Your inventory is empty.")
                 else:
                     player.attack(Demon)
+                # Giliran Boss
+                Demon.attack(player)
+                print(f"{player.name} : {player.hp}")                
+                print(f"{Demon.name} : {Demon.hp}")
                 print("=========================")
                 # Hp Boss
                 print(f"{Demon.name} : {Demon.hp}")
