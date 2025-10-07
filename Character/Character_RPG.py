@@ -61,11 +61,13 @@ class Player(Character):
         if weapon in self.inventory.items:
             if self.equipped_weapon == None :
                 print (f"{self.name} equipped {weapon.name} ")
+                self.inventory.remove_item(weapon)
                 self.equipped_weapon = weapon
-                self.attack_power+= self.eqweapon.damage
+                self.attack_power+= self.equipped_weapon.damage
 
             else:
                 print (f"{self.name} swapped {self.equipped_weapon.name} with {weapon.name}")
+                self.attack_power -= self.equipped_weapon.damage
                 self.inventory.add_item(self.equipped_weapon)
                 self.inventory.remove_item(weapon)
                 self.equipped_weapon = weapon
@@ -73,12 +75,14 @@ class Player(Character):
 
     def equip_armor(self,armor):
             if armor in self.inventory.items:
-                if self.equipped_armor == None :
+                if self.equipped_armor == None :   
                     print (f"{self.name} equipped {armor.name} ")
+                    self.inventory.remove_item(armor)
                     self.equipped_armor = armor
                     self.defense += self.equipped_armor.defense
 
                 else:
+                    self.defense -= self.equipped_armor.defense 
                     print (f"{self.name} swapped {self.equipped_armor.name} with {armor.name}")
                     self.inventory.add_item(self.equipped_armor)
                     self.inventory.remove_item(armor)

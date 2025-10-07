@@ -47,10 +47,10 @@ def battle(player, enemy):
             enemy.attack(player)
         print(f"{player.name} : {player.hp}")                
         print(f"{enemy.name} : {enemy.hp}")
-        print("=========================")
+        print("=========================") 
 
 def drop_item(player, enemy, drop_chance=0.5):
-    possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
+    possible_drops = [Short_Sword, Short_bow,Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
     if random.random() < drop_chance:
         dropped_item = random.choice(possible_drops)
         player.inventory.add_item(dropped_item)
