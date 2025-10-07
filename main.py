@@ -44,20 +44,62 @@ while True :
             while player.is_alive() and random_enemy.is_alive():
 
                 #Giliran player
-                input("\nTekan ENTER untuk menyerang...\n")
-                player.attack(random_enemy)
+                pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
+                if pilihan.lower() == 'e':
+                    if player.inventory:
+                        print("Choose an item to equip/use:")
+                        for idx, item in enumerate(player.inventory, start=1):
+                            print(f"{idx}. {item.name} (Value: {item.value})")
+                        try:
+                            item_choice = int(input("Enter the item number (or 0 to cancel): "))
+                            if item_choice == 0:
+                                continue
+                            selected_item = player.inventory[item_choice - 1]
+                            if selected_item in [Small_HPotion, Medium_HPotion]:
+                                selected_item.uses()
+                                print(f"You Use {selected_item.name} to heal.")
+                                player.inventory.remove(selected_item)
+                                print("===================================================")
+                            # Equip weapon
+                            elif isinstance(selected_item, Weapon):
+                                player.equipped_weapon = selected_item
+                                print(f"You equipped {selected_item.name} as your weapon.")
+                                player.inventory.remove(selected_item)
+                                print("===================================================")
+                            # Equip armor
+                            elif isinstance(selected_item, Armor):
+                                player.equipped_armor = selected_item
+                                print(f"You equipped {selected_item.name} as your armor.")
+                                player.inventory.remove(selected_item)
+                                print("===================================================")
+                            else:
+                                print("You can only use potions, weapons, or armor.")
+                        except (ValueError, IndexError):
+                            print("Invalid choice!")
+                    else:
+                        print("Your inventory is empty.")
+                else:
+                    player.attack(random_enemy)
+                print("=========================")
                 # Giliran Musuh
                 random_enemy.attack(player)
                 print(f"{player.name} : {player.hp}")                
                 print(f"{random_enemy.name} : {random_enemy.hp}")
                 print("=========================")
 
-
+               # Musuh mati
                 if not random_enemy.is_alive():
                     print(f"{random_enemy.name} Lose! {player.name} Win!")
                     print(f"{player.name} got : {random_enemy.exp_reward} EXP\n")
-                    break
-            
+                
+                # Item 
+                possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
+                if random.random() < 0.5:  #50% untuk mendapatkan item
+                    dropped_item = random.choice(possible_drops)
+                    player.inventory.append(dropped_item)
+                    print(f"{random_enemy.name} dropped a {dropped_item.name}! It has been added to your inventory.")
+
+                # player mati
                 if not player.is_alive():
                     random_enemy.mark_defeated()
                     player.hp = player.max_hp #player hp kembali pulih ke hp awal
@@ -72,25 +114,134 @@ while True :
             
             #Pertarungan boss
             while player.is_alive() and random_boss.is_alive():
-                input("\nTekan ENTER untuk menyerang...")
 
-                # Giliran Boss
-                random_boss.attack(player)                
-                # Giliran player
-                player.attack(random_boss)
+                #Giliran player
+                pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
+                if pilihan.lower() == 'e':
+                    if player.inventory:
+                        print("Choose an item to equip/use:")
+                        for idx, item in enumerate(player.inventory, start=1):
+                            print(f"{idx}. {item.name} (Value: {item.value})")
+                        try:
+                            item_choice = int(input("Enter the item number (or 0 to cancel): "))
+                            if item_choice == 0:
+                                continue
+                            selected_item = player.inventory[item_choice - 1]
+                            if selected_item in [Small_HPotion, Medium_HPotion]:
+                                selected_item.uses()
+                                print(f"You Use {selected_item.name} to heal.")
+                                player.inventory.remove(selected_item)
+                                print("===================================================")
+                            # Equip weapon
+                            elif isinstance(selected_item, Weapon):
+                                player.equipped_weapon = selected_item
+                                print(f"You equipped {selected_item.name} as your weapon.")
+                                player.inventory.remove(selected_item)
+                                print("===================================================")
+                            # Equip armor
+                            elif isinstance(selected_item, Armor):
+                                player.equipped_armor = selected_item
+                                print(f"You equipped {selected_item.name} as your armor.")
+                                player.inventory.remove(selected_item)
+                                print("===================================================")
+                            else:
+                                print("You can only use potions, weapons, or armor.")
+                        except (ValueError, IndexError):
+                            print("Invalid choice!")
+                    else:
+                        print("Your inventory is empty.")
+                else:
+                    player.attack(random_boss)
                 print("=========================")
-                #Hp Boss
+                # Hp Boss
                 print(f"{random_boss.name} : {random_boss.hp}")
                 print(f"{player.name} : {player.hp}\n")
+                print("=========================")
                 
+                # player mati
+                if not player.is_alive():
+                    random_enemy.mark_defeated()
+                    player.hp = player.max_hp #player hp kembali pulih ke hp awal
+                    break
+                
+                # Boss mati
                 if not random_boss.is_alive():
                     print(f"{random_boss.name} Lose! {player.name} Win!")
                     print(f"{player.name} got : {random_boss.exp_reward} exp\n")
+                    
+                    #Item Drop untuk Boss
+                    possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
+                    if random.random() < 0.8:  # 80% chance to drop (bosses drop more often)
+                        dropped_item = random.choice(possible_drops)
+                        player.inventory.append(dropped_item)
+                        print(f"{random_boss.name} dropped a {dropped_item.name}! It has been added to your inventory.")
                     break
-
+            #Last Boss
+            print("===========================")
+            print("       [Boss Fight]      ")
+            print(f"\n         {player.name} VS {Demon.name}")
+            print("===========================")
+            while player.is_alive() and Demon.is_alive():
+                #Giliran player
+                pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
+                if pilihan.lower() == 'e':
+                    if player.inventory:
+                        print("Choose an item to equip/use:")
+                        for idx, item in enumerate(player.inventory, start=1):
+                            print(f"{idx}. {item.name} (Value: {item.value})")
+                        try:
+                            item_choice = int(input("Enter the item number (or 0 to cancel): "))
+                            if item_choice == 0:
+                                continue
+                            selected_item = player.inventory[item_choice - 1]
+                            if selected_item in [Small_HPotion, Medium_HPotion]:
+                                selected_item.uses()
+                                print(f"You Use {selected_item.name} to heal.")
+                                player.inventory.remove(selected_item)
+                                print("===================================================")
+                            # Equip weapon
+                            elif isinstance(selected_item, Weapon):
+                                player.equipped_weapon = selected_item
+                                print(f"You equipped {selected_item.name} as your weapon.")
+                                player.inventory.remove(selected_item)
+                                print("===================================================")
+                            # Equip armor
+                            elif isinstance(selected_item, Armor):
+                                player.equipped_armor = selected_item
+                                print(f"You equipped {selected_item.name} as your armor.")
+                                player.inventory.remove(selected_item)
+                                print("===================================================")
+                            else:
+                                print("You can only use potions, weapons, or armor.")
+                        except (ValueError, IndexError):
+                            print("Invalid choice!")
+                    else:
+                        print("Your inventory is empty.")
+                else:
+                    player.attack(Demon)
+                print("=========================")
+                # Hp Boss
+                print(f"{Demon.name} : {Demon.hp}")
+                print(f"{player.name} : {player.hp}\n")
+                print("=========================")
+                
+                # player mati
                 if not player.is_alive():
-                    random_boss.mark_defeated()
-                    player.hp = player.max_hp #player hp kembali pulih
+                    Demon.mark_defeated()
+                    player.hp = player.max_hp #player hp kembali pulih ke hp awal
+                    break
+                
+                # Boss mati
+                if not Demon.is_alive():
+                    print(f"{Demon.name} Lose! {player.name} Win!")
+                    print(f"{player.name} got : {Demon.exp_reward} exp\n")
+                    
+                    #Item Drop untuk Boss
+                    possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
+                    if random.random() < 0.8:  # 80% chance to drop (bosses drop more often)
+                        dropped_item = random.choice(possible_drops)
+                        player.inventory.append(dropped_item)
+                        print(f"{Demon.name} dropped a {dropped_item.name}! It has been added to your inventory.")
                     break
 
     elif choice == 2:
@@ -103,7 +254,7 @@ while True :
             print(f"Role: {player.role.name if player.role else 'None'}")
         else :
             print("Don't have an account yet, please create an account first")
-        
+
     elif choice == 3 :
         if player :
             if player.level >= 5 and player.role is None :
@@ -148,5 +299,8 @@ while True :
         print("Exiting game...\n")
         break
 
-print("Thank you for playing the game")
-print("Dibuat Oleh : Edbert Chandra, Kindy Lim, Louis Fortino")
+print("========================================================")
+print("|Thank you for playing the game                        |")
+print("|Dibuat Oleh : Edbert Chandra, Kindy Lim, Louis Fortino|")
+print("========================================================")
+
