@@ -10,9 +10,7 @@ class Weapon(Items):
         self.damage = damage
     
 Short_Sword = Weapon("Short_sword","Sharp",5,10)
-
 Short_bow = Weapon("Short_bow","Ranged",4,8)
-
 Fists = Weapon("Fists","Unarmed",2,0)
 
 class Armor(Items):

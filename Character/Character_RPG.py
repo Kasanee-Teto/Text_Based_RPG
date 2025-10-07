@@ -1,4 +1,6 @@
 from Character.Role import *
+from inventory import Inventory
+player_inventory = Inventory()
 class Character:
     def __init__(self, name, hp, attack, defense):
         self.name = name
@@ -55,6 +57,30 @@ class Player(Character):
         else :
             print("Can't select Role yet!")
 
+    def equip_weapon(self,weapon):
+        if weapon in player_inventory:
+            if self.weapon == None :
+                print (f"{self.name} equipped {self.weapon} ")
+                self.weapon = weapon
+
+            else:
+                print (f"{self.name} swapped {self.weapon.name} with {weapon.name}")
+                player_inventory.add_item(self.weapon)
+                player_inventory.remove_item(weapon)
+                self.weapon = weapon
+
+    def equip_armor(self,armor):
+            if armor in player_inventory:
+                if self.armor == None :
+                    print (f"{self.name} equipped {self.armor} ")
+                    self.armor = armor
+
+                else:
+                    print (f"{self.name} swapped {self.armor.name} with {armor.name}")
+                    player_inventory.add_item(self.armor)
+                    player_inventory.remove_item(armor)
+                    self.armor = armor
+        
     def status_effect(self):
         if "bleeding" in self.status_effect:
             bleed_damage = 3
