@@ -44,7 +44,7 @@ while True :
             while player.is_alive() and random_enemy.is_alive():
 
                 #Giliran player
-                pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
+                pilihan = input("\nEnter = attack\nE = use item")
                 if pilihan.lower() == 'e':
                     if player.inventory:
                         print("Choose an item to equip/use:")
@@ -87,17 +87,15 @@ while True :
                 print(f"{random_enemy.name} : {random_enemy.hp}")
                 print("=========================")
 
-               # Musuh mati
+               # Musuh mati dan drop item
                 if not random_enemy.is_alive():
                     print(f"{random_enemy.name} Lose! {player.name} Win!")
                     print(f"{player.name} got : {random_enemy.exp_reward} EXP\n")
-                
-                # Item 
-                possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
-                if random.random() < 0.5:  #50% untuk mendapatkan item
-                    dropped_item = random.choice(possible_drops)
-                    player.inventory.append(dropped_item)
-                    print(f"{random_enemy.name} dropped a {dropped_item.name}! It has been added to your inventory.")
+                    possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
+                    if random.random() < 0.5:  #50% untuk mendapatkan item
+                        dropped_item = random.choice(possible_drops)
+                        player.inventory.append(dropped_item)
+                        print(f"{random_enemy.name} dropped a {dropped_item.name}! It has been added to your inventory.")
 
                 # player mati
                 if not player.is_alive():
@@ -109,14 +107,14 @@ while True :
             random_boss = random.choice(boss_list)
             print("===========================")
             print("       [Boss Fight]      ")
-            print(f"\n         {player.name} VS {random_boss.name}")
+            print(f"\n       {player.name} VS {random_boss.name}")
             print("===========================")
             
             #Pertarungan boss
             while player.is_alive() and random_boss.is_alive():
 
                 #Giliran player
-                pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
+                pilihan = input("\nEnter = attack\nE = use item")
                 if pilihan.lower() == 'e':
                     if player.inventory:
                         print("Choose an item to equip/use:")
@@ -169,27 +167,26 @@ while True :
                     player.hp = player.max_hp #player hp kembali pulih ke hp awal
                     break
                 
-                # Boss mati
+                # Boss mati dan drop item
                 if not random_boss.is_alive():
                     print(f"{random_boss.name} Lose! {player.name} Win!")
                     print(f"{player.name} got : {random_boss.exp_reward} exp\n")
-                    
-                    #Item Drop untuk Boss
                     possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
                     if random.random() < 0.8:  # 80% chance to drop (bosses drop more often)
                         dropped_item = random.choice(possible_drops)
                         player.inventory.append(dropped_item)
                         print(f"{random_boss.name} dropped a {dropped_item.name}! It has been added to your inventory.")
                     break
+            
             #Last Boss
             Demon = Demon()
             print("===========================")
             print("       [Boss Fight]      ")
-            print(f"\n         {player.name} VS {Demon.name}")
+            print(f"\n       {player.name} VS {Demon.name}")
             print("===========================")
             while player.is_alive() and Demon.is_alive():
                 #Giliran player
-                pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
+                pilihan = input("\nEnter = attack\nE = use item")
                 if pilihan.lower() == 'e':
                     if player.inventory:
                         print("Choose an item to equip/use:")
@@ -241,12 +238,10 @@ while True :
                     player.hp = player.max_hp #player hp kembali pulih ke hp awal
                     break
                 
-                # Boss mati
+                # Boss mati dan drop item
                 if not Demon.is_alive():
                     print(f"{Demon.name} Lose! {player.name} Win!")
                     print(f"{player.name} got : {Demon.exp_reward} exp\n")
-                    
-                    #Item Drop untuk Boss
                     possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
                     if random.random() < 0.8:  # 80% chance to drop (bosses drop more often)
                         dropped_item = random.choice(possible_drops)
