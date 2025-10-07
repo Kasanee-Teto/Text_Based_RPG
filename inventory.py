@@ -1,4 +1,4 @@
-class Inventory:
+class Inventory():
     def __init__(self):
         self.items = []
 
@@ -20,3 +20,11 @@ class Inventory:
             print("Inventory items:")
             for item in self.items:
                 print(f"- {item.name}: {item.description}")
+
+    def use_consumeable(self,item,entity):
+        if item in self.items:
+            self.item.uses(entity)
+            self.items.remove(item)
+        else :
+            print(f"{item.name} is not in the inventory.")
+        

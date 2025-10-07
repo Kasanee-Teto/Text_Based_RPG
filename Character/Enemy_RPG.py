@@ -1,4 +1,8 @@
 from Character.Character_RPG import *
+from ..items import *
+import random
+from ..inventory import Inventory
+
 class Enemy :
     def __init__(self, name, hp, attack, defense, exp_reward):
         self.name = name
@@ -32,9 +36,13 @@ class Enemy :
         self.defeated += 1
         print(f"{self.name} has killed you ({self.defeated}) next time, get stronger!")
 
+    def loot_drop(self):
+        pass
+
 class goblin(Enemy):
     def __init__(self):
         super().__init__("Goblin",45,10,2,6)
+
     def attack(self, target):
         super().attack(target)
 

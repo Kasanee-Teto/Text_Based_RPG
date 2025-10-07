@@ -5,6 +5,7 @@ from Character.Role import *
 from save_game_RPG import *
 import random
 
+player_inventory = Inventory()
 player = None
 
 while True :
@@ -42,7 +43,6 @@ while True :
 
             #Pertarungan
             while player.is_alive() and random_enemy.is_alive():
-
                 #Giliran player
                 pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
                 if pilihan.lower() == 'e':
@@ -181,6 +181,7 @@ while True :
                         player.inventory.append(dropped_item)
                         print(f"{random_boss.name} dropped a {dropped_item.name}! It has been added to your inventory.")
                     break
+                
             #Last Boss
             Demon = Demon()
             print("===========================")
