@@ -55,7 +55,7 @@ def drop_item(player, enemy, drop_chance=0.5):
     possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
     if random.random() < drop_chance:
         dropped_item = random.choice(possible_drops)
-        player.inventory.append(dropped_item)
+        player_inventory.add_item(dropped_item)
         print(f"{enemy.name} dropped a {dropped_item.name}! It has been added to your inventory.")
 
 def game_loop():
