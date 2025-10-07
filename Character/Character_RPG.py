@@ -1,6 +1,6 @@
 from Character.Role import *
 from inventory import Inventory
-player_inventory = Inventory()
+
 class Character:
     def __init__(self, name, hp, attack, defense):
         self.name = name
@@ -38,7 +38,7 @@ class Player(Character):
         self.status_effect = []
         self.equipped_weapon = None
         self.equipped_armor = None
-        self.inventory = []  #List untuk menyimpan item
+        self.inventory = Inventory()
         self.coins = 200 # tambahkan coin player di sini
 
     def level_up(self):
@@ -58,28 +58,32 @@ class Player(Character):
             print("Can't select Role yet!")
 
     def equip_weapon(self,weapon):
-        if weapon in player_inventory:
-            if self.weapon == None :
-                print (f"{self.name} equipped {self.weapon} ")
-                self.weapon = weapon
+        if weapon in self.inventory.items:
+            if self.equipped_weapon == None :
+                print (f"{self.name} equipped {weapon.name} ")
+                self.equipped_weapon = weapon
+                self.attack_power+= self.eqweapon.damage
 
             else:
-                print (f"{self.name} swapped {self.weapon.name} with {weapon.name}")
-                player_inventory.add_item(self.weapon)
-                player_inventory.remove_item(weapon)
-                self.weapon = weapon
+                print (f"{self.name} swapped {self.equipped_weapon.name} with {weapon.name}")
+                self.inventory.add_item(self.equipped_weapon)
+                self.inventory.remove_item(weapon)
+                self.equipped_weapon = weapon
+                self.attack_power+= self.equipped_weapon.damage
 
     def equip_armor(self,armor):
-            if armor in player_inventory:
-                if self.armor == None :
-                    print (f"{self.name} equipped {self.armor} ")
-                    self.armor = armor
+            if armor in self.inventory.items:
+                if self.equipped_armor == None :
+                    print (f"{self.name} equipped {armor.name} ")
+                    self.equipped_armor = armor
+                    self.defense += self.equipped_armor.defense
 
                 else:
-                    print (f"{self.name} swapped {self.armor.name} with {armor.name}")
-                    player_inventory.add_item(self.armor)
-                    player_inventory.remove_item(armor)
-                    self.armor = armor
+                    print (f"{self.name} swapped {self.equipped_armor.name} with {armor.name}")
+                    self.inventory.add_item(self.equipped_armor)
+                    self.inventory.remove_item(armor)
+                    self.equipped_armor = armor
+                    self.defense += self.equipped_armor.defense
         
     def status_effect(self):
         if "bleeding" in self.status_effect:

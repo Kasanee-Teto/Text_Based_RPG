@@ -6,7 +6,6 @@ from save_game_RPG import *
 from Shop import *
 import random
 
-player_inventory = Inventory()
 player = None
 
 def battle(player, enemy):
@@ -16,32 +15,31 @@ def battle(player, enemy):
         #Giliran player
         pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
         if pilihan.lower() == 'e':
-            if player_inventory:
+            if player.inventory:
                 print("Choose an item to equip/use:")
-                player_inventory.list_items()
+                player.inventory.list_items()
                 try:
                     item_choice = int(input("Enter the item number (or 0 to cancel): "))
                     if item_choice == 0:
                         continue
-                    selected_item = player.inventory[item_choice - 1]
-                    if selected_item in Health_Potions:
-                        selected_item.uses()
-                        player_inventory.use_consumeable(selected_item)
+                    selected_item = player.inventory.items[item_choice-1]
+                    if isinstance(selected_item, Health_Potions):
+                        player.inventory.use_consumeable(selected_item,player)
                         print("===================================================")
-                    elif selected_item in Weapon:
+                    elif isinstance(selected_item, Weapon):
                         player.equip_weapon(selected_item)
                         print("===================================================")
-                    elif selected_item in Armor:
+                    elif isinstance(selected_item, Armor):
                         player.equip_armor(selected_item)
                         print("===================================================")
                     else:
                         print("You can only use potions, weapons, or armor.")
                 except (ValueError, IndexError):
-                    print("Invalid choice!")
+                        print("Invalid choice!")
             else:
                 print("Your inventory is empty.")
-        else:
-            player.attack(enemy)
+
+        player.attack(enemy)
 
         print("=========================")
 
@@ -55,7 +53,7 @@ def drop_item(player, enemy, drop_chance=0.5):
     possible_drops = [Short_Sword, Short_bow, Fists, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
     if random.random() < drop_chance:
         dropped_item = random.choice(possible_drops)
-        player_inventory.add_item(dropped_item)
+        player.inventory.add_item(dropped_item)
         print(f"{enemy.name} dropped a {dropped_item.name}! It has been added to your inventory.")
 
 def game_loop():
