@@ -1,20 +1,20 @@
-EN | [ID](docs/README_ID.md) | [CN](docs/README_CN.md)
+[EN](README.md) | ID | [CN](docs/README_CN.md)
 
-# 🎮 Text Based RPG
+# 🎮 RPG Berbasis Teks
 
-Just some school project made with love
+Sebuah proyek sekolah sederhana yang dibuat dengan cinta
 
-## 👀 Overview
-This project is a simple text-based RPG that utilizes Object-Oriented Programming (OOP) concepts. Players can create characters, manage inventory, and engage in battles with various roles and items.
+## 👀 Tinjauan
+Proyek ini adalah RPG berbasis teks sederhana yang menggunakan konsep Pemrograman Berbasis Objek (PBO/OOP). Pemain dapat membuat karakter, mengelola inventaris, dan terlibat dalam pertempuran dengan berbagai peran dan item.
 
-## 🪶 Features
-- Character creation with customizable attributes (name, health points, attack power, defense).
-- Role selection for characters (e.g., Warrior, Mage).
-- Inventory system to manage items (adding, removing, and listing items).
-- Basic combat mechanics where characters can attack each other.
+## 🪶 Fitur
+- Pembuatan karakter dengan atribut yang dapat disesuaikan (nama, poin kesehatan, kekuatan serangan, pertahanan).
+- Pemilihan peran untuk karakter (misalnya, Warrior, Mage).
+- Sistem inventaris untuk mengelola item (menambah, menghapus, dan melihat daftar item).
+- Mekanisme pertarungan dasar di mana karakter dapat saling serang.
 
-## 🏛️ Architecture & Class Diagram
-This project follows an Object-Oriented design. The core of the architecture involves a base `Character` class, which is specialized into a `Player` class. The player manages an `Inventory` and can be assigned a `Role`. The `Items` are also structured using inheritance.
+## 🏛️ Arsitektur & Diagram Kelas
+Proyek ini mengikuti desain Berbasis Objek. Inti dari arsitektur ini melibatkan kelas dasar `Character`, yang dispesialisasikan menjadi kelas `Player`. Pemain mengelola `Inventory` dan dapat diberi `Role`. `Items` juga disusun menggunakan pewarisan.
 
 ```mermaid
 classDiagram
@@ -81,39 +81,39 @@ classDiagram
     Role <|-- Mage
 ```
 
-## 📂 Project Structure
+## 📂 Struktur Proyek
 ```
 text_based_rpg
-├── main.py                # Entry point of the application
-├── character              # Module for character-related classes
+├── main.py              # Titik masuk aplikasi
+├── character            # Modul untuk kelas-kelas terkait karakter
 │   ├── __init__.py
-│   ├── character.py       # Character class definition
-│   └── role.py            # Role class definition
-├── inventory.py           # inventory class definition
-├── items.py               # items class definition
-└── README.md              # Project documentation
+│   ├── character.py     # Definisi kelas Character
+│   └── role.py          # Definisi kelas Role
+├── inventory.py         # Definisi kelas Inventory
+├── items.py             # Definisi kelas Items
+└── README.md            # Dokumentasi proyek
 ```
 
-## 👨‍💻 Setup Instructions
-1. Clone the repository to your local machine.
-2. Navigate to the project directory.
-3. Run the game by executing:
+## 👨‍💻 Instruksi Pengaturan
+1. *Clone* repositori ini ke mesin lokal Anda.
+2. Arahkan ke direktori proyek.
+3. Jalankan game dengan mengeksekusi:
    ```
    python main.py
    ```
 
-## 🕹️ Gameplay Mechanics
-- Players can create a character and choose a role after reaching level 5.
-- Characters can engage in combat, taking turns to attack each other.
-- Players can manage their inventory to equip items that enhance their abilities.
+## 🕹️ Mekanisme Gameplay
+- Pemain dapat membuat karakter dan memilih peran setelah mencapai level 5.
+- Karakter dapat terlibat dalam pertarungan, bergiliran untuk saling menyerang.
+- Pemain dapat mengelola inventaris mereka untuk melengkapi item yang meningkatkan kemampuan mereka.
 
-## 👤 Contributors
+## 👤 Kontributor
 
 <table border="0" cellspacing="10" cellpadding="5">
   <tr>
     <td align="center" style="border: 1px solid #555; padding: 10px;">
       <a href="https://github.com/Kasanee-Teto">
-        <img src="https://github.com/Kasanee-Teto.png" width="100" height="100" alt="Solynixx" style="border-radius: 50%;"/>
+        <img src="https://github.com/Kasanee-Teto.png" width="100" height="100" alt="Kasanee-Teto" style="border-radius: 50%;"/>
       </a>
       <br/>
       <a href="https://github.com/Kasanee-Teto">Kasanee-Teto</a>
@@ -131,6 +131,6 @@ text_based_rpg
       </a>
       <br/>
       <a href="https://github.com/Milkdrinker-creator">Milkdrinker-creator</a>
-    
+    </td>
   </tr>
 </table>

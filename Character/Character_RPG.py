@@ -18,6 +18,8 @@ class Character:
             self.hp = 0
     
     def mark_defeated(self):
+        if not hasattr(self, "defeated"):
+            self.defeated = 0
         self.defeated += 1
         print(f"{self.name} has been defeated {self.defeated} next time, get stronger!")
 
@@ -37,6 +39,7 @@ class Player(Character):
         self.equipped_weapon = None
         self.equipped_armor = None
         self.inventory = []  #List untuk menyimpan item
+        self.coins = 200 # tambahkan coin player di sini
 
     def level_up(self):
         self.level += 1
@@ -103,3 +106,30 @@ class Player(Character):
             self.attack_power = weakened_atk_demon
             self.defense = weakened_atk_demon
 
+    def buy_item(self, shop, item_name):
+        for item in shop.inventory_shop:
+            if item["name"].lower() == item_name.lower():
+                if self.coins >= item["price"]:
+                    self.coins -= item["price"]
+                    self.inventory.append(item)
+                    print(f"{self.name} bought {item['name']} for {item['price']} coins.")
+                else:
+                    print("Not enough coins!")
+                return
+        print("Item not found in shop.")
+    
+    # JUAL ITEM
+    def sell_item(self, item_name):
+        for item in self.inventory:
+            if item["name"].lower() == item_name.lower():
+                sell_price = int(item["price"] * 0.5)  # harga jual 50%
+                self.inventory.remove(item)
+                self.coins += sell_price
+                print(f"{self.name} sold {item['name']} for {sell_price} coins.")
+                return
+        print(f"{item_name} not found in inventory.")
+
+    # TERIMA ITEM (misal drop musuh)
+    def receive_item(self, item):
+        self.inventory.append(item)
+        print(f"{self.name} received {item['name']}!")
