@@ -160,7 +160,7 @@ while True :
                 
                 # player mati
                 if not player.is_alive():
-                    random_enemy.mark_defeated()
+                    random_boss.mark_defeated()
                     player.hp = player.max_hp #player hp kembali pulih ke hp awal
                     break
                 
@@ -177,6 +177,7 @@ while True :
                         print(f"{random_boss.name} dropped a {dropped_item.name}! It has been added to your inventory.")
                     break
             #Last Boss
+            Demon = Demon()
             print("===========================")
             print("       [Boss Fight]      ")
             print(f"\n         {player.name} VS {Demon.name}")
@@ -303,4 +304,3 @@ print("========================================================")
 print("|Thank you for playing the game                        |")
 print("|Dibuat Oleh : Edbert Chandra, Kindy Lim, Louis Fortino|")
 print("========================================================")
-
