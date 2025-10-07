@@ -6,14 +6,28 @@ class shop:
     def __init__(self):
         self.inventory_shop = []  # semua item tersimpan di sini
 
+        def show_items(self):
+            print("-------------------------------------------------")
+            for i, item in enumerate(self.inventory_shop, 1):
+                stats = []
+                if "attack_bonus" in item:
+                    stats.append(f"ATK +{item['attack_bonus']}")
+                if "defense_bonus" in item:
+                    stats.append(f"DEF +{item['defense_bonus']}")
+                if "magic_power" in item:
+                    stats.append(f"MAG +{item['magic_power']}")
+                if "heal_amount" in item:
+                    stats.append(f"Heal +{item['heal_amount']}")
+                print(f"{i}. {item['name']} | {' | '.join(stats)} | 💰 {item['price']} | Stock: {item['stock']} | {item['rarity']}")
+            print("-------------------------------------------------")
+
 
 # ==============================
 # ⚔️ SHOP - SWORD
 # ==============================
 class shop_sword(shop):
-    def __init__(self, type_sword):
+    def __init__(self):
         super().__init__()
-        self.type_sword = type_sword
 
     def stock_sword_dagger(self):
         dagger_items = [
@@ -55,9 +69,9 @@ class shop_sword(shop):
 # 🏹 SHOP - BOW
 # ==============================
 class shop_bow(shop):
-    def __init__(self, type_bow):
+    def __init__(self):
         super().__init__()
-        self.type_bow = type_bow
+
 
     # 🧠 Bow modern yang presisi dan damage tinggi, tapi mahal & stok sedikit
     def stock_tech_bow(self):
@@ -97,9 +111,9 @@ class shop_bow(shop):
 # 📜 SHOP - GRIMOIRE (Mage)
 # ==============================
 class shop_grimoire(shop):
-    def __init__(self, type_grimoire):
+    def __init__(self):
         super().__init__()
-        self.type_grimoire = type_grimoire
+
 
     def stock_elemental_grimoire(self):
         elemental_grimoire = [
@@ -136,9 +150,9 @@ class shop_grimoire(shop):
 # 💫 SHOP - STAFF (Healer)
 # ==============================
 class shop_staff(shop):
-    def __init__(self, type_staff):
+    def __init__(self):
         super().__init__()
-        self.type_staff = type_staff
+
 
     def stock_healing_staff(self):
         healing_staff = [
@@ -168,15 +182,14 @@ class shop_staff(shop):
             {"name": "Necrotic Staff", "type": "Dark Staff", "magic_power": 60, "price": 230, "stock": 2, "rarity": "Epic"},
             {"name": "Deathbinder", "type": "Dark Staff", "magic_power": 70, "price": 270, "stock": 1, "rarity": "Legendary"},
         ]
-        self.inventory_shop(dark_staff)
+        self.inventory_shop.extend(dark_staff)
 
 # ==============================
 # 🛡️ SHOP - ARMOR
 # ==============================
 class shop_armor(shop):
-    def __init__(self, type_armor):
+    def __init__(self):
         super().__init__()
-        self.type_armor = type_armor
 
     def stock_light_armor(self):
         light_armor_items = [
