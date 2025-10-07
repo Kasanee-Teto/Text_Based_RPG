@@ -9,7 +9,7 @@ class Character:
 
     def is_alive(self):
         return self.hp > 0
-
+    
     def take_damage(self, damage):
         self.hp -= damage
         if self.hp < 0:
@@ -32,6 +32,9 @@ class Player(Character):
         self.level = 1
         self.role = None
         self.status_effect = []
+        self.equipped_weapon = None
+        self.equipped_armor = None
+        self.inventory = []  #List untuk menyimpan item
 
     def level_up(self):
         self.level += 1
@@ -73,3 +76,4 @@ class Player(Character):
             print(f"{self.name} is weakened! ATK {self.attack_power}->{weakened_atk_demon}, DEF {self.defense}->{weakened_def_demon}")
             self.attack_power = weakened_atk_demon
             self.defense = weakened_atk_demon
+
