@@ -168,10 +168,19 @@ def game_loop():
                 print(f"HP: {player.hp}")
                 print(f"ATK: {player.attack_power}")
                 print(f"DEF: {player.defense}")
+                if player.equipped_weapon is not None :
+                    print(f"Weapon: {player.equipped_weapon.name}")
+                else :
+                    print(f"Weapon: Unarmed")
+                if player.equipped_armor is not None :
+                    print(f"Armor: {player.equipped_armor.name}")
+                else :
+                    print(f"Armor: Unarmored")
+                print(f"Status Effect : {player.status_effect}")
                 print(f"Level: {player.level}")
                 print(f"Role: {player.role.name if player.role else 'None'}")
             else:
-                print("Don't have an account yet, please create an account first")
+                print("Don't have an character yet, please create a character first")
 
         elif choice == 3:
             if player:
