@@ -8,6 +8,65 @@ import random
 
 player = None
 
+
+def inventory_menu():
+    running = True 
+
+    if player == None :
+        print ("Buat Karakter Terlebih Dahulu !")
+        running = False
+    
+    while running :
+        print ("Inventory Menu")
+        print ("1.Show Inventory ")
+        print ("2.Drop Item")
+        print ("3.Equip/Use Item")
+        print ("4.Show Item Description")
+        print ("5.Close Menu")
+        try :
+            inv_choice = int (input ("Choose Action = "))
+            if inv_choice == 1 :
+                player.inventory.list_items()
+            elif inv_choice == 2 :
+                idx = int(input("Choose item's index to remove = "))
+                selected_item = player.inventory.items[idx-1]
+                player.inventory.remove_item((selected_item))
+            elif inv_choice == 3 :
+                if player.inventory:
+                    print("Choose an item to equip/use:")
+                    player.inventory.list_items()
+                    try:
+                        item_choice = int(input("Enter the item number (or 0 to cancel): "))
+                        if item_choice == 0:
+                            continue
+                        selected_item = player.inventory.items[item_choice-1]
+                        if isinstance(selected_item, Health_Potions):
+                            player.inventory.use_consumeable(selected_item,player)
+                            print("===================================================")
+                        elif isinstance(selected_item, Weapon):
+                            player.equip_weapon(selected_item)
+                            print("===================================================")
+                        elif isinstance(selected_item, Armor):
+                            player.equip_armor(selected_item)
+                            print("===================================================")
+                        else:
+                            print("You can only use potions, weapons, or armor.")
+                    except (ValueError, IndexError):
+                        print("Invalid choice!")
+                else:
+                    print("Your inventory is empty.")
+                    print("=========================")
+            elif inv_choice == 4 :
+                idx = int(input("Enter item's index ="))
+                selected_item = player.inventory.items[idx-1]
+                selected_item.desc()
+            elif inv_choice == 5 :
+                running = False
+                print ("=========================")
+
+        except(ValueError,IndexError):
+            print("Invalid choice!")
+
 def battle(player, enemy):
     print(f"\n{player.name} VS {enemy.name}")
     print("=========================")
@@ -15,39 +74,16 @@ def battle(player, enemy):
         #Giliran player
         pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
         if pilihan.lower() == 'e':
-            if player.inventory:
-                print("Choose an item to equip/use:")
-                player.inventory.list_items()
-                try:
-                    item_choice = int(input("Enter the item number (or 0 to cancel): "))
-                    if item_choice == 0:
-                        continue
-                    selected_item = player.inventory.items[item_choice-1]
-                    if isinstance(selected_item, Health_Potions):
-                        player.inventory.use_consumeable(selected_item,player)
-                        print("===================================================")
-                    elif isinstance(selected_item, Weapon):
-                        player.equip_weapon(selected_item)
-                        print("===================================================")
-                    elif isinstance(selected_item, Armor):
-                        player.equip_armor(selected_item)
-                        print("===================================================")
-                    else:
-                        print("You can only use potions, weapons, or armor.")
-                except (ValueError, IndexError):
-                        print("Invalid choice!")
-            else:
-                print("Your inventory is empty.")
-
-        player.attack(enemy)
-
-        print("=========================")
+            inventory_menu()
+        else :
+            player.attack(enemy)
+            print("=========================")
 
         if enemy.is_alive():
             enemy.attack(player)
-        print(f"{player.name} : {player.hp}")                
-        print(f"{enemy.name} : {enemy.hp}")
-        print("=========================") 
+            print(f"{player.name} : {player.hp}")                
+            print(f"{enemy.name} : {enemy.hp}")
+            print("=========================") 
 
 def drop_item(player, enemy, drop_chance=0.5):
     possible_drops = [Short_Sword, Short_bow,Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
@@ -274,6 +310,8 @@ def game_loop():
             else:
                 print("⚠️ Start the game first before visiting the shop!")
 
+        elif choice == 5:
+            inventory_menu()
 
         elif choice == 6:
             if player:
