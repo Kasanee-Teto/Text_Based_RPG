@@ -72,7 +72,7 @@ def battle(player, enemy):
     print("=========================")
     while player.is_alive() and enemy.is_alive():
         #Giliran player
-        pilihan = input("\nEnter = untuk menyerang\nE = untuk menggunakan item")
+        pilihan = input("\nEnter = Attack \nE = Open Inventory")
         if pilihan.lower() == 'e':
             inventory_menu()
         else :
