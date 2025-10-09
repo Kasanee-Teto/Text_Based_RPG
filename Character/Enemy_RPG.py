@@ -110,4 +110,5 @@ class Demon(Enemy):
         print(f"{target.name} stats temporarily down (weakened)!")
         heal = int(self.attack_power * 0.5)
         self.hp += heal
-        print(f"{self.enemy_name} drains life and restores {heal} HP!")
+        print(f"{self.enemy_name} drains life and restores {heal} HP!"
+
