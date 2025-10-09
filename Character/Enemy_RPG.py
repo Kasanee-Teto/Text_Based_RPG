@@ -32,8 +32,9 @@ class Enemy :
         target.take_damage(damage)
         print(f"{self.name} attack {target.name} and deals {damage} damage!")
     
-    def mark_defeated(self):
+    def mark_defeated(self,player):
         self.defeated += 1
+        player.exp += self.exp_reward
         print(f"{self.name} has killed you ({self.defeated}) next time, get stronger!")
 
     def loot_drop(self):
@@ -108,5 +109,5 @@ class Demon(Enemy):
         target.status_effect.append("weakened_demon")
         print(f"{target.name} stats temporarily down (weakened)!")
         heal = int(self.attack_power * 0.5)
-        self.enemy_hp += heal
+        self.hp += heal
         print(f"{self.enemy_name} drains life and restores {heal} HP!")

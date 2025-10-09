@@ -1,5 +1,6 @@
 from Character.Role import *
 from inventory import Inventory
+import math
 
 class Character:
     def __init__(self, name, hp, attack, defense):
@@ -34,6 +35,7 @@ class Player(Character):
         super().__init__(name, hp=100, attack=8, defense=2)
         self.exp = 0
         self.level = 1
+        self.exp_needed = 100
         self.role = None
         self.status_effect = []
         self.equipped_weapon = None
@@ -42,13 +44,16 @@ class Player(Character):
         self.coins = 200 # tambahkan coin player di sini
 
     def level_up(self):
-        self.level += 1
-        self.hp += 20
-        self.attack_power += 5
-        self.defense += 2
-        print(f"{self.name} level up! Now levels {self.level}.")
-        if self.level == 5 and self.role is None :
-            print(f"{self.name} can now choose a role (Warrior, Mage, Archer, Healer)!")
+        if player.exp == player.exp_needed :
+            self.level += 1
+            self.hp += 20
+            self.attack_power += 5
+            self.defense += 2
+            self.exp_needed = self.level * math.sqrt(self.exp_needed)
+            self.exp = 0
+            print(f"{self.name} level up! Now levels {self.level}.")
+            if self.level == 5 and self.role is None :
+                print(f"{self.name} can now choose a role (Warrior, Mage, Archer, Healer)!")
 
     def choose_role(self, role):
         if self.level >=5 and self.role is None:

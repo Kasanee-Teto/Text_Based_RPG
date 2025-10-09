@@ -85,6 +85,8 @@ def battle(player, enemy):
             print(f"{enemy.name} : {enemy.hp}")
             print("=========================") 
 
+    player.level_up()
+
 def drop_item(player, enemy, drop_chance=0.5):
     possible_drops = [Short_Sword, Short_bow,Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
     if random.random() < drop_chance:
@@ -125,11 +127,12 @@ def game_loop():
                 random_enemy = random.choice(enemy_list)
                 battle(player, random_enemy)
                 if not random_enemy.is_alive():
+                    random_enemy.mark_defeated(player)
                     print(f"{random_enemy.name} Lose! {player.name} Win!")
                     print(f"{player.name} got : {random_enemy.exp_reward} EXP\n")
                     drop_item(player, random_enemy, 0.5)
                 if not player.is_alive():
-                    random_enemy.mark_defeated()
+                    player.mark_defeated()
                     player.hp = player.max_hp
                     continue
 
@@ -140,10 +143,11 @@ def game_loop():
                 print("       [Boss Fight]      ")
                 battle(player, random_boss)
                 if not player.is_alive():
-                    random_boss.mark_defeated()
+                    player.mark_defeated()
                     player.hp = player.max_hp
                     continue
                 if not random_boss.is_alive():
+                    random_boss.mark_defeated(player)
                     print(f"{random_boss.name} Lose! {player.name} Win!")
                     print(f"{player.name} got : {random_boss.exp_reward} exp\n")
                     drop_item(player, random_boss, 0.8)
