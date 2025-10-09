@@ -44,7 +44,7 @@ class Player(Character):
         self.coins = 200 # tambahkan coin player di sini
 
     def level_up(self):
-        if player.exp == player.exp_needed :
+        if self.exp == self.exp_needed :
             self.level += 1
             self.hp += 20
             self.attack_power += 5
