@@ -23,7 +23,7 @@ class Inventory():
 
     def use_consumeable(self,item,entity):
         if item in self.items:
-            self.item.uses(entity)
+            item.uses(entity)
             self.items.remove(item)
         else :
             print(f"{item.name} is not in the inventory.")
