@@ -18,11 +18,8 @@ class Character:
         if self.hp < 0:
             self.hp = 0
     
-    def mark_defeated(self):
-        if not hasattr(self, "defeated"):
-            self.defeated = 0
-        self.defeated += 1
-        print(f"{self.name} has been defeated {self.defeated} next time, get stronger!")
+    def defeated(self,entity):
+        pass
 
     def attack(self, target):
         damage = max(0, self.attack_power - target.defense)
@@ -44,13 +41,13 @@ class Player(Character):
         self.coins = 200 # tambahkan coin player di sini
 
     def level_up(self):
-        if self.exp == self.exp_needed :
+        if self.exp >= self.exp_needed :
             self.level += 1
             self.hp += 20
             self.attack_power += 5
             self.defense += 2
-            self.exp_needed = self.level * math.sqrt(self.exp_needed)
-            self.exp = 0
+            self.exp -= self.exp_needed
+            self.exp_needed += self.level * math.sqrt(self.exp_needed)
             print(f"{self.name} level up! Now levels {self.level}.")
             if self.level == 5 and self.role is None :
                 print(f"{self.name} can now choose a role (Warrior, Mage, Archer, Healer)!")
@@ -93,6 +90,9 @@ class Player(Character):
                     self.inventory.remove_item(armor)
                     self.equipped_armor = armor
                     self.defense += self.equipped_armor.defense
+
+    def defeated(self, enemy):
+        print (f"{enemy.name} has killed {self.name} ! \n Come back when you are stronger !\n" )
         
     def status_effect(self):
         if "bleeding" in self.status_effect:

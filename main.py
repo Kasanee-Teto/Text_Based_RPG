@@ -8,7 +8,6 @@ import random
 
 player = None
 
-
 def inventory_menu():
     running = True 
 
@@ -72,7 +71,7 @@ def battle(player, enemy):
     print("=========================")
     while player.is_alive() and enemy.is_alive():
         #Giliran player
-        pilihan = input("\nEnter = Attack \nE = Open Inventory")
+        pilihan = input("\nEnter = Attack \nE = Open Inventory \n")
         if pilihan.lower() == 'e':
             inventory_menu()
         else :
@@ -127,13 +126,13 @@ def game_loop():
                 random_enemy = random.choice(enemy_list)
                 battle(player, random_enemy)
                 if not random_enemy.is_alive():
-                    random_enemy.mark_defeated(player)
-                    print(f"{random_enemy.name} Lose! {player.name} Win!")
-                    print(f"{player.name} got : {random_enemy.exp_reward} EXP\n")
+                    random_enemy.defeated(player)
                     drop_item(player, random_enemy, 0.5)
+
                 if not player.is_alive():
-                    player.mark_defeated()
+                    player.defeated(random_enemy)
                     player.hp = player.max_hp
+                    player.status_effect = []
                     continue
 
                 # Boss
@@ -143,11 +142,13 @@ def game_loop():
                 print("       [Boss Fight]      ")
                 battle(player, random_boss)
                 if not player.is_alive():
-                    player.mark_defeated()
+                    player.defeated(random_boss)
                     player.hp = player.max_hp
+                    player.status_effect = []
                     continue
+
                 if not random_boss.is_alive():
-                    random_boss.mark_defeated(player)
+                    random_boss.defeated(player)
                     print(f"{random_boss.name} Lose! {player.name} Win!")
                     print(f"{player.name} got : {random_boss.exp_reward} exp\n")
                     drop_item(player, random_boss, 0.8)
@@ -158,10 +159,13 @@ def game_loop():
                 print("       [Final Boss Fight]      ")
                 battle(player, DemonBoss)
                 if not player.is_alive():
-                    DemonBoss.mark_defeated()
+                    player.defeated(DemonBoss)
                     player.hp = player.max_hp
+                    player.status_effect = []
                     continue
+
                 if not DemonBoss.is_alive():
+                    DemonBoss.defeated(player)
                     print(f"{DemonBoss.name} Lose! {player.name} Win!")
                     print(f"{player.name} got : {DemonBoss.exp_reward} exp\n")
                     drop_item(player, DemonBoss, 0.8)

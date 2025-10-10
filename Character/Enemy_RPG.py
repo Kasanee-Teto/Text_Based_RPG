@@ -3,14 +3,15 @@ from items import *
 import random
 from inventory import Inventory
 
-class Enemy :
-    def __init__(self, name, hp, attack, defense, exp_reward):
+class Enemy(Character):
+    def __init__(self, name, hp, attack, defense,exp_reward):
+        super().__init__(name, hp, attack, defense)
         self.name = name
         self.hp = hp
         self.attack_power = attack
         self.defense = defense
         self.exp_reward = exp_reward
-        self.defeated = 0
+        self.defeated_count = 0
     
     def scale_difficulty(self):
         factor = 1 + (0.2 * self.defeated)
@@ -19,23 +20,11 @@ class Enemy :
         scaled_defense = int(self.defense * factor)
         return {"hp": scaled_hp, "attack": scaled_attack, "defense": scaled_defense}
     
-    def is_alive(self):
-        return self.hp > 0
-
-    def take_damage(self, damage):
-        self.hp -= damage
-        if self.hp < 0:
-            self.hp = 0
-
-    def attack(self, target):
-        damage = max(0, self.attack_power - target.defense)
-        target.take_damage(damage)
-        print(f"{self.name} attack {target.name} and deals {damage} damage!")
-    
-    def mark_defeated(self,player):
-        self.defeated += 1
+    def defeated(self,player):
+        self.defeated_count += 1
         player.exp += self.exp_reward
-        print(f"{self.name} has killed you ({self.defeated}) next time, get stronger!")
+        print(f"{self.name} Lose! {player.name} Win!")
+        print(f"{player.name} got : {self.exp_reward} EXP\n")
 
     def loot_drop(self):
         pass
@@ -110,6 +99,4 @@ class Demon(Enemy):
         print(f"{target.name} stats temporarily down (weakened)!")
         heal = int(self.attack_power * 0.5)
         self.hp += heal
-        print(f"{self.enemy_name} drains life and restores {heal} HP!")
-
-
+        print(f"{self.name} drains life and restores {heal} HP!")
