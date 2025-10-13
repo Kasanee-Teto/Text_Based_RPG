@@ -5,6 +5,7 @@ from Character.Role import *
 from save_game_RPG import *
 from Shop import *
 import random
+from dungeon import *
 
 player = None
 
@@ -104,7 +105,8 @@ def game_loop():
         print("5. Inventory")
         print("6. Save Game")
         print("7. Load Game")
-        print("8. Exit")
+        print("8. Enter Dungeon")
+        print("9. Exit")
         try:
             choice = int(input("Enter Your choice : "))
         except ValueError:
@@ -342,6 +344,21 @@ def game_loop():
             player = load_game()
 
         elif choice == 8:
+            if player is None:
+                print("Create a character first!")
+            else:
+                # Build a dungeon floor, you can tweak width/height/depth/seed/difficulty
+                d = Dungeon(width=5, height=5, depth=1, seed=None, difficulty=1.0)
+                print("Entering dungeon floor 1...")
+                success = d.explore_from(player, battle)
+                if not success:
+                    # player died in dungeon - handle respawn like you do elsewhere
+                    player.defeated(Demon() if False else Enemy("TrapDeath",0,0,0,0))  # just print; optional
+                    player.hp = player.max_hp
+                    player.status_effect = []
+
+
+        elif choice == 9:
             print("Exiting game...\n")
             break
 
