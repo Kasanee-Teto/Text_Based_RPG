@@ -5,7 +5,7 @@ from Character.Role import *
 from save_game_RPG import *
 from Shop import *
 import random
-from dungeon import *
+from dungeon import Dungeon
 
 player = None
 

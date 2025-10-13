@@ -1,4 +1,4 @@
-# dungeon.py
+
 import random
 from Character.Enemy_RPG import goblin, spider, skeleton, zombie, Wolf, Ogre, Vampire, Demon
 from items import Small_HPotion, Medium_HPotion, Short_Sword, Short_bow, Wizards_Robe, Leather_Armor
@@ -103,7 +103,7 @@ class Dungeon:
         grid[0][0].description = "Dungeon entrance: cold stones and the smell of decay."
         return grid
 
-    def display_map(self, player_pos=None, reveal_visited=True):
+    def display_map(self, player_pos=None, reveal_visited=False):
         """
         ASCII-mini-map: P for player, E for exit, ? for unknown (if not visited), . for empty visited, M for monster, T for treasure.
         """
