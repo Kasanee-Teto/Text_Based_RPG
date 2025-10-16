@@ -4,6 +4,8 @@ from items import *
 from Character.Role import *
 from save_game_RPG import *
 from Shop import *
+from colorama import Fore, Style, init
+init(autoreset=True)
 import random
 
 player = None
@@ -96,15 +98,18 @@ def drop_item(player, enemy, drop_chance=0.5):
 def game_loop():
     global player
     while True:
-        print("=== Welcome to the RPG Game ===")
-        print("1. Start Game")
+        print(Fore.YELLOW + Style.BRIGHT + "="*50)
+        print(Fore.CYAN + Style.BRIGHT + "      ⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️")
+        print(Fore.YELLOW + "="*50)
+        print(Fore.GREEN + "1. Start Game")
         print("2. Show Status")
         print("3. Choose Role")
-        print("4. Shop")
-        print("5. Inventory")
-        print("6. Save Game")
-        print("7. Load Game")
-        print("8. Exit")
+        print("4. Shop 🛒")
+        print("5. Inventory 🎒")
+        print("6. Save Game 💾")
+        print("7. Load Game 📂")
+        print("8. Exit ❌")
+        print(Fore.YELLOW + "="*50)
         try:
             choice = int(input("Enter Your choice : "))
         except ValueError:
