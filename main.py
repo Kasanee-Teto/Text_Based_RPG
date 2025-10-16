@@ -4,8 +4,10 @@ from items import *
 from Character.Role import *
 from save_game_RPG import *
 from Shop import *
+
 from colorama import Fore, Style, init
 init(autoreset=True)
+
 import random
 
 player = None
