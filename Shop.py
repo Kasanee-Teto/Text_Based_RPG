@@ -23,7 +23,7 @@ class shop:
 
 
 # ==============================
-# ⚔️ SHOP - SWORD
+# ⚔️ SHOP - SWORD (recommend for assasin)
 # ==============================
 class shop_sword(shop):
     def __init__(self):
@@ -66,7 +66,7 @@ class shop_sword(shop):
 
 
 # ==============================
-# 🏹 SHOP - BOW
+# 🏹 SHOP - BOW ( recommend for Marksman)
 # ==============================
 class shop_bow(shop):
     def __init__(self):
@@ -108,7 +108,7 @@ class shop_bow(shop):
 
 
 # ==============================
-# 📜 SHOP - GRIMOIRE (Mage)
+# 📜 SHOP - GRIMOIRE (RecommendMage)
 # ==============================
 class shop_grimoire(shop):
     def __init__(self):
@@ -147,7 +147,7 @@ class shop_grimoire(shop):
 
 
 # ==============================
-# 💫 SHOP - STAFF (Healer)
+# 💫 SHOP - STAFF (Recommend Healer)
 # ==============================
 class shop_staff(shop):
     def __init__(self):
