@@ -1,4 +1,4 @@
-from Character.Role import *
+from Character.Role import Warrior , Mage, Archer, Healer
 from inventory import Inventory
 import math
 

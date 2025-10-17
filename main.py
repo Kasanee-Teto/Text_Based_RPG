@@ -1,7 +1,7 @@
-from Character.Character_RPG import *
+from Character.Character_RPG import Player
 from Character.Enemy_RPG import *
 from items import *
-from Character.Role import *
+from Character.Role import Warrior, Mage, Archer, Healer
 from save_game_RPG import *
 from Shop import *
 
