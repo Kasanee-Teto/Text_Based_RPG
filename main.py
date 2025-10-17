@@ -234,8 +234,9 @@ def game_loop():
             if player:
                 while True:
                     print("\n🛒 === Welcome to the Shop ===")
-                    print("1. Weapon Shop")
+                    print("1. Sword Shop")
                     print("2. Armor Shop")
+                    print("3. ")
                     print("3. Potion Shop")
                     print("4. Back")
                     print(f"💰 Your Coins: {player.coins}")
@@ -252,8 +253,7 @@ def game_loop():
                         weapon_shop.stock_sword_katana()
                         weapon_shop.stock_sword_great_sword()
 
-                        print("\n⚔️ Available Weapons:")
-                        weapon_shop.show_items("Sword")
+                        weapon_shop.show_items("⚔️ Available Swords")
 
                         try:
                             buy_choice = int(input("Select item to buy (0 to cancel): "))
@@ -276,8 +276,7 @@ def game_loop():
                         armor_shop.stock_heavy_armor()
                         armor_shop.stock_medium_armor()
 
-                        print("\n🛡️ Available Armors:")
-                        armor_shop.show_items("Armor")
+                        armor_shop.show_items("🛡️ Available Armors")
 
                         try:
                             buy_choice = int(input("Select item to buy (0 to cancel): "))
@@ -298,8 +297,7 @@ def game_loop():
                         potion_shop = shop_potion()
                         potion_shop.stock_health_potions()
 
-                        print("\n🧪 Available Potions:")
-                        potion_shop.show_items("Potion")
+                        potion_shop.show_items("🧪 Available Potions")
 
                         try:
                             buy_choice = int(input("Select item to buy (0 to cancel): "))
