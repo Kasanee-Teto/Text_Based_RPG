@@ -31,7 +31,7 @@ class Enemy(Character):
 
 class goblin(Enemy):
     def __init__(self):
-        super().__init__("Goblin",45,10,2,6)
+        super().__init__("Goblin",45,10,2,15)
 
     def attack(self, target):
         super().attack(target)
@@ -39,21 +39,21 @@ class goblin(Enemy):
 
 class spider(Enemy):
     def __init__(self):
-        super().__init__("Spider",15,5,1,2)    
+        super().__init__("Spider",15,5,1,10)    
     def attack(self, target):
         super().attack(target)
 
 
 class skeleton (Enemy):
     def __init__(self):
-        super().__init__("Skeleton",30,10,2,7)    
+        super().__init__("Skeleton",30,10,2,11)    
     def attack(self, target):
         super().attack(target)
 
 
 class zombie(Enemy):
     def __init__(self):
-        super().__init__("Zombie",35,10,2,6)
+        super().__init__("Zombie",35,10,2,13)
     def attack(self, target):
         super().attack(target)
 
