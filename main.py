@@ -161,21 +161,21 @@ def game_loop():
                     drop_item(player, random_boss, 0.8)
 
                 # Last Boss
-                DemonBoss = Demon()
+                Demon_Boss = Demon()
                 print("===========================")
                 print("       [Final Boss Fight]      ")
-                battle(player, DemonBoss)
+                battle(player, Demon_Boss)
                 if not player.is_alive():
-                    player.defeated(DemonBoss)
+                    player.defeated(Demon_Boss)
                     player.hp = player.max_hp
                     player.status_effect = []
                     continue
 
-                if not DemonBoss.is_alive():
-                    DemonBoss.defeated(player)
-                    print(f"{DemonBoss.name} Lose! {player.name} Win!")
-                    print(f"{player.name} got : {DemonBoss.exp_reward} exp\n")
-                    drop_item(player, DemonBoss, 0.8)
+                if not Demon_Boss.is_alive():
+                    Demon_Boss.defeated(player)
+                    print(f"{Demon_Boss.name} Lose! {player.name} Win!")
+                    print(f"{player.name} got : {Demon_Boss.exp_reward} exp\n")
+                    drop_item(player, Demon_Boss, 0.7)
 
         elif choice == 2:
             if player is not None:
@@ -186,11 +186,11 @@ def game_loop():
                 if player.equipped_weapon is not None :
                     print(f"Weapon: {player.equipped_weapon.name}")
                 else :
-                    print(f"Weapon: Unarmed")
+                    print("Weapon: Unarmed")
                 if player.equipped_armor is not None :
                     print(f"Armor: {player.equipped_armor.name}")
                 else :
-                    print(f"Armor: Unarmored")
+                    print("Armor: Unarmored")
                 print(f"Level: {player.level}")
                 print(f"Exp: {player.exp} / {player.exp_needed}")
                 print(f"Role: {player.role.name if player.role else 'None'}")
@@ -245,37 +245,26 @@ def game_loop():
                         print("Invalid input!")
                         continue
 
-                    if shop_choice == 4:
-                        continue
-
                     # ====== SHOP SECTION ======
                     if shop_choice == 1:
-                        weapon_shop = shop_sword("Any")
+                        weapon_shop = shop_sword()
                         weapon_shop.stock_sword_dagger()
                         weapon_shop.stock_sword_katana()
                         weapon_shop.stock_sword_great_sword()
-                        all_weapons = (
-                            weapon_shop.inventory_shop_dagger
-                            + weapon_shop.inventory_shop_katana
-                            + weapon_shop.inventory_shop_great_sword
-                        )
 
                         print("\n⚔️ Available Weapons:")
-                        print("-------------------------------------------------")
-                        for i, item in enumerate(all_weapons, 1):
-                            print(f"{i}. {item['name']}  |  ATK +{item['attack_bonus']}  |  💰 {item['price']} coins  |  Stock: {item['stock']}")
-                        print("-------------------------------------------------")
+                        weapon_shop.show_items("Sword")
 
                         try:
                             buy_choice = int(input("Select item to buy (0 to cancel): "))
                             if buy_choice == 0:
                                 continue
-                            selected = all_weapons[buy_choice - 1]
+                            selected = weapon_shop.inventory_shop[buy_choice - 1]
                             if player.coins >= selected["price"]:
                                 player.coins -= selected["price"]
                                 player.inventory.append(selected)
                                 selected["stock"] -= 1
-                                print(f"\n✅ You bought {selected['name']}! It’s added to your inventory.")
+                                print(f"\n✅ You bought {selected['name']}! It's added to your inventory.")
                             else:
                                 print("❌ Not enough coins!")
                         except (ValueError, IndexError):
@@ -285,24 +274,21 @@ def game_loop():
                         armor_shop = shop_armor()
                         armor_shop.stock_light_armor()
                         armor_shop.stock_heavy_armor()
-                        all_armors = armor_shop.inventory_light_armor + armor_shop.inventory_heavy_armor
+                        armor_shop.stock_medium_armor()
 
                         print("\n🛡️ Available Armors:")
-                        print("-------------------------------------------------")
-                        for i, item in enumerate(all_armors, 1):
-                            print(f"{i}. {item['name']}  |  DEF +{item['defense_bonus']}  |  💰 {item['price']} coins  |  Stock: {item['stock']}")
-                        print("-------------------------------------------------")
+                        armor_shop.show_items("Armor")
 
                         try:
                             buy_choice = int(input("Select item to buy (0 to cancel): "))
                             if buy_choice == 0:
                                 continue
-                            selected = all_armors[buy_choice - 1]
+                            selected = armor_shop.inventory_shop[buy_choice - 1]
                             if player.coins >= selected["price"]:
                                 player.coins -= selected["price"]
                                 player.inventory.append(selected)
                                 selected["stock"] -= 1
-                                print(f"\n✅ You bought {selected['name']}! It’s added to your inventory.")
+                                print(f"\n✅ You bought {selected['name']}! It's added to your inventory.")
                             else:
                                 print("❌ Not enough coins!")
                         except (ValueError, IndexError):
@@ -311,28 +297,28 @@ def game_loop():
                     elif shop_choice == 3:
                         potion_shop = shop_potion()
                         potion_shop.stock_health_potions()
-                        all_potions = potion_shop.inventory_health_potion
 
                         print("\n🧪 Available Potions:")
-                        print("-------------------------------------------------")
-                        for i, item in enumerate(all_potions, 1):
-                            print(f"{i}. {item['name']}  |  Heal +{item['heal_amount']} HP  |  💰 {item['price']} coins  |  Stock: {item['stock']}")
-                        print("-------------------------------------------------")
+                        potion_shop.show_items("Potion")
 
                         try:
                             buy_choice = int(input("Select item to buy (0 to cancel): "))
                             if buy_choice == 0:
                                 continue
-                            selected = all_potions[buy_choice - 1]
+                            selected = potion_shop.inventory_shop[buy_choice - 1]
                             if player.coins >= selected["price"]:
                                 player.coins -= selected["price"]
                                 player.inventory.append(selected)
                                 selected["stock"] -= 1
-                                print(f"\n✅ You bought {selected['name']}! It’s added to your inventory.")
+                                print(f"\n✅ You bought {selected['name']}! It's added to your inventory.")
                             else:
                                 print("❌ Not enough coins!")
                         except (ValueError, IndexError):
                             print("Invalid choice!")
+                        
+                    elif shop_choice == 4:
+                        print("Exiting shop...")
+                        break
             else:
                 print("⚠️ Start the game first before visiting the shop!")
 
