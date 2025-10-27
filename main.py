@@ -329,10 +329,10 @@ def game_loop():
 
                     elif shop_choice == 3:
                         bow_shop = shop_bow()
-                        bow_shop.stock_short_bow()
-                        bow_shop.stock_long_bow()
+                        bow_shop.stock_tech_bow()
                         bow_shop.stock_crossbow()
-
+                        bow_shop.stock_recuve_bow()
+                        
                         bow_shop.show_items("🏹 Available Bows")
 
                         try:
@@ -352,9 +352,9 @@ def game_loop():
 
                     elif shop_choice == 4:
                         grimoire_shop = shop_grimoire()
-                        grimoire_shop.stock_basic_grimoire()
-                        grimoire_shop.stock_advanced_grimoire()
-                        grimoire_shop.stock_master_grimoire()
+                        grimoire_shop.stock_elemental_grimoire()
+                        grimoire_shop.stock_dark_grimoire()
+                        grimoire_shop.stock_arcane_grimoire()
 
                         grimoire_shop.show_items("📚 Available Grimoires")
 
@@ -375,9 +375,9 @@ def game_loop():
                     
                     elif shop_choice == 5:
                         staff_shop = shop_staff()
-                        staff_shop.stock_novice_staff()
-                        staff_shop.stock_apprentice_staff()
-                        staff_shop.stock_master_staff()
+                        staff_shop.stock_healing_staff()
+                        staff_shop.stock_elemental_staff()
+                        staff_shop.stock_dark_staff()
 
                         staff_shop.show_items("🔮 Available Staffs")
 
