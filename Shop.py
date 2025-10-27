@@ -1,6 +1,3 @@
-# ==============================
-# 📜 SHOP SYSTEM
-# ==============================
 from colorama import Fore, Style, init
 init(autoreset=True)
 
@@ -36,9 +33,9 @@ class Shop:
             "Epic": Fore.MAGENTA,
             "Legendary": Fore.YELLOW
         }
-        color = rarity_colors.get(item["rarity"], Fore.WHITE)
         print(Fore.YELLOW + f"\n========= {category_name.upper()} =========" + Style.RESET_ALL)
         for i, item in enumerate(self.inventory_shop, 1):
+            color = rarity_colors.get(item["rarity"], Fore.WHITE)
             stats = [f"{key.replace('_', ' ').title()} +{value}" 
                     for key, value in item.items() 
                     if key not in ["name", "type", "price", "stock", "rarity"]]
