@@ -4,14 +4,35 @@ class Inventory():
 
     def add_item(self, item):
         self.items.append(item)
-        print(f"{item.name} has been added to the inventory.")
+        if isinstance(item, dict):
+            name = item["name"] if "name" in item else "Item"
+        else:
+            try:
+                name = item.name
+            except AttributeError:
+                name = "Item"
+        print(f"{name} has been added to the inventory.")
 
     def remove_item(self, item):
         if item in self.items:
             self.items.remove(item)
-            print(f"{item.name} has been removed from the inventory.")
+            if isinstance(item, dict):
+                name = item["name"] if "name" in item else "Item"
+            else:
+                try:
+                    name = item.name
+                except AttributeError:
+                    name = "Item"
+            print(f"{name} has been removed from the inventory.")
         else:
-            print(f"{item.name} is not in the inventory.")
+            if isinstance(item, dict):
+                name = item["name"] if "name" in item else "Item"
+            else:
+                try:
+                    name = item.name
+                except AttributeError:
+                    name = "Item"
+            print(f"{name} is not in the inventory.")
 
     def list_items(self):
         if not self.items:
@@ -19,12 +40,34 @@ class Inventory():
         else:
             print("Inventory items:")
             for idx, item in enumerate(self.items, 1):
-                print(f"{idx}. {item.name} (Value: {getattr(item, 'value', '-')})")
+                if isinstance(item, dict):
+                    name = item["name"] if "name" in item else "Unknown Item"
+                    price = item["price"] if "price" in item else "-"
+                    print(f"{idx}. {name} (Value: {price})")
+                else:
+                    try:
+                        name = item.name
+                    except AttributeError:
+                        name = "Unknown Item"
+                    try :
+                        value = item.value
+                    except AttributeError:
+                        value = "-"
+                    print(f"{idx}. {name} (Value: {value})")
 
     def use_consumeable(self,item,entity):
         if item in self.items:
-            item.uses(entity)
-            self.items.remove(item)
+            try:
+                item.uses(entity)
+                self.items.remove(item)
+            except AttributeError:
+                print("This intem can't be used.")
         else :
-            print(f"{item.name} is not in the inventory.")
-        
+            if isinstance(item, dict):
+                name = item["name"] if "name" in item else "Item"
+            else:
+                try:
+                    name = item.name
+                except AttributeError:
+                    name = "Item"
+            print(f"{name} is not in the inventory.")

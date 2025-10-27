@@ -3,7 +3,7 @@ from Character.Enemy_RPG import *
 from items import Items, Weapon, Armor, Health_Potions
 from Character.Role import Warrior, Mage, Archer, Healer
 from save_game_RPG import save_games, load_game
-from Shop import shop_sword, shop_armor, shop_potion 
+from Shop import shop_bow, shop_sword, shop_armor, shop_potion, shop_grimoire, shop_staff
 
 from colorama import Fore, Style, init
 init(autoreset=True)
@@ -258,8 +258,11 @@ def game_loop():
                     print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
                     print("1) Sword Shop")
                     print("2) Armor Shop")
-                    print("3) Potion Shop")
-                    print("4) Back")
+                    print("3) Bow Shop")
+                    print("4) Grimoire Shop")
+                    print("5) Staff Shop")
+                    print("6) Potion Shop")
+                    print("7) Back")
                     print(f"💰 Your Coins: {player.coins}")
                     try:
                         shop_choice = int(input("Choose shop category: "))
@@ -283,7 +286,7 @@ def game_loop():
                             selected = weapon_shop.inventory_shop[buy_choice - 1]
                             if player.coins >= selected["price"]:
                                 player.coins -= selected["price"]
-                                player.inventory.append(selected)
+                                player.inventory.add_item(selected)
                                 selected["stock"] -= 1
                                 print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
                             else:
@@ -306,7 +309,7 @@ def game_loop():
                             selected = armor_shop.inventory_shop[buy_choice - 1]
                             if player.coins >= selected["price"]:
                                 player.coins -= selected["price"]
-                                player.inventory.append(selected)
+                                player.inventory.add_item(selected)
                                 selected["stock"] -= 1
                                 print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
                             else:
@@ -315,6 +318,75 @@ def game_loop():
                             print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
 
                     elif shop_choice == 3:
+                        bow_shop = shop_bow()
+                        bow_shop.stock_short_bow()
+                        bow_shop.stock_long_bow()
+                        bow_shop.stock_crossbow()
+
+                        bow_shop.show_items("🏹 Available Bows")
+
+                        try:
+                            buy_choice = int(input("Select item to buy (0 to cancel): "))
+                            if buy_choice == 0:
+                                continue
+                            selected = bow_shop.inventory_shop[buy_choice - 1]
+                            if player.coins >= selected["price"]:
+                                player.coins -= selected["price"]
+                                player.inventory.add_item(selected)
+                                selected["stock"] -= 1
+                                print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
+                            else:
+                                print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
+                        except (ValueError, IndexError):
+                            print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
+
+                    elif shop_choice == 4:
+                        grimoire_shop = shop_grimoire()
+                        grimoire_shop.stock_basic_grimoire()
+                        grimoire_shop.stock_advanced_grimoire()
+                        grimoire_shop.stock_master_grimoire()
+
+                        grimoire_shop.show_items("📚 Available Grimoires")
+
+                        try:
+                            buy_choice = int(input("Select item to buy (0 to cancel): "))
+                            if buy_choice == 0:
+                                continue
+                            selected = grimoire_shop.inventory_shop[buy_choice - 1]
+                            if player.coins >= selected["price"]:
+                                player.coins -= selected["price"]
+                                player.inventory.add_item(selected)
+                                selected["stock"] -= 1
+                                print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
+                            else:
+                                print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
+                        except (ValueError, IndexError):
+                            print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
+                    
+                    elif shop_choice == 5:
+                        staff_shop = shop_staff()
+                        staff_shop.stock_novice_staff()
+                        staff_shop.stock_apprentice_staff()
+                        staff_shop.stock_master_staff()
+
+                        staff_shop.show_items("🔮 Available Staffs")
+
+                        try:
+                            buy_choice = int(input("Select item to buy (0 to cancel): "))
+                            if buy_choice == 0:
+                                continue
+                            selected = staff_shop.inventory_shop[buy_choice - 1]
+                            if player.coins >= selected["price"]:
+                                player.coins -= selected["price"]
+                                player.inventory.add_item(selected)
+                                selected["stock"] -= 1
+                                print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
+                            else:
+                                print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
+                        except (ValueError, IndexError):
+                            print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
+
+                    elif shop_choice == 6:
                         potion_shop = shop_potion()
                         potion_shop.stock_health_potions()
 
@@ -335,7 +407,7 @@ def game_loop():
                         except (ValueError, IndexError):
                             print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
                         
-                    elif shop_choice == 4:
+                    elif shop_choice == 7:
                         print(Fore.YELLOW + "Exiting shop..." + Style.RESET_ALL)
                         break
             else:
