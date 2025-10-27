@@ -1,6 +1,6 @@
 from Character.Character_RPG import Player
 from Character.Enemy_RPG import *
-from items import Items, Weapon, Armor, Health_Potions
+from items import *
 from Character.Role import Warrior, Mage, Archer, Healer
 from save_game_RPG import save_games, load_game
 from Shop import shop_bow, shop_sword, shop_armor, shop_potion, shop_grimoire, shop_staff
@@ -106,11 +106,21 @@ def battle(player, enemy):
     player.level_up()
 
 def drop_item(player, enemy, drop_chance=0.5):
-    possible_drops = [Short_Sword, Short_bow,Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
+    possible_drops = [Short_Sword, Short_bow, Long_Sword, Mace, Wizards_Robe, Leather_Armor, Small_HPotion, Medium_HPotion]
     if random.random() < drop_chance:
         dropped_item = random.choice(possible_drops)
-        player.inventory.add_item(dropped_item)
-        print(Fore.GREEN + f"🎁 {enemy.name} dropped {dropped_item.name}! Added to your inventory." + Style.RESET_ALL)
+        try:
+            player.inventory.add_item(dropped_item)
+        except Exception:
+            try:
+                player.inventory.items.append(dropped_item)
+            except Exception:
+                try:
+                    player.inventory.append(dropped_item)
+                except Exception:
+                    pass
+        name = getattr(dropped_item, "name", str(dropped_item))
+        print(Fore.GREEN + f"🎁 {enemy.name} dropped {name}! Added to your inventory." + Style.RESET_ALL)
 
 def game_loop():
     global player

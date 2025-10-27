@@ -64,7 +64,7 @@ class Wolf(Enemy):
 
     def attack(self, target):
         super().attack(target)
-        target.status_effect.append("bleeding")
+        target.status_effects.append("bleeding")
         print(f"{target.name} bleeding!")
 
 class Ogre(Enemy):
@@ -73,7 +73,7 @@ class Ogre(Enemy):
 
     def attack(self, target):
         super().attack(target)
-        target.status_effect.append("weakened")
+        target.status_effects.append("weakened")
         print(f"{target.name} stats temporarily down (weakened)!")
 
 class Vampire(Enemy):
@@ -93,9 +93,9 @@ class Demon(Enemy):
         
     def attack(self, target):
         super().attack(target)
-        target.status_effect.append("bleeding_demon")
+        target.status_effects.append("bleeding_demon")
         print(f"{target.name}  bleeding!")
-        target.status_effect.append("weakened_demon")
+        target.status_effects.append("weakened_demon")
         print(f"{target.name} stats temporarily down (weakened)!")
         heal = int(self.attack_power * 0.5)
         self.hp += heal
