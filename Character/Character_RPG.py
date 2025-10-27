@@ -1,7 +1,6 @@
 from inventory import Inventory
 import math
 
-
 class Character:
     def __init__(self, name, hp, attack, defense):
         self.name = name
