@@ -208,12 +208,11 @@ def game_loop():
                 if player.equipped_armor is not None :
                     print(f"Armor  : {player.equipped_armor.name}")
                 else :
-                    print("Armor  : Unarmored")
-                print(f"Level : {player.level}")
-                print(f"Exp   : {player.exp} / {player.exp_needed}")
-                print(f"Role  : {player.role.name if player.role else 'None'}")
-                print(f"Status Effects : {player.status_effects}")
-                print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
+                    print("Armor: Unarmored")
+                print(f"Level: {player.level}")
+                print(f"Exp: {player.exp} / {player.exp_needed}")
+                print(f"Role: {player.role.name if player.role else 'None'}")
+                print(f"Status Effect : {player.status_effects}")
 
             else:
                 print(Fore.RED + "You don't have a character yet. Please create one first." + Style.RESET_ALL)
