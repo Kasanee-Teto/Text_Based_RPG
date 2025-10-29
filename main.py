@@ -18,6 +18,10 @@ def inventory_menu():
     if player == None :
         print(Fore.RED + "⚠️  Create a character first!" + Style.RESET_ALL)
         running = False
+
+    elif not player.inventory.items :
+        print("Inventory Kosong")
+        running = False
     
     while running :
         print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
