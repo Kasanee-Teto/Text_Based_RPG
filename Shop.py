@@ -15,7 +15,7 @@ class Shop:
     """
 
     def __init__(self):
-        self.inventory_shop = []  # semua item tersimpan di sini
+        self.inventory_shop = []
 
     def add_item(self, item):
         """Add an item (Weapon, Armor, Potion, etc.) to shop."""

@@ -63,6 +63,3 @@ XL_HPotion = Health_Potions("The dev is too lazy to make potion name",40,80)
 #     def uses(self , entity ):
 #         entity.defense += self.defense_mod
 #         print (f"{entity.name} drank {self.name} and got {self.defense_mod} defense boost for 5 turns") 
-
-
-
