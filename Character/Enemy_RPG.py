@@ -31,7 +31,7 @@ class Enemy(Character):
 
 class goblin(Enemy):
     def __init__(self):
-        super().__init__("Goblin",45,10,2,6)
+        super().__init__("Goblin",45,10,2,15)
 
     def attack(self, target):
         super().attack(target)
@@ -39,21 +39,21 @@ class goblin(Enemy):
 
 class spider(Enemy):
     def __init__(self):
-        super().__init__("Spider",15,5,1,2)    
+        super().__init__("Spider",15,5,1,10)    
     def attack(self, target):
         super().attack(target)
 
 
 class skeleton (Enemy):
     def __init__(self):
-        super().__init__("Skeleton",30,10,2,7)    
+        super().__init__("Skeleton",30,10,2,11)    
     def attack(self, target):
         super().attack(target)
 
 
 class zombie(Enemy):
     def __init__(self):
-        super().__init__("Zombie",35,10,2,6)
+        super().__init__("Zombie",35,10,2,13)
     def attack(self, target):
         super().attack(target)
 
@@ -64,7 +64,7 @@ class Wolf(Enemy):
 
     def attack(self, target):
         super().attack(target)
-        target.status_effect.append("bleeding")
+        target.status_effects.append("bleeding")
         print(f"{target.name} bleeding!")
 
 class Ogre(Enemy):
@@ -73,7 +73,7 @@ class Ogre(Enemy):
 
     def attack(self, target):
         super().attack(target)
-        target.status_effect.append("weakened")
+        target.status_effects.append("weakened")
         print(f"{target.name} stats temporarily down (weakened)!")
 
 class Vampire(Enemy):
@@ -89,13 +89,13 @@ class Vampire(Enemy):
 # Last Boss
 class Demon(Enemy):
     def __init__(self):
-        super().__init__("Demon",hp=60, attack=30, defense= 3, exp_reward= 25)
+        super().__init__("Demon",100,30,3,50)
         
     def attack(self, target):
         super().attack(target)
-        target.status_effect.append("bleeding_demon")
+        target.status_effects.append("bleeding_demon")
         print(f"{target.name}  bleeding!")
-        target.status_effect.append("weakened_demon")
+        target.status_effects.append("weakened_demon")
         print(f"{target.name} stats temporarily down (weakened)!")
         heal = int(self.attack_power * 0.5)
         self.hp += heal
