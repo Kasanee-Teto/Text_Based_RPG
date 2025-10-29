@@ -16,70 +16,7 @@ This project is a simple text-based RPG that utilizes Object-Oriented Programmin
 ## 🏛️ Architecture & Class Diagram
 This project follows an Object-Oriented design. The core of the architecture involves a base `Character` class, which is specialized into a `Player` class. The player manages an `Inventory` and can be assigned a `Role`. The `Items` are also structured using inheritance.
 
-```mermaid
-classDiagram
-    class Character {
-        -name: str
-        -hp: int
-        -atk: int
-        -defense: int
-        +attack(target)
-        +is_alive()
-    }
-
-    class Player {
-        -level: int
-        -role: Role
-        -inventory: Inventory
-        +choose_role(role)
-        +use_item(item)
-    }
-
-    class Role {
-        <<Abstract>>
-        -name: str
-        +apply_bonus(character)
-    }
-    
-    class Warrior {
-      +apply_bonus(character)
-    }
-
-    class Mage {
-      +apply_bonus(character)
-    }
-
-    class Inventory {
-        -items: list~Items~
-        +add_item(item)
-        +remove_item(item)
-    }
-
-    class Items {
-        <<Abstract>>
-        -name: str
-        -value: int
-    }
-
-    class Weapon {
-        -damage: int
-    }
-
-    class Armor {
-        -defense: int
-    }
-
-    Character <|-- Player
-    Player "1" o-- "1" Role
-    Player "1" o-- "1" Inventory
-    Inventory "1" o-- "0..*" Items
-
-    Items <|-- Weapon
-    Items <|-- Armor
-    
-    Role <|-- Warrior
-    Role <|-- Mage
-```
+![alt text](./assets/Class%20Diagram.png)
 
 ## 📂 Project Structure
 ```

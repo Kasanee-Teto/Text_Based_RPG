@@ -1,4 +1,4 @@
-[EN](README.md) | ID | [CN](docs/README_CN.md)
+[EN](/README.md) | ID | [CN](README_CN.md)
 
 # 🎮 RPG Berbasis Teks
 
@@ -16,70 +16,7 @@ Proyek ini adalah RPG berbasis teks sederhana yang menggunakan konsep Pemrograma
 ## 🏛️ Arsitektur & Diagram Kelas
 Proyek ini mengikuti desain Berbasis Objek. Inti dari arsitektur ini melibatkan kelas dasar `Character`, yang dispesialisasikan menjadi kelas `Player`. Pemain mengelola `Inventory` dan dapat diberi `Role`. `Items` juga disusun menggunakan pewarisan.
 
-```mermaid
-classDiagram
-    class Character {
-        -name: str
-        -hp: int
-        -atk: int
-        -defense: int
-        +attack(target)
-        +is_alive()
-    }
-
-    class Player {
-        -level: int
-        -role: Role
-        -inventory: Inventory
-        +choose_role(role)
-        +use_item(item)
-    }
-
-    class Role {
-        <<Abstract>>
-        -name: str
-        +apply_bonus(character)
-    }
-    
-    class Warrior {
-      +apply_bonus(character)
-    }
-
-    class Mage {
-      +apply_bonus(character)
-    }
-
-    class Inventory {
-        -items: list~Items~
-        +add_item(item)
-        +remove_item(item)
-    }
-
-    class Items {
-        <<Abstract>>
-        -name: str
-        -value: int
-    }
-
-    class Weapon {
-        -damage: int
-    }
-
-    class Armor {
-        -defense: int
-    }
-
-    Character <|-- Player
-    Player "1" o-- "1" Role
-    Player "1" o-- "1" Inventory
-    Inventory "1" o-- "0..*" Items
-
-    Items <|-- Weapon
-    Items <|-- Armor
-    
-    Role <|-- Warrior
-    Role <|-- Mage
-```
+![alt text](/assets/Class%20Diagram.png)
 
 ## 📂 Struktur Proyek
 ```
