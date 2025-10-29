@@ -4,6 +4,7 @@ from items import *
 from Character.Role import Warrior, Mage, Archer, Healer
 from save_game_RPG import save_games, load_game
 from Shop import shop_bow, shop_sword, shop_armor, shop_potion, shop_grimoire, shop_staff
+from dungeon import Dungeon
 
 from colorama import Fore, Style, init
 init(autoreset=True)
@@ -82,6 +83,7 @@ def inventory_menu():
             elif inv_choice == 4 :
                 idx = int(input("Enter item's index: "))
                 selected_item = player.inventory.items[idx-1]
+                print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
                 stats = []
                 for attr in ["damage", "defense", "heals"]:
                     if hasattr(selected_item, attr):
@@ -91,7 +93,7 @@ def inventory_menu():
                 print(
                     f"{selected_item.name}{Style.RESET_ALL} | {stat_text} | 💰 {selected_item.value} | {Style.RESET_ALL}"
                     )
-                print(Fore.YELLOW + "=" * 40 + "\n" + Style.RESET_ALL)
+                print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
 
             elif inv_choice == 5 :
                 running = False
@@ -162,17 +164,18 @@ def drop_item(player, enemy, drop_chance=0.5):
 def game_loop():
     global player
     while True:
-        print(Fore.YELLOW + Style.BRIGHT + "="*50)
-        print(Fore.CYAN + Style.BRIGHT + "      ⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️")
-        print(Fore.YELLOW + "="*50)
-        print(Fore.GREEN + "1. Start Game")
+        print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
+        print(Fore.CYAN + Style.BRIGHT + "⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️".center(50) + Style.RESET_ALL)
+        print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
+        print(Fore.GREEN + "1. Start Game" + Style.RESET_ALL)
         print("2. Show Status")
         print("3. Choose Role")
         print("4. Shop 🛒")
         print("5. Inventory 🎒")
         print("6. Save Game 💾")
         print("7. Load Game 📂")
-        print("8. Exit ❌")
+        print("8. Dungeon")
+        print("9. Exit ❌")
         print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
         try:
             choice = int(input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL))
@@ -394,9 +397,9 @@ def game_loop():
                     player.hp = player.max_hp
                     player.status_effect = []
 
-
         elif choice == 9:
             print("Exiting game...\n")
+            print(Fore.YELLOW + "Exiting game..." + Style.RESET_ALL)
             break
 
     print(Fore.YELLOW + "="*56 + Style.RESET_ALL)
