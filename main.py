@@ -398,7 +398,6 @@ def game_loop():
                     player.status_effect = []
 
         elif choice == 9:
-            print("Exiting game...\n")
             print(Fore.YELLOW + "Exiting game..." + Style.RESET_ALL)
             break
 
