@@ -9,6 +9,7 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 import random
+from dungeon import Dungeon
 
 player = None
 
@@ -77,9 +78,17 @@ def inventory_menu():
             elif inv_choice == 4 :
                 idx = int(input("Enter item's index: "))
                 selected_item = player.inventory.items[idx-1]
-                print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
-                selected_item.desc()
-                print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
+                stats = []
+                for attr in ["damage", "defense", "heals"]:
+                    if hasattr(selected_item, attr):
+                        stats.append(f"{attr.title()}: +{getattr(selected_item, attr)}")
+
+                stat_text = " | ".join(stats) if stats else "No Bonus"
+                print(
+                    f"{selected_item.name}{Style.RESET_ALL} | {stat_text} | 💰 {selected_item.value} | {Style.RESET_ALL}"
+                    )
+                print(Fore.YELLOW + "=" * 40 + "\n" + Style.RESET_ALL)
+
             elif inv_choice == 5 :
                 running = False
                 print(Fore.YELLOW + "Closing Inventory..." + Style.RESET_ALL)
@@ -149,10 +158,10 @@ def drop_item(player, enemy, drop_chance=0.5):
 def game_loop():
     global player
     while True:
-        print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
-        print(Fore.CYAN + Style.BRIGHT + "⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️".center(50) + Style.RESET_ALL)
-        print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
-        print(Fore.GREEN + "1. Start Game" + Style.RESET_ALL)
+        print(Fore.YELLOW + Style.BRIGHT + "="*50)
+        print(Fore.CYAN + Style.BRIGHT + "      ⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️")
+        print(Fore.YELLOW + "="*50)
+        print(Fore.GREEN + "1. Start Game")
         print("2. Show Status")
         print("3. Choose Role")
         print("4. Shop 🛒")
@@ -160,7 +169,7 @@ def game_loop():
         print("6. Save Game 💾")
         print("7. Load Game 📂")
         print("8. Exit ❌")
-        print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
+        print(Fore.YELLOW + "="*50)
         try:
             choice = int(input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL))
         except ValueError:
@@ -291,9 +300,9 @@ def game_loop():
         elif choice == 4:
             if player:
                 while True:
-                    print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
+                    print(Fore.YELLOW + "=" * 50 + Style.RESET_ALL)
                     print(Fore.CYAN + Style.BRIGHT + "🛒 WELCOME TO THE SHOP".center(50) + Style.RESET_ALL)
-                    print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
+                    print(Fore.YELLOW + "=" * 50 + Style.RESET_ALL)
                     print("1) Sword Shop")
                     print("2) Armor Shop")
                     print("3) Bow Shop")
@@ -302,6 +311,7 @@ def game_loop():
                     print("6) Potion Shop")
                     print("7) Back")
                     print(f"💰 Your Coins: {player.coins}")
+
                     try:
                         shop_choice = int(input("Choose shop category: "))
                     except ValueError:
@@ -451,6 +461,7 @@ def game_loop():
             else:
                 print(Fore.RED + "⚠️ Start the game first before visiting the shop!" + Style.RESET_ALL)
 
+
         elif choice == 5:
             inventory_menu()
 
@@ -466,7 +477,22 @@ def game_loop():
             print(Fore.GREEN + "📂 Game loaded!" + Style.RESET_ALL)
 
         elif choice == 8:
-            print(Fore.YELLOW + "Exiting game..." + Style.RESET_ALL)
+            if player is None:
+                print("Create a character first!")
+            else:
+                # Build a dungeon floor, you can tweak width/height/depth/seed/difficulty
+                d = Dungeon(width=5, height=5, depth=1, seed=None, difficulty=1.0)
+                print("Entering dungeon floor 1...")
+                success = d.explore_from(player, battle)
+                if not success:
+                    # player died in dungeon - handle respawn like you do elsewhere
+                    player.defeated(Demon() if False else Enemy("TrapDeath",0,0,0,0))  # just print; optional
+                    player.hp = player.max_hp
+                    player.status_effect = []
+
+
+        elif choice == 9:
+            print("Exiting game...\n")
             break
 
     print(Fore.YELLOW + "="*56 + Style.RESET_ALL)
