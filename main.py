@@ -16,7 +16,7 @@ def inventory_menu():
     running = True 
 
     if player == None :
-        print ("Buat Karakter Terlebih Dahulu !")
+        print ("Create a Character First !")
         running = False
     
     while running :
