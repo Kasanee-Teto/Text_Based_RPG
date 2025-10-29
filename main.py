@@ -90,13 +90,33 @@ def battle(player, enemy):
     print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
     while player.is_alive() and enemy.is_alive():
         # Player's turn
-        pilihan = input(Fore.CYAN + "\nPress Enter to Attack, or 'E' to open Inventory: " + Style.RESET_ALL)
+        pilihan = input(Fore.CYAN + "\nPress Enter to Attack\nPress 'E' to open Inventory\nPress 'F' to show status\n=" + Style.RESET_ALL)
         if pilihan.lower() == 'e':
             inventory_menu()
         else :
             player.attack(enemy)
             print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
-
+        if pilihan.lower() == 'f':
+            print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
+            print(Fore.CYAN + Style.BRIGHT + "📜 STATUS".center(50) + Style.RESET_ALL)
+            print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
+            print(f"Name : {player.name}")
+            print(f"HP   : {player.hp}")
+            print(f"ATK  : {player.attack_power}")
+            print(f"DEF  : {player.defense}")
+            if player.equipped_weapon is not None :
+                print(f"Weapon : {player.equipped_weapon.name}")
+            else :
+                print("Weapon : Unarmed")
+            if player.equipped_armor is not None :
+                print(f"Armor  : {player.equipped_armor.name}")
+            else :
+                print("Armor: Unarmored")
+            print(f"Level: {player.level}")
+            print(f"Exp: {player.exp} / {player.exp_needed}")
+            print(f"Role: {player.role.name if player.role else 'None'}")
+            print(f"Status Effect : {player.status_effects}")
+            print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
         if enemy.is_alive():
             enemy.attack(player)
             print(Fore.GREEN + f"💚 {player.name} HP: {player.hp}" + Style.RESET_ALL)                
@@ -177,6 +197,8 @@ def game_loop():
                     player.defeated(random_boss)
                     player.hp = player.max_hp
                     player.status_effect = []
+                    player.status_effects.clear()
+                    print(Fore.RED + f"{player.name} has fallen! Status effects removed." + Style.RESET_ALL)
                     continue
 
                 if not random_boss.is_alive():
@@ -194,6 +216,8 @@ def game_loop():
                     player.defeated(Demon_Boss)
                     player.hp = player.max_hp
                     player.status_effect = []
+                    player.status_effects.clear()
+                    print(Fore.RED + f"{player.name} has fallen! Status effects removed." + Style.RESET_ALL)
                     continue
 
                 if not Demon_Boss.is_alive():
