@@ -1,236 +1,174 @@
 # ==============================
-# 📜 SHOP SYSTEM
+# 🏪 SHOP SYSTEM (OBJECT-BASED)
 # ==============================
-from items import *
-class shop:
+
+from colorama import Fore, Style, init
+from items import Weapon, Armor, Health_Potions
+
+init(autoreset=True)
+
+
+class Shop:
+    """
+    Base Shop class that manages item storage and display.
+    Each subclass stocks relevant object types.
+    """
+
     def __init__(self):
         self.inventory_shop = []  # semua item tersimpan di sini
 
-        def show_items(self):
-            print("-------------------------------------------------")
-            for i, item in enumerate(self.inventory_shop, 1):
-                stats = []
-                if "attack_bonus" in item:
-                    stats.append(f"ATK +{item['attack_bonus']}")
-                if "defense_bonus" in item:
-                    stats.append(f"DEF +{item['defense_bonus']}")
-                if "magic_power" in item:
-                    stats.append(f"MAG +{item['magic_power']}")
-                if "heal_amount" in item:
-                    stats.append(f"Heal +{item['heal_amount']}")
-                print(f"{i}. {item['name']} | {' | '.join(stats)} | 💰 {item['price']} | Stock: {item['stock']} | {item['rarity']}")
-            print("-------------------------------------------------")
+    def add_item(self, item):
+        """Add an item (Weapon, Armor, Potion, etc.) to shop."""
+        self.inventory_shop.append(item)
+
+    def stock_items(self, items):
+        """Bulk add items to shop inventory."""
+        for item in items:
+            self.add_item(item)
+
+    def show_items(self, category_name="Shop Inventory"):
+        """Displays all items dynamically based on object attributes."""
+        if not self.inventory_shop:
+            print(Fore.RED + "⚠️ No items available in this shop yet!" + Style.RESET_ALL)
+            return
+
+        print(Fore.YELLOW + f"\n========= {category_name.upper()} =========" + Style.RESET_ALL)
+        for i, item in enumerate(self.inventory_shop, 1):
+            rarity = getattr(item, "rarity", "Common")
+            color = {
+                "Common": Fore.WHITE,
+                "Uncommon": Fore.GREEN,
+                "Rare": Fore.BLUE,
+                "Epic": Fore.MAGENTA,
+                "Legendary": Fore.YELLOW,
+            }.get(rarity, Fore.WHITE)
+
+            # Detect stats dynamically
+            stats = []
+            for attr in ["damage", "defense", "heals"]:
+                if hasattr(item, attr):
+                    stats.append(f"{attr.title()}: +{getattr(item, attr)}")
+
+            stat_text = " | ".join(stats) if stats else "No Bonus"
+            print(
+                f"{i}. {color}{item.name}{Style.RESET_ALL} | {stat_text} | 💰 {item.value} | {color}{rarity}{Style.RESET_ALL}"
+            )
+        print(Fore.YELLOW + "=" * 40 + "\n" + Style.RESET_ALL)
 
 
 # ==============================
-# ⚔️ SHOP - SWORD
+# ⚔️ SWORD SHOP
 # ==============================
-class shop_sword(shop):
+class shop_sword(Shop):
     def __init__(self):
         super().__init__()
 
     def stock_sword_dagger(self):
-        dagger_items = [
-            {"name": "Swiftfang", "type": "Dagger", "attack_bonus": 12, "price": 70, "stock": 8, "rarity": "Common"},
-            {"name": "Shadow Pierce", "type": "Dagger", "attack_bonus": 20, "price": 110, "stock": 5, "rarity": "Rare"},
-            {"name": "Silent Fang", "type": "Dagger", "attack_bonus": 17, "price": 95, "stock": 6, "rarity": "Uncommon"},
-            {"name": "Ironbite", "type": "Dagger", "attack_bonus": 10, "price": 55, "stock": 9, "rarity": "Common"},
-            {"name": "Storm Edge", "type": "Dagger", "attack_bonus": 25, "price": 140, "stock": 3, "rarity": "Epic"},
-        ]
-        self.inventory_shop.extend(dagger_items)
+        self.stock_items([
+            Weapon("Swiftfang", "Dagger", 12, 70),
+            Weapon("Shadow Pierce", "Dagger", 20, 110),
+            Weapon("Silent Fang", "Dagger", 17, 95),
+            Weapon("Ironbite", "Dagger", 10, 55),
+            Weapon("Storm Edge", "Dagger", 25, 140),
+        ])
 
     def stock_sword_katana(self):
-        # Kurohana (黒花) = Bunga hitam
-        # Tsukikage (月影) = Bayangan Bulan
-        # Akatsuki Blade (暁の刃) = Pedang Fajar
-        # Ryuuzan (龍斬) = Dragon Cleaver
-        # Hikarimaru (光丸) = Lingkaran Cahaya
-        katana_items = [
-            {"name": "Kurohana (黒花)", "type": "Katana", "attack_bonus": 20, "price": 100, "stock": 6, "rarity": "Uncommon"},
-            {"name": "Tsukikage (月影)", "type": "Katana", "attack_bonus": 30, "price": 140, "stock": 4, "rarity": "Rare"},
-            {"name": "Akatsuki Blade (暁の刃)", "type": "Katana", "attack_bonus": 35, "price": 170, "stock": 3, "rarity": "Epic"},
-            {"name": "Ryuuzan (龍斬)", "type": "Katana", "attack_bonus": 18, "price": 90, "stock": 8, "rarity": "Common"},
-            {"name": "Hikarimaru (光丸)", "type": "Katana", "attack_bonus": 28, "price": 130, "stock": 5, "rarity": "Rare"},
-        ]
-        self.inventory_shop.extend(katana_items)
+        self.stock_items([
+            Weapon("Kurohana", "Katana", 20, 100),
+            Weapon("Tsukikage", "Katana", 30, 140),
+            Weapon("Akatsuki Blade", "Katana", 35, 170),
+            Weapon("Ryuuzan", "Katana", 18, 90),
+            Weapon("Hikarimaru", "Katana", 28, 130),
+        ])
 
     def stock_sword_great_sword(self):
-        great_sword_items = [
-            {"name": "Titanbreaker", "type": "Great Sword", "attack_bonus": 22, "price": 120, "stock": 5, "rarity": "Uncommon"},
-            {"name": "Oblivion Fang", "type": "Great Sword", "attack_bonus": 35, "price": 170, "stock": 3, "rarity": "Rare"},
-            {"name": "Dragon’s Wrath", "type": "Great Sword", "attack_bonus": 45, "price": 210, "stock": 2, "rarity": "Epic"},
-            {"name": "Judgment Edge", "type": "Great Sword", "attack_bonus": 18, "price": 95, "stock": 7, "rarity": "Common"},
-            {"name": "Gravemourn", "type": "Great Sword", "attack_bonus": 30, "price": 150, "stock": 4, "rarity": "Rare"},
-        ]
-        self.inventory_shop.extend(great_sword_items)
+        self.stock_items([
+            Weapon("Titanbreaker", "Great Sword", 22, 120),
+            Weapon("Oblivion Fang", "Great Sword", 35, 170),
+            Weapon("Dragon’s Wrath", "Great Sword", 45, 210),
+            Weapon("Judgment Edge", "Great Sword", 18, 95),
+            Weapon("Gravemourn", "Great Sword", 30, 150),
+        ])
 
 
 # ==============================
-# 🏹 SHOP - BOW
+# 🏹 BOW SHOP
 # ==============================
-class shop_bow(shop):
+class shop_bow(Shop):
     def __init__(self):
         super().__init__()
 
-
-    # 🧠 Bow modern yang presisi dan damage tinggi, tapi mahal & stok sedikit
-    def stock_tech_bow(self):
-        tech_bow = [
-            {"name": "Photon Arc", "type": "Tech Bow", "attack_bonus": 28, "price": 150, "stock": 4, "rarity": "Rare"},   
-            {"name": "Nova String", "type": "Tech Bow", "attack_bonus": 35, "price": 180, "stock": 3, "rarity": "Epic"},  
-            {"name": "Ionflare", "type": "Tech Bow", "attack_bonus": 42, "price": 220, "stock": 2, "rarity": "Legendary"},
-            {"name": "Pulse Bow", "type": "Tech Bow", "attack_bonus": 20, "price": 120, "stock": 6, "rarity": "Uncommon"},
-            {"name": "Plasma Piercer", "type": "Tech Bow", "attack_bonus": 25, "price": 140, "stock": 5, "rarity": "Rare"},
-        ]
-        self.inventory_shop.extend(tech_bow)
-
-    # ⚙️ Crossbow: power tinggi, tapi berat dan lambat → stok lebih sedikit
-    def stock_crossbow(self):
-        crossbow = [
-            {"name": "Ironbolt", "type": "Crossbow", "attack_bonus": 22, "price": 100, "stock": 6, "rarity": "Common"},    
-            {"name": "Steel Fang", "type": "Crossbow", "attack_bonus": 28, "price": 130, "stock": 5, "rarity": "Rare"},   
-            {"name": "Thunderbolt", "type": "Crossbow", "attack_bonus": 35, "price": 160, "stock": 3, "rarity": "Epic"},  
-            {"name": "Obsidian Quarrel", "type": "Crossbow", "attack_bonus": 40, "price": 200, "stock": 2, "rarity": "Legendary"}, 
-            {"name": "Viper’s Nest", "type": "Crossbow", "attack_bonus": 30, "price": 145, "stock": 4, "rarity": "Rare"},
-        ]
-        self.inventory_shop.extend(crossbow)
-
-    # 🏹 Recurve Bow: klasik dan seimbang, cocok untuk karakter early–mid game
-    def stock_recuve_bow(self):
-        recuve_bow = [
-            {"name": "Oak Whisper", "type": "Recurve Bow", "attack_bonus": 14, "price": 70, "stock": 9, "rarity": "Common"}, 
-            {"name": "Windpiercer", "type": "Recurve Bow", "attack_bonus": 18, "price": 90, "stock": 8,  "rarity": "Common"}, 
-            {"name": "Silver Gale", "type": "Recurve Bow", "attack_bonus": 22, "price": 110, "stock": 6, "rarity": "Uncommon"},
-            {"name": "Eagle’s Cry", "type": "Recurve Bow", "attack_bonus": 28, "price": 135, "stock": 4,  "rarity": "Rare"},
-            {"name": "Moonshadow", "type": "Recurve Bow", "attack_bonus": 33, "price": 160, "stock": 3, "rarity": "Epic"},
-        ]
-        self.inventory_shop.extend(recuve_bow)
+    def stock_bows(self):
+        self.stock_items([
+            Weapon("Photon Arc", "Tech Bow", 28, 150),
+            Weapon("Nova String", "Tech Bow", 35, 180),
+            Weapon("Ionflare", "Tech Bow", 42, 220),
+            Weapon("Pulse Bow", "Tech Bow", 20, 120),
+            Weapon("Plasma Piercer", "Tech Bow", 25, 140),
+        ])
 
 
 # ==============================
-# 📜 SHOP - GRIMOIRE (Mage)
+# 📜 GRIMOIRE SHOP
 # ==============================
-class shop_grimoire(shop):
+class shop_grimoire(Shop):
     def __init__(self):
         super().__init__()
 
-
-    def stock_elemental_grimoire(self):
-        elemental_grimoire = [
-        {"name": "Flame Codex", "type": "Elemental Grimoire", "magic_power": 25, "price": 120, "stock": 5, "rarity": "Common"},
-        {"name": "Aqua Tome", "type": "Elemental Grimoire", "magic_power": 30, "price": 140, "stock": 4, "rarity": "Uncommon"},
-        {"name": "Terra Scroll", "type": "Elemental Grimoire", "magic_power": 35, "price": 160, "stock": 3, "rarity": "Rare"},
-        {"name": "Tempest Grimoire", "type": "Elemental Grimoire", "magic_power": 40, "price": 180, "stock": 2, "rarity": "Epic"},
-        {"name": "Infernal Codex", "type": "Elemental Grimoire", "magic_power": 45, "price": 200, "stock": 2, "rarity": "Legendary"},
-    ]
-        self.inventory_shop.extend(elemental_grimoire)
-
-    def stock_dark_grimoire(self):
-        dark_grimoire = [
-            {"name": "Shadow Manuscript", "type": "Dark Grimoire", "magic_power": 25, "price": 120, "stock": 5, "rarity": "Common"},
-            {"name": "Cursed Chronicle", "type": "Dark Grimoire", "magic_power": 30, "price": 140, "stock": 4, "rarity": "Uncommon"},
-            {"name": "Abyssal Scripture", "type": "Dark Grimoire", "magic_power": 35, "price": 160, "stock": 3, "rarity": "Rare"},
-            {"name": "Necro Codex", "type": "Dark Grimoire", "magic_power": 42, "price": 185, "stock": 2, "rarity": "Epic"},
-            {"name": "Soulbinder Tome", "type": "Dark Grimoire", "magic_power": 50, "price": 210, "stock": 1, "rarity": "Legendary"},
-        ]
-        self.inventory_shop.extend(dark_grimoire)
-
-    def stock_arcane_grimoire(self):
-        arcane_grimoire = [
-            {"name": "Mystic Compendium", "type": "Arcane Grimoire", "magic_power": 28, "price": 130, "stock": 5, "rarity": "Common"},
-            {"name": "Astral Codex", "type": "Arcane Grimoire", "magic_power": 34, "price": 150, "stock": 4, "rarity": "Uncommon"},
-            {"name": "Ethereal Lexicon", "type": "Arcane Grimoire", "magic_power": 40, "price": 175, "stock": 3, "rarity": "Rare"},
-            {"name": "Runebound Tome", "type": "Arcane Grimoire", "magic_power": 46, "price": 200, "stock": 2, "rarity": "Epic"},
-            {"name": "Celestial Archive", "type": "Arcane Grimoire", "magic_power": 52, "price": 230, "stock": 1, "rarity": "Legendary"},
-        ]
-        self.inventory_shop.extend(arcane_grimoire)
+    def stock_grimoires(self):
+        self.stock_items([
+            Weapon("Flame Codex", "Grimoire", 25, 120),
+            Weapon("Aqua Tome", "Grimoire", 30, 140),
+            Weapon("Terra Scroll", "Grimoire", 35, 160),
+            Weapon("Tempest Grimoire", "Grimoire", 40, 180),
+            Weapon("Infernal Codex", "Grimoire", 45, 200),
+        ])
 
 
 # ==============================
-# 💫 SHOP - STAFF (Healer)
+# 💫 STAFF SHOP
 # ==============================
-class shop_staff(shop):
+class shop_staff(Shop):
     def __init__(self):
         super().__init__()
 
+    def stock_staffs(self):
+        self.stock_items([
+            Weapon("Novice Staff", "Staff", 15, 80),
+            Weapon("Cleric Rod", "Staff", 20, 110),
+            Weapon("Sanctum Wand", "Staff", 25, 140),
+            Weapon("Seraph’s Blessing", "Staff", 32, 180),
+            Weapon("Divine Lumina", "Staff", 40, 220),
+        ])
 
-    def stock_healing_staff(self):
-        healing_staff = [
-        {"name": "Novice Staff", "type": "Healing Staff", "magic_power": 15, "healing_power": 25, "price": 80, "stock": 7, "rarity": "Common"},
-        {"name": "Cleric Rod", "type": "Healing Staff", "magic_power": 20, "healing_power": 35, "price": 110, "stock": 5, "rarity": "Uncommon"},
-        {"name": "Sanctum Wand", "type": "Healing Staff", "magic_power": 25, "healing_power": 45, "price": 140, "stock": 4, "rarity": "Rare"},
-        {"name": "Seraph’s Blessing", "type": "Healing Staff", "magic_power": 32, "healing_power": 60, "price": 180, "stock": 2, "rarity": "Epic"},
-        {"name": "Divine Lumina", "type": "Healing Staff", "magic_power": 40, "healing_power": 75, "price": 220, "stock": 1, "rarity": "Legendary"},
-    ]
-        self.inventory_shop.extend(healing_staff)
-
-    def stock_elemental_staff(self):
-        elemental_staff = [
-            {"name": "Ember Staff", "type": "Elemental Staff", "magic_power": 25, "price": 120, "stock": 5, "rarity": "Common"},
-            {"name": "Frostbinder", "type": "Elemental Staff", "magic_power": 35, "price": 150, "stock": 4, "rarity": "Uncommon"},
-            {"name": "Thundercaller", "type": "Elemental Staff", "magic_power": 45, "price": 180, "stock": 3, "rarity": "Rare"},
-            {"name": "Voltryn", "type": "Elemental Staff", "magic_power": 55, "price": 210, "stock": 2, "rarity": "Epic"},
-            {"name": "Infernia", "type": "Elemental Staff", "magic_power": 65, "price": 250, "stock": 1, "rarity": "Legendary"},
-        ]
-        self.inventory_shop.extend(elemental_staff)
-
-    def stock_dark_staff(self):
-        dark_staff = [
-            {"name": "Shade Wand", "type": "Dark Staff", "magic_power": 28, "price": 130, "stock": 5, "rarity": "Common"},
-            {"name": "Soulpiercer", "type": "Dark Staff", "magic_power": 38, "price": 160, "stock": 4, "rarity": "Uncommon"},
-            {"name": "Grimreach", "type": "Dark Staff", "magic_power": 48, "price": 190, "stock": 3, "rarity": "Rare"},
-            {"name": "Necrotic Staff", "type": "Dark Staff", "magic_power": 60, "price": 230, "stock": 2, "rarity": "Epic"},
-            {"name": "Deathbinder", "type": "Dark Staff", "magic_power": 70, "price": 270, "stock": 1, "rarity": "Legendary"},
-        ]
-        self.inventory_shop.extend(dark_staff)
 
 # ==============================
-# 🛡️ SHOP - ARMOR
+# 🛡️ ARMOR SHOP
 # ==============================
-class shop_armor(shop):
+class shop_armor(Shop):
     def __init__(self):
         super().__init__()
 
-    def stock_light_armor(self):
-        light_armor_items = [
-            {"name": "Leather Vest", "type": "Light Armor", "defense_bonus": 8, "price": 70, "stock": 8, "rarity": "Common"},
-            {"name": "Shadow Cloak", "type": "Light Armor", "defense_bonus": 12, "price": 100, "stock": 6, "rarity": "Uncommon"},
-            {"name": "Wind Dancer Garb", "type": "Light Armor", "defense_bonus": 18, "price": 130, "stock": 4, "rarity": "Rare"},
-            {"name": "Nightveil Shroud", "type": "Light Armor", "defense_bonus": 25, "price": 180, "stock": 2, "rarity": "Epic"},
-        ]
-        self.inventory_shop.extend(light_armor_items)
-
-    def stock_medium_armor(self):
-        medium_armor_items = [
-            {"name": "Ironplate", "type": "Medium Armor", "defense_bonus": 12, "price": 90, "stock": 7, "rarity": "Common"},
-            {"name": "Battleforged Mail", "type": "Medium Armor", "defense_bonus": 20, "price": 130, "stock": 5, "rarity": "Uncommon"},
-            {"name": "Vanguard Guard", "type": "Medium Armor", "defense_bonus": 28, "price": 160, "stock": 3, "rarity": "Rare"},
-            {"name": "Crimson Bulwark", "type": "Medium Armor", "defense_bonus": 35, "price": 200, "stock": 2, "rarity": "Epic"},
-        ]
-        self.inventory_shop.extend(medium_armor_items)
-
-    def stock_heavy_armor(self):
-        heavy_armor_items = [
-            {"name": "Steelplate", "type": "Heavy Armor", "defense_bonus": 18, "price": 120, "stock": 6, "rarity": "Common"},
-            {"name": "Warlord’s Chest", "type": "Heavy Armor", "defense_bonus": 30, "price": 170, "stock": 4, "rarity": "Uncommon"},
-            {"name": "Dragonscale Aegis", "type": "Heavy Armor", "defense_bonus": 40, "price": 210, "stock": 2, "rarity": "Rare"},
-            {"name": "Eternal Fortress", "type": "Heavy Armor", "defense_bonus": 50, "price": 250, "stock": 1, "rarity": "Legendary"},
-        ]
-        self.inventory_shop.extend(heavy_armor_items)
+    def stock_armors(self):
+        self.stock_items([
+            Armor("Leather Vest", 8, "Light", 70),
+            Armor("Shadow Cloak", 12, "Light", 100),
+            Armor("Wind Dancer Garb", 18, "Light", 130),
+            Armor("Nightveil Shroud", 25, "Light", 180),
+        ])
 
 
 # ==============================
-# 💊 SHOP - HEALTH POTION
+# 💊 POTION SHOP
 # ==============================
-class shop_potion(shop):
+class shop_potion(Shop):
     def __init__(self):
         super().__init__()
 
     def stock_health_potions(self):
-        potion_items = [
-            {"name": "Small Potion", "type": "Potion", "heal_amount": 30, "price": 25, "stock": 15, "rarity": "Common"},
-            {"name": "Medium Potion", "type": "Potion", "heal_amount": 60, "price": 50, "stock": 10, "rarity": "Uncommon"},
-            {"name": "Large Potion", "type": "Potion", "heal_amount": 100, "price": 90, "stock": 6, "rarity": "Rare"},
-            {"name": "Mega Potion", "type": "Potion", "heal_amount": 150, "price": 130, "stock": 3, "rarity": "Epic"},
-        ]
-        self.inventory_shop.extend(potion_items)
+        self.stock_items([
+            Health_Potions("Small Potion", 25, 30),
+            Health_Potions("Medium Potion", 50, 60),
+            Health_Potions("Large Potion", 90, 100),
+            Health_Potions("Mega Potion", 130, 150),
+        ])

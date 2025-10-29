@@ -1,9 +1,13 @@
 from Character.Character_RPG import *
 from Character.Enemy_RPG import *
-from items import *
-from Character.Role import *
-from save_game_RPG import *
-from Shop import *
+from items import Items, Weapon, Armor, Health_Potions
+from Character.Role import Warrior, Mage, Archer, Healer
+from save_game_RPG import save_games, load_game
+from Shop import shop_sword, shop_armor, shop_potion ,shop_bow ,shop_grimoire , shop_staff
+
+from colorama import Fore, Style, init
+init(autoreset=True)
+
 import random
 from dungeon import Dungeon
 
@@ -59,7 +63,17 @@ def inventory_menu():
             elif inv_choice == 4 :
                 idx = int(input("Enter item's index ="))
                 selected_item = player.inventory.items[idx-1]
-                selected_item.desc()
+                stats = []
+                for attr in ["damage", "defense", "heals"]:
+                    if hasattr(selected_item, attr):
+                        stats.append(f"{attr.title()}: +{getattr(selected_item, attr)}")
+
+                stat_text = " | ".join(stats) if stats else "No Bonus"
+                print(
+                    f"{selected_item.name}{Style.RESET_ALL} | {stat_text} | 💰 {selected_item.value} | {Style.RESET_ALL}"
+                    )
+                print(Fore.YELLOW + "=" * 40 + "\n" + Style.RESET_ALL)
+
             elif inv_choice == 5 :
                 running = False
                 print ("=========================")
@@ -97,16 +111,18 @@ def drop_item(player, enemy, drop_chance=0.5):
 def game_loop():
     global player
     while True:
-        print("=== Welcome to the RPG Game ===")
-        print("1. Start Game")
+        print(Fore.YELLOW + Style.BRIGHT + "="*50)
+        print(Fore.CYAN + Style.BRIGHT + "      ⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️")
+        print(Fore.YELLOW + "="*50)
+        print(Fore.GREEN + "1. Start Game")
         print("2. Show Status")
         print("3. Choose Role")
-        print("4. Shop")
-        print("5. Inventory")
-        print("6. Save Game")
-        print("7. Load Game")
-        print("8. Enter Dungeon")
-        print("9. Exit")
+        print("4. Shop 🛒")
+        print("5. Inventory 🎒")
+        print("6. Save Game 💾")
+        print("7. Load Game 📂")
+        print("8. Exit ❌")
+        print(Fore.YELLOW + "="*50)
         try:
             choice = int(input("Enter Your choice : "))
         except ValueError:
@@ -228,12 +244,18 @@ def game_loop():
         elif choice == 4:
             if player:
                 while True:
-                    print("\n🛒 === Welcome to the Shop ===")
-                    print("1. Weapon Shop")
-                    print("2. Armor Shop")
-                    print("3. Potion Shop")
-                    print("4. Back")
+                    print(Fore.YELLOW + "=" * 50 + Style.RESET_ALL)
+                    print(Fore.CYAN + Style.BRIGHT + "🛒 WELCOME TO THE SHOP".center(50) + Style.RESET_ALL)
+                    print(Fore.YELLOW + "=" * 50 + Style.RESET_ALL)
+                    print("1) Sword Shop")
+                    print("2) Armor Shop")
+                    print("3) Bow Shop")
+                    print("4) Grimoire Shop")
+                    print("5) Staff Shop")
+                    print("6) Potion Shop")
+                    print("7) Back")
                     print(f"💰 Your Coins: {player.coins}")
+
                     try:
                         shop_choice = int(input("Choose shop category: "))
                     except ValueError:
@@ -330,6 +352,7 @@ def game_loop():
                             print("Invalid choice!")
             else:
                 print("⚠️ Start the game first before visiting the shop!")
+
 
         elif choice == 5:
             inventory_menu()

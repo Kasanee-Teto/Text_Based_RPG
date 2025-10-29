@@ -92,10 +92,12 @@ class Player(Character):
                     self.defense += self.equipped_armor.defense
 
     def defeated(self, enemy):
-        print (f"{enemy.name} has killed {self.name} ! \n Come back when you are stronger !\n" )
-        
-    def status_effect(self):
-        if "bleeding" in self.status_effect:
+        self.status_effects=[]
+        print(f"{enemy.name} has killed {self.name}! Come back when you are stronger!")
+
+    def update_status_effects(self):
+        # Bleeding effects
+        if "bleeding" in self.status_effects:
             bleed_damage = 3
             self.hp -= bleed_damage
             print(f"{self.name} uffers from bleeding and loses {bleed_damage} HP.")
