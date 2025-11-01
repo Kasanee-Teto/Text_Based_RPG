@@ -166,7 +166,7 @@ class Dungeon:
                         return False  # player died
                 # apply status optionally
                 if trap.get("status"):
-                    player.status_effect.append(trap["status"])
+                    player.status_effects.append(trap["status"])
                     print(f"{player.name} is afflicted with {trap['status']}.")
 
                 # trap triggers only once
