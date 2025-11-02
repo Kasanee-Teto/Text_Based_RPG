@@ -14,19 +14,20 @@ import random
 player = None
 
 def inventory_menu():
-    running = True 
+    global player
+    running = True
 
-    if player == None :
+    if player == None:
         print(Fore.RED + "⚠️  Create a character first!" + Style.RESET_ALL)
         running = False
 
-    elif not player.inventory.items :
+    elif not player.inventory.items:
         print("Inventory is empty !")
         running = False
-    
-    while running :
 
-        if not player.inventory.items :
+    while running:
+
+        if not player.inventory.items:
             print("Inventory is empty ! Menu automatically closes")
             break
 
@@ -37,9 +38,10 @@ def inventory_menu():
         print("2) Drop Item")
         print("3) Equip / Use Item")
         print("4) Show Item Description")
-        print("5) Close Menu")
+        print("5) Sort Inventory")
+        print("6) Exit Inventory")
         print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
-        try :
+        try:
             inv_choice = int (input(Fore.CYAN + "Choose Action: " + Style.RESET_ALL))
             if inv_choice == 1 :
                 print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
@@ -96,6 +98,18 @@ def inventory_menu():
                 print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
 
             elif inv_choice == 5 :
+                print("Sort by: 1) Name 2) Value")
+                sort_choice = int(input("Choose sorting method: "))
+                if sort_choice == 1:
+                    player.inventory.sort_items(by_name=True)
+                    print(Fore.GREEN + "✅ Inventory sorted by name." + Style.RESET_ALL)
+                elif sort_choice == 2:
+                    player.inventory.sort_items(by_name=False)
+                    print(Fore.GREEN + "✅ Inventory sorted by value." + Style.RESET_ALL)
+                else:
+                    print(Fore.RED + "Invalid sorting choice!" + Style.RESET_ALL)
+                    
+            elif inv_choice == 6 :
                 running = False
                 print(Fore.YELLOW + "Closing Inventory..." + Style.RESET_ALL)
                 print(Fore.YELLOW + "="*50 + Style.RESET_ALL)

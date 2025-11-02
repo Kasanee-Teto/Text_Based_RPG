@@ -30,7 +30,6 @@ class Room:
             parts.append("Nothing here.")
         return " | ".join(parts)
 
-
 class Dungeon:
     def __init__(self, width=5, height=5, depth=1, seed=None, difficulty=1.0):
         """
