@@ -33,12 +33,11 @@ class Inventory():
             print(f"{name} is not in the inventory.")
 
     def list_items(self):
-        item_iter = iter(self.items)
         if not self.items:
             print("Inventory is empty.")
         else:
             print("Inventory items:")
-            for idx, item in enumerate(item_iter, 1):
+            for idx, item in enumerate(self.items, 1):
                 try:
                     name = item.name
                 except AttributeError:
