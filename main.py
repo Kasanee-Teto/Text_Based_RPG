@@ -9,9 +9,76 @@ from dungeon import Dungeon
 from colorama import Fore, Style, init
 init(autoreset=True)
 
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
+from rich.panel import Panel
+from rich.text import Text
+import time
 import random
 
+console = Console()
 player = None
+
+def show_loading_screen():
+    console.clear()
+    
+    title = """
+    ╔═══════════════════════════════════════════════════════╗
+    ║                                                       ║
+    ║   ██████╗ ██████╗  ██████╗                          ║
+    ║   ██╔══██╗██╔══██╗██╔════╝                          ║
+    ║   ██████╔╝██████╔╝██║  ███╗                         ║
+    ║   ██╔══██╗██╔═══╝ ██║   ██║                         ║
+    ║   ██║  ██║██║     ╚██████╔╝                         ║
+    ║   ╚═╝  ╚═╝╚═╝      ╚═════╝                          ║
+    ║                                                       ║
+    ║        A D V E N T U R E   A W A I T S               ║
+    ║                                                       ║
+    ╚═══════════════════════════════════════════════════════╝
+    """
+    
+    console.print(title, style="bold cyan")
+    console.print("\n")
+    
+    # Loading messages
+    loading_messages = [
+        "Forging legendary weapons...",
+        "Summoning ancient monsters...",
+        "Preparing dungeon floors...",
+        "Stocking the shop inventory...",
+        "Brewing health potions...",
+        "Enchanting armor sets...",
+        "Rolling for loot...",
+        "Initializing battle system...",
+        "Loading save files...",
+        "Generating random encounters..."
+    ]
+    
+    with Progress(
+        SpinnerColumn(spinner_name="dots"),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(complete_style="green", finished_style="bold green"),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        TimeRemainingColumn(),
+        console=console,
+    ) as progress:
+        
+        task = progress.add_task("[cyan]Loading game...", total=len(loading_messages))
+        
+        for msg in loading_messages:
+            progress.update(task, description=f"[cyan]{msg}")
+            time.sleep(random.uniform(0.2, 0.5))  
+            progress.advance(task)
+    
+    console.print("\n")
+    success_panel = Panel(
+        Text("✨ Game loaded successfully! ✨", justify="center", style="bold green"),
+        border_style="green",
+        padding=(1, 2)
+    )
+    console.print(success_panel)
+    time.sleep(1)
+    console.clear()
 
 def inventory_menu():
     global player
@@ -122,7 +189,6 @@ def battle(player, enemy):
     print(Fore.RED + Style.BRIGHT + f"{player.name}  VS  {enemy.name}".center(50) + Style.RESET_ALL)
     print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
     while player.is_alive() and enemy.is_alive():
-        # Player's turn
         pilihan = input(Fore.CYAN + "\nPress Enter to Attack\nPress 'E' to open Inventory\nPress 'F' to show status\n=" + Style.RESET_ALL)
         if pilihan.lower() == 'e':
             inventory_menu()
@@ -207,7 +273,6 @@ def game_loop():
                     print(Fore.GREEN + f"✨ Player {player.name} has been created!" + Style.RESET_ALL)
             else:
                 print(Fore.CYAN + f"\nWelcome, {player.name}!\n" + Style.RESET_ALL)
-                # Normal enemy
                 enemy_list = [goblin(), spider(), skeleton(), zombie()]
                 random_enemy = random.choice(enemy_list)
                 battle(player, random_enemy)
@@ -221,7 +286,6 @@ def game_loop():
                     player.status_effect = []
                     continue
 
-                # Boss
                 boss_list = [Wolf(), Ogre(), Vampire()]
                 random_boss = random.choice(boss_list)
                 print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
@@ -401,12 +465,10 @@ def game_loop():
             if player is None:
                 print("Create a character first!")
             else:
-                # Build a dungeon floor, you can tweak width/height/depth/seed/difficulty
                 d = Dungeon(width=5, height=5, depth=1, seed=None, difficulty=1.0)
                 print("Entering dungeon floor 1...")
                 success = d.explore_from(player, battle)
                 if not success:
-                    # player died in dungeon - handle respawn like you do elsewhere
                     player.defeated(Demon() if False else Enemy("TrapDeath",0,0,0,0))  # just print; optional
                     player.hp = player.max_hp
                     player.status_effect = []
@@ -421,4 +483,5 @@ def game_loop():
     print(Fore.YELLOW + "="*56 + Style.RESET_ALL)
 
 if __name__ == "__main__":
+    show_loading_screen() 
     game_loop()
