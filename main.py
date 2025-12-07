@@ -8,7 +8,7 @@ from Character.Enemy_RPG import *
 from items import *
 from Character.Role import Warrior, Mage, Archer, Healer
 from save_game_RPG import save_game, load_game
-from Shop import SwordShop, BowShop, GrimoireShop, StaffShop, ArmorShop, PotionShop
+from Shop import ShopFacade
 from dungeon import Dungeon
 from config import GameConfig
 
@@ -347,87 +347,6 @@ def inventory_menu():
         except (ValueError, IndexError):
             print(Fore.RED + "❌ Invalid input!" + Style.RESET_ALL)
 
-
-def shop_menu():
-    """Interactive shop menu for buying items"""
-    global player
-    
-    if player is None:
-        print(Fore.RED + "⚠️  Start the game first before visiting the shop!" + Style.RESET_ALL)
-        return
-    
-    while True:
-        print_header("🛒 WELCOME TO THE SHOP", "cyan")
-        print("1) Sword Shop")
-        print("2) Armor Shop")
-        print("3) Bow Shop")
-        print("4) Grimoire Shop")
-        print("5) Staff Shop")
-        print("6) Potion Shop")
-        print("7) Back to Main Menu")
-        print_separator()
-        print(f"💰 Your Coins: {player.coins}")
-        print_separator()
-        
-        try:
-            shop_choice = int(input(Fore.CYAN + "➤ Choose shop category: " + Style.RESET_ALL))
-        except ValueError:
-            print(Fore.RED + "❌ Invalid input!" + Style.RESET_ALL)
-            continue
-        
-        # Shop mapping
-        shop_mapping = {
-            1: (SwordShop, ["stock_sword_dagger", "stock_sword_katana", "stock_sword_great_sword"], "⚔️  Sword Shop"),
-            2: (ArmorShop, ["stock_armors"], "🛡️  Armor Shop"),
-            3: (BowShop, ["stock_bows"], "🏹 Bow Shop"),
-            4: (GrimoireShop, ["stock_grimoires"], "📜 Grimoire Shop"),
-            5: (StaffShop, ["stock_staffs"], "💫 Staff Shop"),
-            6: (PotionShop, ["stock_health_potions"], "💊 Potion Shop")
-        }
-        
-        if shop_choice == 7:
-            print(Fore.YELLOW + "Exiting shop..." + Style.RESET_ALL)
-            break
-        
-        shop_data = shop_mapping.get(shop_choice)
-        if not shop_data:
-            print(Fore.RED + "❌ Invalid choice!" + Style.RESET_ALL)
-            continue
-        
-        shop_class, methods, title = shop_data
-        current_shop = shop_class()
-        
-        # Stock the shop
-        for method in methods:
-            getattr(current_shop, method)()
-        
-        # Display items
-        current_shop.show_items(title)
-        
-        try:
-            buy_choice = int(input(Fore.CYAN + "➤ Select item to buy (0 to cancel): " + Style. RESET_ALL))
-            if buy_choice == 0:
-                continue
-            
-            selected_item = current_shop.get_item_by_index(buy_choice)
-            
-            if selected_item is None:
-                print(Fore.RED + "❌ Invalid selection!" + Style.RESET_ALL)
-                continue
-            
-            price = getattr(selected_item, "value", 0)
-            
-            if player.coins >= price:
-                player.coins -= price
-                player.inventory.add_item(selected_item)
-                print(Fore. GREEN + f"✅ You bought {selected_item.name}!" + Style.RESET_ALL)
-            else:
-                print(Fore.RED + f"❌ Not enough coins! Need {price}, have {player.coins}" + Style.RESET_ALL)
-        
-        except (ValueError, IndexError):
-            print(Fore. RED + "❌ Invalid selection!" + Style.RESET_ALL)
-
-
 def role_selection_menu():
     """Handle role/class selection for player"""
     global player
@@ -636,8 +555,20 @@ def game_loop():
         
         # ===== OPTION 4: Shop =====
         elif choice == 4:
-            shop_menu()
-        
+            if player:
+                shop_facade = ShopFacade()
+                shopping = True
+                
+                while shopping:
+                    shop_facade.display_shop_menu(player)
+                    try:
+                        shop_choice = int(input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL))
+                        shopping = shop_facade.visit_shop(shop_choice, player)
+                    except ValueError:
+                        print(Fore.RED + "❌ Invalid input!" + Style.RESET_ALL)
+            else:
+                print(Fore.RED + "⚠️ Start the game first before visiting the shop!" + Style.RESET_ALL)
+                
         # ===== OPTION 5: Inventory =====
         elif choice == 5:
             inventory_menu()
