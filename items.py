@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from Character.Character_RPG import Character
 
-
 # ==============================
 # BASE ITEM CLASSES
 # ==============================

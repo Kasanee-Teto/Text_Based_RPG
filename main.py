@@ -480,13 +480,13 @@ def combat_scenario():
     global player
     
     if player is None:
-        print(Fore.RED + "⚠️  Create a character first!" + Style. RESET_ALL)
+        print(Fore.RED + "⚠️  Create a character first!" + Style.RESET_ALL)
         return
     
     print(Fore.CYAN + f"\n🌟 Welcome, {player.name}!\n" + Style.RESET_ALL)
     
     # Normal enemy encounter
-    enemy_list = [goblin(), spider(), skeleton(), zombie()]
+    enemy_list = [Goblin_Grunt, Spider, Skeleton, Zombie]
     random_enemy = random.choice(enemy_list)
     battle(player, random_enemy)
     

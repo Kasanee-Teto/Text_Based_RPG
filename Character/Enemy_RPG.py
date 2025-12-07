@@ -62,29 +62,10 @@ class Enemy(Character):
 # NORMAL ENEMIES
 # ==============================
 
-class goblin(Enemy):
-    """Basic goblin enemy - balanced stats"""
-    def __init__(self):
-        super().__init__("Goblin", 45, 10, 2, 15)
-
-
-class spider(Enemy):
-    """Weak but fast spider enemy - low HP, low attack"""
-    def __init__(self):
-        super().__init__("Spider", 15, 5, 1, 10)
-
-
-class skeleton(Enemy):
-    """Undead skeleton - moderate stats"""
-    def __init__(self):
-        super().__init__("Skeleton", 30, 10, 2, 11)
-
-
-class zombie(Enemy):
-    """Slow zombie - slightly higher HP than skeleton"""
-    def __init__(self):
-        super().__init__("Zombie", 35, 10, 2, 13)
-
+Goblin_Grunt = Enemy("Goblin Grunt", 45, 10, 2, 15)
+Spider = Enemy("Cave Spider", 20, 7, 1, 8)
+Skeleton = Enemy("Skeleton", 30, 10, 2, 11)
+Zombie = Enemy("Zombie", 35, 10, 2, 13)
 
 # ==============================
 # BOSS ENEMIES
