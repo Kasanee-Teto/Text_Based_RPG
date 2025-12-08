@@ -156,7 +156,7 @@ class Player(Character):
         if self.level >= 5 and self.role is None:
             self.role = role
             role.apply_bonus(self)
-            print(f"{self.name} became a {role.name}!")
+            print(f"{self.name} became a {role.__class__.__name__}!")
         else:
             print("Can't select role yet!  Must be level 5 with no current role.")
     
