@@ -3,13 +3,13 @@ Character classes for RPG Game
 Defines base Character class and Player class with all RPG mechanics
 """
 
-from inventory import Inventory
+from ..inventory import Inventory
 from typing import Optional, TYPE_CHECKING
 import math
 
 if TYPE_CHECKING:
     from items import Weapon, Armor
-    from Character.Role import Role
+    from Role import RoleStrategy
 
 
 # ==============================
@@ -109,11 +109,11 @@ class Player(Character):
         self.exp = 0
         self.level = 1
         self.exp_needed = 100
-        self.role: Optional['Role'] = None
-        self. status_effects = []
+        self.role: Optional['RoleStrategy'] = None
+        self.status_effects = []
         self.equipped_weapon: Optional['Weapon'] = None
         self.equipped_armor: Optional['Armor'] = None
-        self. inventory = Inventory()
+        self.inventory = Inventory()
         self.coins = start_coins
     
     def gain_exp(self, amount: int):
@@ -144,7 +144,7 @@ class Player(Character):
             if self.level == 5 and self.role is None:
                 print(f"{self.name} can now choose a role (Warrior, Mage, Archer, Healer)!")
     
-    def choose_role(self, role: 'Role'):
+    def choose_role(self, role: 'RoleStrategy'):
         """
         Assign a role/class to the player (level 5+ only)
         

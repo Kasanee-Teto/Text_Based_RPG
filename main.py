@@ -6,7 +6,7 @@ Handles menu system, game flow, and player interactions
 from Character. Character_RPG import Player
 from Character.Enemy_RPG import *
 from items import *
-from Character.Role import Warrior, Mage, Archer, Healer
+from Character.Role import WarriorStrategy, MageStrategy, ArcherStrategy, HealerStrategy, AssassinStrategy
 from save_game_RPG import save_game, load_game
 from Shop import ShopFacade
 from dungeon import Dungeon
@@ -146,7 +146,7 @@ def display_status(player: Player):
     table.add_row("Level", str(stats['level']))
     table.add_row("EXP", stats['exp'])
     table.add_row("Coins", f"💰 {stats['coins']}")
-    table.add_row("Role", stats['role'])
+    table.add_row("Role", stats['roleStrategy'])
     table.add_row("Status Effects", str(stats['status_effects']) if stats['status_effects'] else "None")
     
     console.print(table)
@@ -375,10 +375,10 @@ def role_selection_menu():
         choice_role = int(input(Fore.CYAN + "➤ Select role number: " + Style.RESET_ALL))
         
         role_map = {
-            1: Warrior,
-            2: Mage,
-            3: Archer,
-            4: Healer
+            1: WarriorStrategy,
+            2: MageStrategy,
+            3: ArcherStrategy,
+            4: HealerStrategy
         }
         
         if choice_role == 5:
