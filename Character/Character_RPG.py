@@ -156,7 +156,7 @@ class Player(Character):
         if self.level >= 5 and self.role is None:
             self.role = role
             role.apply_bonus(self)
-            print(f"{self.name} became a {role.name}!")
+            print(f"{self.name} became a {role.__class__.__name__}!")
         else:
             print("Can't select role yet!  Must be level 5 with no current role.")
     
@@ -253,6 +253,8 @@ class Player(Character):
             self.attack_power = weakened_atk
             self. defense = weakened_def
         elif "weakened_demon" in self.status_effects:
+            self._original_attack = self.attack_power
+            self._original_defense = self.defense
             weakened_atk_demon = max(1, int(self.attack_power * 0.6))
             weakened_def_demon = max(1, int(self.defense * 0.6))
             print(f"💢 {self.name} is severely weakened! ATK {self. attack_power}→{weakened_atk_demon}, DEF {self.defense}→{weakened_def_demon}")

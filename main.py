@@ -360,7 +360,7 @@ def role_selection_menu():
         return
     
     if player.role is not None:
-        print(Fore.YELLOW + f"ℹ️  You already have a role: {player.role. name}" + Style.RESET_ALL)
+        print(Fore.YELLOW + f"ℹ️  You already have a role: {player.role.name}" + Style.RESET_ALL)
         return
     
     print_header("🎭 CHOOSE YOUR ROLE", "magenta")
