@@ -3,10 +3,10 @@ Main game loop for Text-Based RPG
 Handles menu system, game flow, and player interactions
 """
 
-from Character. Character_RPG import Player
+from Character.Character_RPG import Player
 from Character.Enemy_RPG import *
 from items import *
-from Character.Role import Warrior, Mage, Archer, Healer
+from Character.Role import WarriorStrategy, MageStrategy, ArcherStrategy, HealerStrategy, AssassinStrategy
 from save_game_RPG import save_game, load_game
 from Shop import ShopFacade
 from dungeon import Dungeon
@@ -16,8 +16,8 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 from rich.console import Console
-from rich. progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
-from rich. panel import Panel
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
+from rich.panel import Panel
 from rich.text import Text
 from rich.table import Table
 
@@ -375,10 +375,10 @@ def role_selection_menu():
         choice_role = int(input(Fore.CYAN + "➤ Select role number: " + Style.RESET_ALL))
         
         role_map = {
-            1: Warrior,
-            2: Mage,
-            3: Archer,
-            4: Healer
+            1: WarriorStrategy,
+            2: MageStrategy,
+            3: ArcherStrategy,
+            4: HealerStrategy
         }
         
         if choice_role == 5:
@@ -508,14 +508,14 @@ def game_loop():
     
     while True:
         print_header("⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️", "cyan")
-        print(Fore.GREEN + "1.  Start Game" + Style.RESET_ALL)
+        print(Fore.GREEN + "1. Start Game" + Style.RESET_ALL)
         print("2. Show Status")
         print("3. Choose Role")
         print("4. Shop 🛒")
         print("5. Inventory 🎒")
-        print("6.  Save Game 💾")
+        print("6. Save Game 💾")
         print("7. Load Game 📂")
-        print("8.  Dungeon 🏰")
+        print("8. Dungeon 🏰")
         print("9. Exit ❌")
         print_separator()
         

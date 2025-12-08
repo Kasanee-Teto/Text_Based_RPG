@@ -9,7 +9,7 @@ import math
 
 if TYPE_CHECKING:
     from items import Weapon, Armor
-    from Character.Role import Role
+    from Role import RoleStrategy
 
 
 # ==============================
@@ -109,12 +109,14 @@ class Player(Character):
         self.exp = 0
         self.level = 1
         self.exp_needed = 100
-        self.role: Optional['Role'] = None
-        self. status_effects = []
+        self.role: Optional['RoleStrategy'] = None
+        self.status_effects = []
         self.equipped_weapon: Optional['Weapon'] = None
         self.equipped_armor: Optional['Armor'] = None
-        self. inventory = Inventory()
+        self.inventory = Inventory()
         self.coins = start_coins
+        self._original_attack = None
+        self._original_defense = None
     
     def gain_exp(self, amount: int):
         """
@@ -144,7 +146,7 @@ class Player(Character):
             if self.level == 5 and self.role is None:
                 print(f"{self.name} can now choose a role (Warrior, Mage, Archer, Healer)!")
     
-    def choose_role(self, role: 'Role'):
+    def choose_role(self, role: 'RoleStrategy'):
         """
         Assign a role/class to the player (level 5+ only)
         
@@ -210,11 +212,27 @@ class Player(Character):
     
     def defeated(self, enemy):
         """Handle player defeat - clear status effects"""
+        # Restore original stats if they were saved
+        if self._original_attack is not None:
+            self.attack_power = self._original_attack
+            self._original_attack = None
+        if self._original_defense is not None:
+            self.defense = self._original_defense
+            self._original_defense = None
+
         self.status_effects = []
         print(f"💀 {enemy.name} has killed {self.name}!  Come back when you are stronger!")
     
     def update_status_effects(self):
         """Apply damage and debuffs from active status effects"""
+        # Restore stats from previous debuff before applying new ones
+        if self._original_attack is not None:
+            self.attack_power = self._original_attack
+            self._original_attack = None
+        if self._original_defense is not None:
+            self.defense = self._original_defense
+            self._original_defense = None
+        
         # Bleeding effects
         if "bleeding" in self.status_effects:
             bleed_damage = 3
@@ -227,6 +245,8 @@ class Player(Character):
         
         # Weakened effects
         if "weakened" in self.status_effects:
+            self._original_attack = self.attack_power
+            self._original_defense = self.defense
             weakened_atk = max(1, int(self.attack_power * 0.8))
             weakened_def = max(1, int(self.defense * 0.8))
             print(f"💢 {self.name} is weakened!  ATK {self.attack_power}→{weakened_atk}, DEF {self.defense}→{weakened_def}")
