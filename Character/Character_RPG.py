@@ -253,6 +253,8 @@ class Player(Character):
             self.attack_power = weakened_atk
             self. defense = weakened_def
         elif "weakened_demon" in self.status_effects:
+            self._original_attack = self.attack_power
+            self._original_defense = self.defense
             weakened_atk_demon = max(1, int(self.attack_power * 0.6))
             weakened_def_demon = max(1, int(self.defense * 0.6))
             print(f"💢 {self.name} is severely weakened! ATK {self. attack_power}→{weakened_atk_demon}, DEF {self.defense}→{weakened_def_demon}")
