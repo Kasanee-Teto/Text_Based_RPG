@@ -4,7 +4,7 @@ Procedurally generates dungeons with rooms, enemies, treasure, and traps
 """
 
 import random
-from Character. Enemy_RPG import Goblin_Grunt, Spider, Skeleton, Zombie, Wolf, Ogre, Vampire, Demon
+from Character.Enemy_RPG import Goblin_Grunt, Spider, Skeleton, Zombie, Wolf, Ogre, Vampire, Demon
 from items import Small_HPotion, Medium_HPotion, Short_Sword, Short_bow, Wizards_Robe, Leather_Armor
 from typing import List, Tuple, Optional, Callable, TYPE_CHECKING
 
