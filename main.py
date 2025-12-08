@@ -3,7 +3,7 @@ Main game loop for Text-Based RPG
 Handles menu system, game flow, and player interactions
 """
 
-from Character. Character_RPG import Player
+from Character.Character_RPG import Player
 from Character.Enemy_RPG import *
 from items import *
 from Character.Role import WarriorStrategy, MageStrategy, ArcherStrategy, HealerStrategy, AssassinStrategy
@@ -146,7 +146,7 @@ def display_status(player: Player):
     table.add_row("Level", str(stats['level']))
     table.add_row("EXP", stats['exp'])
     table.add_row("Coins", f"💰 {stats['coins']}")
-    table.add_row("Role", stats['roleStrategy'])
+    table.add_row("Role", stats['role'])
     table.add_row("Status Effects", str(stats['status_effects']) if stats['status_effects'] else "None")
     
     console.print(table)
@@ -508,14 +508,14 @@ def game_loop():
     
     while True:
         print_header("⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️", "cyan")
-        print(Fore.GREEN + "1.  Start Game" + Style.RESET_ALL)
+        print(Fore.GREEN + "1. Start Game" + Style.RESET_ALL)
         print("2. Show Status")
         print("3. Choose Role")
         print("4. Shop 🛒")
         print("5. Inventory 🎒")
-        print("6.  Save Game 💾")
+        print("6. Save Game 💾")
         print("7. Load Game 📂")
-        print("8.  Dungeon 🏰")
+        print("8. Dungeon 🏰")
         print("9. Exit ❌")
         print_separator()
         

@@ -3,7 +3,7 @@ Character classes for RPG Game
 Defines base Character class and Player class with all RPG mechanics
 """
 
-from ..inventory import Inventory
+from inventory import Inventory
 from typing import Optional, TYPE_CHECKING
 import math
 
