@@ -16,8 +16,8 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 from rich.console import Console
-from rich. progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
-from rich. panel import Panel
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
+from rich.panel import Panel
 from rich.text import Text
 from rich.table import Table
 
