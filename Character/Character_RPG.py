@@ -92,6 +92,7 @@ class Player(Character):
                 self.defense += getattr(self.equipped_armor, "defense", 0)
 
     def defeated(self, enemy):
+        self.status_effects=[]
         print(f"{enemy.name} has killed {self.name}! Come back when you are stronger!")
 
     def update_status_effects(self):

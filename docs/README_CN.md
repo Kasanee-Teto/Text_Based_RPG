@@ -1,4 +1,4 @@
-[EN](README.md) | [ID](docs/README_ID.md) | CN
+[EN](/README.md) | [ID](README_ID.md) | CN
 
 # 🎮 文字角色扮演游戏
 
@@ -16,70 +16,7 @@
 ## 🏛️ 架构与类图
 该项目遵循面向对象的设计。其核心架构涉及一个基础的 `Character` 类，并派生出 `Player` 子类。玩家管理一个 `Inventory` 并可以被分配一个 `Role`。`Items` 也同样使用继承结构。
 
-```mermaid
-classDiagram
-    class Character {
-        -name: str
-        -hp: int
-        -atk: int
-        -defense: int
-        +attack(target)
-        +is_alive()
-    }
-
-    class Player {
-        -level: int
-        -role: Role
-        -inventory: Inventory
-        +choose_role(role)
-        +use_item(item)
-    }
-
-    class Role {
-        <<Abstract>>
-        -name: str
-        +apply_bonus(character)
-    }
-    
-    class Warrior {
-      +apply_bonus(character)
-    }
-
-    class Mage {
-      +apply_bonus(character)
-    }
-
-    class Inventory {
-        -items: list~Items~
-        +add_item(item)
-        +remove_item(item)
-    }
-
-    class Items {
-        <<Abstract>>
-        -name: str
-        -value: int
-    }
-
-    class Weapon {
-        -damage: int
-    }
-
-    class Armor {
-        -defense: int
-    }
-
-    Character <|-- Player
-    Player "1" o-- "1" Role
-    Player "1" o-- "1" Inventory
-    Inventory "1" o-- "0..*" Items
-
-    Items <|-- Weapon
-    Items <|-- Armor
-    
-    Role <|-- Warrior
-    Role <|-- Mage
-```
+![alt text](/assets/Class%20Diagram.png)
 
 ## 📂 项目结构
 ```

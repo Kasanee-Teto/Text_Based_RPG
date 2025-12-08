@@ -4,22 +4,100 @@ from items import *
 from Character.Role import Warrior, Mage, Archer, Healer
 from save_game_RPG import save_games, load_game
 from Shop import shop_bow, shop_sword, shop_armor, shop_potion, shop_grimoire, shop_staff
+from dungeon import Dungeon
 
 from colorama import Fore, Style, init
 init(autoreset=True)
 
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
+from rich.panel import Panel
+from rich.text import Text
+import time
 import random
 
+console = Console()
 player = None
 
-def inventory_menu():
-    running = True 
+def show_loading_screen():
+    console.clear()
+    
+    title = """
+    ╔═══════════════════════════════════════════════════════╗
+    ║                                                       ║
+    ║   ██████╗ ██████╗  ██████╗                            ║
+    ║   ██╔══██╗██╔══██╗██╔════╝                            ║
+    ║   ██████╔╝██████╔╝██║  ███╗                           ║
+    ║   ██╔══██╗██╔═══╝ ██║   ██║                           ║
+    ║   ██║  ██║██║     ╚██████╔╝                           ║
+    ║   ╚═╝  ╚═╝╚═╝      ╚═════╝                            ║
+    ║                                                       ║
+    ║        A D V E N T U R E   A W A I T S                ║
+    ║                                                       ║
+    ╚═══════════════════════════════════════════════════════╝
+    """
+    
+    console.print(title, style="bold cyan")
+    console.print("\n")
+    
+    # Loading messages
+    loading_messages = [
+        "Forging legendary weapons...",
+        "Summoning ancient monsters...",
+        "Preparing dungeon floors...",
+        "Stocking the shop inventory...",
+        "Brewing health potions...",
+        "Enchanting armor sets...",
+        "Rolling for loot...",
+        "Initializing battle system...",
+        "Loading save files...",
+        "Generating random encounters..."
+    ]
+    
+    with Progress(
+        SpinnerColumn(spinner_name="dots"),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(complete_style="green", finished_style="bold green"),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        TimeRemainingColumn(),
+        console=console,
+    ) as progress:
+        
+        task = progress.add_task("[cyan]Loading game...", total=len(loading_messages))
+        
+        for msg in loading_messages:
+            progress.update(task, description=f"[cyan]{msg}")
+            time.sleep(random.uniform(0.2, 0.5))  
+            progress.advance(task)
+    
+    console.print("\n")
+    success_panel = Panel(
+        Text("✨ Game loaded successfully! ✨", justify="center", style="bold green"),
+        border_style="green",
+        padding=(1, 2)
+    )
+    console.print(success_panel)
+    time.sleep(1)
+    console.clear()
 
-    if player == None :
+def inventory_menu():
+    global player
+    running = True
+
+    if player == None:
         print(Fore.RED + "⚠️  Create a character first!" + Style.RESET_ALL)
         running = False
-    
-    while running :
+
+    elif not player.inventory.items:
+        print("Inventory is empty !")
+        running = False
+
+    while running:
+
+        if not player.inventory.items:
+            print("Inventory is empty ! Menu automatically closes")
+            break
+
         print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
         print(Fore.MAGENTA + Style.BRIGHT + "🎒 INVENTORY MENU".center(50) + Style.RESET_ALL)
         print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
@@ -27,9 +105,10 @@ def inventory_menu():
         print("2) Drop Item")
         print("3) Equip / Use Item")
         print("4) Show Item Description")
-        print("5) Close Menu")
+        print("5) Sort Inventory")
+        print("6) Exit Inventory")
         print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
-        try :
+        try:
             inv_choice = int (input(Fore.CYAN + "Choose Action: " + Style.RESET_ALL))
             if inv_choice == 1 :
                 print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
@@ -74,9 +153,30 @@ def inventory_menu():
                 idx = int(input("Enter item's index: "))
                 selected_item = player.inventory.items[idx-1]
                 print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
-                selected_item.desc()
+                stats = []
+                for attr in ["damage", "defense", "heals"]:
+                    if hasattr(selected_item, attr):
+                        stats.append(f"{attr.title()}: +{getattr(selected_item, attr)}")
+
+                stat_text = " | ".join(stats) if stats else "No Bonus"
+                print(
+                    f"{selected_item.name}{Style.RESET_ALL} | {stat_text} | 💰 {selected_item.value} | {Style.RESET_ALL}"
+                    )
                 print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
+
             elif inv_choice == 5 :
+                print("Sort by: 1) Name 2) Value")
+                sort_choice = int(input("Choose sorting method: "))
+                if sort_choice == 1:
+                    player.inventory.sort_items(by_name=True)
+                    print(Fore.GREEN + "✅ Inventory sorted by name." + Style.RESET_ALL)
+                elif sort_choice == 2:
+                    player.inventory.sort_items(by_name=False)
+                    print(Fore.GREEN + "✅ Inventory sorted by value." + Style.RESET_ALL)
+                else:
+                    print(Fore.RED + "Invalid sorting choice!" + Style.RESET_ALL)
+                    
+            elif inv_choice == 6 :
                 running = False
                 print(Fore.YELLOW + "Closing Inventory..." + Style.RESET_ALL)
                 print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
@@ -89,14 +189,33 @@ def battle(player, enemy):
     print(Fore.RED + Style.BRIGHT + f"{player.name}  VS  {enemy.name}".center(50) + Style.RESET_ALL)
     print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
     while player.is_alive() and enemy.is_alive():
-        # Player's turn
-        pilihan = input(Fore.CYAN + "\nPress Enter to Attack, or 'E' to open Inventory: " + Style.RESET_ALL)
+        pilihan = input(Fore.CYAN + "\nPress Enter to Attack\nPress 'E' to open Inventory\nPress 'F' to show status\n=" + Style.RESET_ALL)
         if pilihan.lower() == 'e':
             inventory_menu()
         else :
             player.attack(enemy)
             print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
-
+        if pilihan.lower() == 'f':
+            print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
+            print(Fore.CYAN + Style.BRIGHT + "📜 STATUS".center(50) + Style.RESET_ALL)
+            print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
+            print(f"Name : {player.name}")
+            print(f"HP   : {player.hp}")
+            print(f"ATK  : {player.attack_power}")
+            print(f"DEF  : {player.defense}")
+            if player.equipped_weapon is not None :
+                print(f"Weapon : {player.equipped_weapon.name}")
+            else :
+                print("Weapon : Unarmed")
+            if player.equipped_armor is not None :
+                print(f"Armor  : {player.equipped_armor.name}")
+            else :
+                print("Armor: Unarmored")
+            print(f"Level: {player.level}")
+            print(f"Exp: {player.exp} / {player.exp_needed}")
+            print(f"Role: {player.role.name if player.role else 'None'}")
+            print(f"Status Effect : {player.status_effects}")
+            print(Fore.YELLOW + "-"*50 + Style.RESET_ALL)
         if enemy.is_alive():
             enemy.attack(player)
             print(Fore.GREEN + f"💚 {player.name} HP: {player.hp}" + Style.RESET_ALL)                
@@ -135,7 +254,8 @@ def game_loop():
         print("5. Inventory 🎒")
         print("6. Save Game 💾")
         print("7. Load Game 📂")
-        print("8. Exit ❌")
+        print("8. Dungeon")
+        print("9. Exit ❌")
         print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
         try:
             choice = int(input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL))
@@ -153,7 +273,6 @@ def game_loop():
                     print(Fore.GREEN + f"✨ Player {player.name} has been created!" + Style.RESET_ALL)
             else:
                 print(Fore.CYAN + f"\nWelcome, {player.name}!\n" + Style.RESET_ALL)
-                # Normal enemy
                 enemy_list = [goblin(), spider(), skeleton(), zombie()]
                 random_enemy = random.choice(enemy_list)
                 battle(player, random_enemy)
@@ -167,7 +286,6 @@ def game_loop():
                     player.status_effect = []
                     continue
 
-                # Boss
                 boss_list = [Wolf(), Ogre(), Vampire()]
                 random_boss = random.choice(boss_list)
                 print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
@@ -177,6 +295,8 @@ def game_loop():
                     player.defeated(random_boss)
                     player.hp = player.max_hp
                     player.status_effect = []
+                    player.status_effects.clear()
+                    print(Fore.RED + f"{player.name} has fallen! Status effects removed." + Style.RESET_ALL)
                     continue
 
                 if not random_boss.is_alive():
@@ -194,6 +314,8 @@ def game_loop():
                     player.defeated(Demon_Boss)
                     player.hp = player.max_hp
                     player.status_effect = []
+                    player.status_effects.clear()
+                    print(Fore.RED + f"{player.name} has fallen! Status effects removed." + Style.RESET_ALL)
                     continue
 
                 if not Demon_Boss.is_alive():
@@ -263,9 +385,9 @@ def game_loop():
         elif choice == 4:
             if player:
                 while True:
-                    print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
+                    print(Fore.YELLOW + "=" * 50 + Style.RESET_ALL)
                     print(Fore.CYAN + Style.BRIGHT + "🛒 WELCOME TO THE SHOP".center(50) + Style.RESET_ALL)
-                    print(Fore.YELLOW + "="*50 + Style.RESET_ALL)
+                    print(Fore.YELLOW + "=" * 50 + Style.RESET_ALL)
                     print("1) Sword Shop")
                     print("2) Armor Shop")
                     print("3) Bow Shop")
@@ -274,152 +396,54 @@ def game_loop():
                     print("6) Potion Shop")
                     print("7) Back")
                     print(f"💰 Your Coins: {player.coins}")
+
                     try:
                         shop_choice = int(input("Choose shop category: "))
                     except ValueError:
                         print(Fore.RED + "Invalid input!" + Style.RESET_ALL)
                         continue
 
-                    # ====== SHOP SECTION ======
-                    if shop_choice == 1:
-                        weapon_shop = shop_sword()
-                        weapon_shop.stock_sword_dagger()
-                        weapon_shop.stock_sword_katana()
-                        weapon_shop.stock_sword_great_sword()
+                    # === SHOP OBJECTS ===
+                    shop_mapping = {
+                        1: (shop_sword, ["stock_sword_dagger", "stock_sword_katana", "stock_sword_great_sword"], "⚔️ Sword Shop"),
+                        2: (shop_armor, ["stock_armors"], "🛡️ Armor Shop"),
+                        3: (shop_bow, ["stock_bows"], "🏹 Bow Shop"),
+                        4: (shop_grimoire, ["stock_grimoires"], "📜 Grimoire Shop"),
+                        5: (shop_staff, ["stock_staffs"], "💫 Staff Shop"),
+                        6: (shop_potion, ["stock_health_potions"], "💊 Potion Shop")
+                    }
 
-                        weapon_shop.show_items("⚔️ Available Swords")
-
-                        try:
-                            buy_choice = int(input("Select item to buy (0 to cancel): "))
-                            if buy_choice == 0:
-                                continue
-                            selected = weapon_shop.inventory_shop[buy_choice - 1]
-                            if player.coins >= selected["price"]:
-                                player.coins -= selected["price"]
-                                player.inventory.add_item(selected)
-                                selected["stock"] -= 1
-                                print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
-                            else:
-                                print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
-                        except (ValueError, IndexError):
-                            print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
-
-                    elif shop_choice == 2:
-                        armor_shop = shop_armor()
-                        armor_shop.stock_light_armor()
-                        armor_shop.stock_heavy_armor()
-                        armor_shop.stock_medium_armor()
-
-                        armor_shop.show_items("🛡️ Available Armors")
-
-                        try:
-                            buy_choice = int(input("Select item to buy (0 to cancel): "))
-                            if buy_choice == 0:
-                                continue
-                            selected = armor_shop.inventory_shop[buy_choice - 1]
-                            if player.coins >= selected["price"]:
-                                player.coins -= selected["price"]
-                                player.inventory.add_item(selected)
-                                selected["stock"] -= 1
-                                print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
-                            else:
-                                print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
-                        except (ValueError, IndexError):
-                            print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
-
-                    elif shop_choice == 3:
-                        bow_shop = shop_bow()
-                        bow_shop.stock_tech_bow()
-                        bow_shop.stock_crossbow()
-                        bow_shop.stock_recuve_bow()
-                        
-                        bow_shop.show_items("🏹 Available Bows")
-
-                        try:
-                            buy_choice = int(input("Select item to buy (0 to cancel): "))
-                            if buy_choice == 0:
-                                continue
-                            selected = bow_shop.inventory_shop[buy_choice - 1]
-                            if player.coins >= selected["price"]:
-                                player.coins -= selected["price"]
-                                player.inventory.add_item(selected)
-                                selected["stock"] -= 1
-                                print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
-                            else:
-                                print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
-                        except (ValueError, IndexError):
-                            print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
-
-                    elif shop_choice == 4:
-                        grimoire_shop = shop_grimoire()
-                        grimoire_shop.stock_elemental_grimoire()
-                        grimoire_shop.stock_dark_grimoire()
-                        grimoire_shop.stock_arcane_grimoire()
-
-                        grimoire_shop.show_items("📚 Available Grimoires")
-
-                        try:
-                            buy_choice = int(input("Select item to buy (0 to cancel): "))
-                            if buy_choice == 0:
-                                continue
-                            selected = grimoire_shop.inventory_shop[buy_choice - 1]
-                            if player.coins >= selected["price"]:
-                                player.coins -= selected["price"]
-                                player.inventory.add_item(selected)
-                                selected["stock"] -= 1
-                                print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
-                            else:
-                                print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
-                        except (ValueError, IndexError):
-                            print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
-                    
-                    elif shop_choice == 5:
-                        staff_shop = shop_staff()
-                        staff_shop.stock_healing_staff()
-                        staff_shop.stock_elemental_staff()
-                        staff_shop.stock_dark_staff()
-
-                        staff_shop.show_items("🔮 Available Staffs")
-
-                        try:
-                            buy_choice = int(input("Select item to buy (0 to cancel): "))
-                            if buy_choice == 0:
-                                continue
-                            selected = staff_shop.inventory_shop[buy_choice - 1]
-                            if player.coins >= selected["price"]:
-                                player.coins -= selected["price"]
-                                player.inventory.add_item(selected)
-                                selected["stock"] -= 1
-                                print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
-                            else:
-                                print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
-                        except (ValueError, IndexError):
-                            print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
-
-                    elif shop_choice == 6:
-                        potion_shop = shop_potion()
-                        potion_shop.stock_health_potions()
-
-                        potion_shop.show_items("🧪 Available Potions")
-
-                        try:
-                            buy_choice = int(input("Select item to buy (0 to cancel): "))
-                            if buy_choice == 0:
-                                continue
-                            selected = potion_shop.inventory_shop[buy_choice - 1]
-                            if player.coins >= selected["price"]:
-                                player.coins -= selected["price"]
-                                player.inventory.append(selected)
-                                selected["stock"] -= 1
-                                print(Fore.GREEN + f"\n✅ You bought {selected['name']}! It's added to your inventory." + Style.RESET_ALL)
-                            else:
-                                print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
-                        except (ValueError, IndexError):
-                            print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
-                        
-                    elif shop_choice == 7:
+                    if shop_choice == 7:
                         print(Fore.YELLOW + "Exiting shop..." + Style.RESET_ALL)
                         break
+
+                    shop_class, methods, title = shop_mapping.get(shop_choice, (None, None, None))
+                    if not shop_class:
+                        print(Fore.RED + "Invalid choice!" + Style.RESET_ALL)
+                        continue
+
+                    current_shop = shop_class()
+                    for m in methods:
+                        getattr(current_shop, m)()
+                    current_shop.show_items(title)
+
+                    try:
+                        buy_choice = int(input("Select item to buy (0 to cancel): "))
+                        if buy_choice == 0:
+                            continue
+
+                        selected_item = current_shop.inventory_shop[buy_choice - 1]
+                        price = getattr(selected_item, "value", 0)
+
+                        if player.coins >= price:
+                            player.coins -= price
+                            player.inventory.add_item(selected_item)
+                            print(Fore.GREEN + f"\n✅ You bought {selected_item.name}! Added to inventory." + Style.RESET_ALL)
+                        else:
+                            print(Fore.RED + "❌ Not enough coins!" + Style.RESET_ALL)
+
+                    except (ValueError, IndexError):
+                        print(Fore.RED + "Invalid selection!" + Style.RESET_ALL)
             else:
                 print(Fore.RED + "⚠️ Start the game first before visiting the shop!" + Style.RESET_ALL)
 
@@ -438,6 +462,18 @@ def game_loop():
             print(Fore.GREEN + "📂 Game loaded!" + Style.RESET_ALL)
 
         elif choice == 8:
+            if player is None:
+                print("Create a character first!")
+            else:
+                d = Dungeon(width=5, height=5, depth=1, seed=None, difficulty=1.0)
+                print("Entering dungeon floor 1...")
+                success = d.explore_from(player, battle)
+                if not success:
+                    player.defeated(Demon() if False else Enemy("TrapDeath",0,0,0,0))  # just print; optional
+                    player.hp = player.max_hp
+                    player.status_effect = []
+
+        elif choice == 9:
             print(Fore.YELLOW + "Exiting game..." + Style.RESET_ALL)
             break
 
@@ -447,4 +483,5 @@ def game_loop():
     print(Fore.YELLOW + "="*56 + Style.RESET_ALL)
 
 if __name__ == "__main__":
+    show_loading_screen() 
     game_loop()
