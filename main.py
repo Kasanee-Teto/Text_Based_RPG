@@ -368,7 +368,8 @@ def role_selection_menu():
     print("2) Mage     - Maximum attack, low defense")
     print("3) Archer   - Balanced ranged fighter")
     print("4) Healer   - Support with modest bonuses")
-    print("5) Back")
+    print("5) Assasin  - High Attack, low defense")
+    print("6) Back")
     print_separator()
     
     try:
@@ -378,10 +379,11 @@ def role_selection_menu():
             1: WarriorStrategy,
             2: MageStrategy,
             3: ArcherStrategy,
-            4: HealerStrategy
+            4: HealerStrategy,
+            5: AssassinStrategy
         }
         
-        if choice_role == 5:
+        if choice_role == 6:
             return
         
         role_class = role_map.get(choice_role)
