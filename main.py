@@ -368,7 +368,11 @@ def role_selection_menu():
     print("2) Mage     - Maximum attack, low defense")
     print("3) Archer   - Balanced ranged fighter")
     print("4) Healer   - Support with modest bonuses")
+<<<<<<< Updated upstream
     print("5) Assasin  - High Attack, low defense")
+=======
+    print("5) Assasin  - High damage, low defense")
+>>>>>>> Stashed changes
     print("6) Back")
     print_separator()
     

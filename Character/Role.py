@@ -1,16 +1,20 @@
 """
-Role/Class system for RPG Game
-Defines character roles with unique stat bonuses
-W.I.P: Extendable for special abilities per role
+Role Strategy System for Text-Based RPG
+=======================================
+
+This module implements the Strategy Pattern for character roles/classes.
+Each role is represented as a separate strategy class, responsible for 
+applying unique stat bonuses to a player.
+
+Design Pattern:
+---------------
+Strategy Pattern — each role encapsulates its own bonus logic, and 
+the Player class dynamically selects a role strategy at runtime.
 """
 from abc import ABC, abstractmethod
-
 from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
     from Character.Character_RPG import Player
-
-
 # ==============================
 # BASE ROLE CLASS
 # ==============================
@@ -30,6 +34,7 @@ class RoleStrategy(ABC):
         bonus_defense (int): Defense bonus when role is selected
         bonus_hp (int): Max HP bonus when role is selected
     """
+<<<<<<< Updated upstream
 # ===============================================================================================
 
 # ==============================
@@ -37,12 +42,21 @@ class RoleStrategy(ABC):
 # ==============================
 
 # class Warrior
+=======
+# ==============================
+# ROLE SUBCLASSES
+# ==============================
+# Class Warrior
+>>>>>>> Stashed changes
 #     """
 #     Tank role with high defense and HP
 #     Best for absorbing damage in prolonged fights
 #     """
+<<<<<<< Updated upstream
 
 
+=======
+>>>>>>> Stashed changes
 class WarriorStrategy(RoleStrategy):
     def apply_bonus(self, player):
         player.attack_power += 3
@@ -52,13 +66,20 @@ class WarriorStrategy(RoleStrategy):
 
 
 # ======================================================================================================
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 # class Mage
 #     """
 #     High damage, low defense glass cannon
 #     Maximum offensive power at cost of survivability
 #     """
+<<<<<<< Updated upstream
 #
+=======
+
+>>>>>>> Stashed changes
 
 class MageStrategy(RoleStrategy):
     def apply_bonus(self, player):
@@ -75,15 +96,17 @@ class MageStrategy(RoleStrategy):
 #     Balanced ranged fighter
 #     Good mix of attack and survivability
 #     """
+<<<<<<< Updated upstream
 
 
+=======
+>>>>>>> Stashed changes
 class ArcherStrategy(RoleStrategy):
     def apply_bonus(self, player):
         player.attack_power += 7
         player.defense += 2
         player.hp += 10
         print(f"{player.name} chose Archer! (+7 ATK, +2 DEF, +10 HP)")
-
 
 # =====================================================================================
 # class Assassin
