@@ -34,7 +34,7 @@ class RoleStrategy(ABC):
         bonus_defense (int): Defense bonus when role is selected
         bonus_hp (int): Max HP bonus when role is selected
     """
-<<<<<<< Updated upstream
+
 # ===============================================================================================
 
 # ==============================
@@ -42,21 +42,18 @@ class RoleStrategy(ABC):
 # ==============================
 
 # class Warrior
-=======
+
 # ==============================
 # ROLE SUBCLASSES
 # ==============================
 # Class Warrior
->>>>>>> Stashed changes
+
 #     """
 #     Tank role with high defense and HP
 #     Best for absorbing damage in prolonged fights
 #     """
-<<<<<<< Updated upstream
 
 
-=======
->>>>>>> Stashed changes
 class WarriorStrategy(RoleStrategy):
     def apply_bonus(self, player):
         player.attack_power += 3
@@ -66,20 +63,12 @@ class WarriorStrategy(RoleStrategy):
 
 
 # ======================================================================================================
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 # class Mage
 #     """
 #     High damage, low defense glass cannon
 #     Maximum offensive power at cost of survivability
 #     """
-<<<<<<< Updated upstream
 #
-=======
-
->>>>>>> Stashed changes
 
 class MageStrategy(RoleStrategy):
     def apply_bonus(self, player):
@@ -96,11 +85,8 @@ class MageStrategy(RoleStrategy):
 #     Balanced ranged fighter
 #     Good mix of attack and survivability
 #     """
-<<<<<<< Updated upstream
 
 
-=======
->>>>>>> Stashed changes
 class ArcherStrategy(RoleStrategy):
     def apply_bonus(self, player):
         player.attack_power += 7
