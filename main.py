@@ -6,7 +6,7 @@ Handles menu system, game flow, and player interactions
 from Character.Character_RPG import Player
 from Character.Enemy_RPG import *
 from items import *
-from Character.Role import WarriorStrategy, MageStrategy, ArcherStrategy, HealerStrategy, AssassinStrategy
+from Character.Role import Warrior, Mage, Archer, Healer, Assassin
 from save_game_RPG import save_game, load_game
 from Shop import ShopFacade
 from dungeon import Dungeon
@@ -360,7 +360,7 @@ def role_selection_menu():
         return
     
     if player.role is not None:
-        print(Fore.YELLOW + f"ℹ️  You already have a role: {player.role.name}" + Style.RESET_ALL)
+        print(Fore.YELLOW + f"ℹ️  You already have a role: {player.role.__class__.__name__}" + Style.RESET_ALL)
         return
     
     print_header("🎭 CHOOSE YOUR ROLE", "magenta")
@@ -377,11 +377,11 @@ def role_selection_menu():
         choice_role = int(input(Fore.CYAN + "➤ Select role number: " + Style.RESET_ALL))
         
         role_map = {
-            1: WarriorStrategy,
-            2: MageStrategy,
-            3: ArcherStrategy,
-            4: HealerStrategy,
-            5: AssassinStrategy
+            1: Warrior,
+            2: Mage,
+            3: Archer,
+            4: Healer,
+            5: Assassin
         }
         
         if choice_role == 6:
@@ -466,7 +466,7 @@ def dungeon_mode():
     
     print_header("🏰 DUNGEON MODE", "magenta")
     print("Choose difficulty:")
-    print("1) Easy   (0. 8x difficulty)")
+    print("1) Easy   (0.8x difficulty)")
     print("2) Normal (1.0x difficulty)")
     print("3) Hard   (1.5x difficulty)")
     print("4) Back")

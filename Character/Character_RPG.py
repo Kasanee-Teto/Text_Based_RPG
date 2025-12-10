@@ -279,6 +279,6 @@ class Player(Character):
             'coins': self.coins,
             'weapon': self.equipped_weapon.name if self.equipped_weapon else "Unarmed",
             'armor': self.equipped_armor.name if self.equipped_armor else "Unarmored",
-            'role': self.role.name if self.role else "None",
+            'role': self.role.__class__.__name__ if self.role else "None",
             'status_effects': self.status_effects
         }
