@@ -64,7 +64,7 @@ class RoleStrategy(ABC):
 #     def __init__(self):
 #         super().__init__("Warrior", bonus_attack=3, bonus_defense=5, bonus_hp=30)
 
-class WarriorStrategy(RoleStrategy):
+class Warrior(RoleStrategy):
     def apply_bonus(self, player):
         player.attack_power += 3
         player.defense += 5
@@ -82,7 +82,7 @@ class WarriorStrategy(RoleStrategy):
 #     def __init__(self):
 #         super().__init__("Mage", bonus_attack=10, bonus_defense=-2, bonus_hp=0)
 
-class MageStrategy(RoleStrategy):
+class Mage(RoleStrategy):
     def apply_bonus(self, player):
         player.attack_power += 10
         player.defense -= 2
@@ -100,7 +100,7 @@ class MageStrategy(RoleStrategy):
 #     def __init__(self):
         # super().__init__("Archer", bonus_attack=7, bonus_defense=2, bonus_hp=10)
 
-class ArcherStrategy(RoleStrategy):
+class Archer(RoleStrategy):
     def apply_bonus(self, player):
         player.attack_power += 7
         player.defense += 2
@@ -109,7 +109,7 @@ class ArcherStrategy(RoleStrategy):
 
 
 # =====================================================================================
-class AssassinStrategy(RoleStrategy):
+class Assassin(RoleStrategy):
     def apply_bonus(self, player):
         player.attack_power += 12    
         player.defense -= 3            
@@ -141,7 +141,7 @@ class AssassinStrategy(RoleStrategy):
 #         actual_heal = target.hp - old_hp
 #         print(f"💚 {self.name} used Heal! {target.name} recovered {actual_heal} HP.")
 
-class HealerStrategy(RoleStrategy):
+class Healer(RoleStrategy):
     def apply_bonus(self, player):
         player.attack_power += 2
         player.defense += 3
