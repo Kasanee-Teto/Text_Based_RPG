@@ -255,7 +255,7 @@ def _handle_start_game():
         player = Player(name)
         print(Fore.GREEN + f"✨ Player {player.name} has been created!")
     else:
-        enemy = random.choice([GoblinGrunt(), CaveSpider(), Skeleton(), Zombie()])
+        enemy = random.choice([GoblinGrunt, CaveSpider, Skeleton, Zombie])
         battle(player, enemy)
         if not player.is_alive():
              player.defeated(enemy)

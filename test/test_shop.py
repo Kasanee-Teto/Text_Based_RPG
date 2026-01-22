@@ -1,14 +1,14 @@
 import pytest
 
 from Shop import Shop
-from items import Weapon, Armor, Health_Potions
+from items import Weapon, Armor, HealthPotion
 
 
 def test_shop_add_stock_clear():
     shop = Shop("Test Shop")
     sword = Weapon("Sword", "Sharp", damage=5, value=10)
     armor = Armor("Leather", defense=2, defense_type="Blunt", value=8)
-    potion = Health_Potions("Potion", value=3, heals=10)
+    potion = HealthPotion("Potion", value=3, heals=10)
 
     shop.add_item(sword)
     assert shop.get_item_count() == 1

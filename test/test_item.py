@@ -1,6 +1,6 @@
 import pytest
 
-from items import Weapon, Armor, Health_Potions
+from items import Weapon, Armor, HealthPotion
 from Character.Character_RPG import Character
 
 
@@ -31,7 +31,7 @@ def test_armor_attributes():
 
 def test_health_potion_uses_heals_up_to_max_hp():
     p = DummyChar()
-    potion = Health_Potions("Small Potion", value=5, heals=15)
+    potion = HealthPotion("Small Potion", value=5, heals=15)
     p.take_damage(20)  # hp -> 30
     potion.uses(p)
     assert p.hp == 45  # 30 + 15, under max
