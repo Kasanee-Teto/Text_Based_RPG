@@ -293,6 +293,9 @@ class shop_potion(Shop):
     def stock_health_potions(self) -> None:
         """Stock health restoration potions - various sizes."""
         self.stock_items([
+            HealthPotion("Small Potion", 25, 30),
+            HealthPotion("Medium Potion", 50, 60),
+            HealthPotion("Large Potion", 90, 100),
             HealthPotion("Mega Potion", 130, 150),
         ])
 
