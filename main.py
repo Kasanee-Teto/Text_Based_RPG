@@ -32,13 +32,8 @@ player: Optional[Player] = None
 
 def print_header(text: str, style: str = "cyan"):
     """
-    Print a formatted header
-    
-    Args:
-        text: Header text
-        style: Color style (cyan, yellow, red, etc.)
+    Print a formatted header matching original design.
     """
-    """Print a formatted header matching original design."""
     separator = "=" * CONFIG.UI.SEPARATOR_LENGTH
     print(Fore.YELLOW + separator + Style.RESET_ALL)
     print(getattr(Fore, style.upper()) + Style.BRIGHT + text.center(CONFIG.UI.SEPARATOR_LENGTH) + Style.RESET_ALL)
@@ -210,7 +205,7 @@ def _inv_drop_item():
         item = player.inventory.get_item_by_index(idx)
         if item:
             player.inventory.remove_item(item)
-            print(Fore.GREEN + "✅ Item removed.")
+            # Message handled by inventory class now
 
 def _inv_equip_use():
     player.inventory.list_items()
@@ -237,7 +232,7 @@ def _inv_show_desc():
     idx = read_int("➤ Enter item's index: ")
     item = player.inventory.get_item_by_index(idx) if idx else None
     if item:
-        print(f"{item.name} | Val: {item.value} | {getattr(item, 'rarity', 'Common')}")
+        print(f"ℹ️  {item.get_description()}")
 
 def _inv_sort():
     choice = read_int("1) Name 2) Value: ", 1, 2)
@@ -378,6 +373,8 @@ def game_loop():
         if choice == 9: 
             print(Fore.YELLOW + "\n🎮 Exiting game..." + Style.RESET_ALL)
             print_header("👋 THANK YOU FOR PLAYING", "cyan")
+            print(Fore.CYAN + "Made by: Edbert Chandra, Kindy Lim, Louis Fortino".center(CONFIG.UI.SEPARATOR_LENGTH) + Style.RESET_ALL)
+            print(Fore.YELLOW + "=" * CONFIG.UI.SEPARATOR_LENGTH + Style.RESET_ALL)
             break
             
         if choice in handlers:
