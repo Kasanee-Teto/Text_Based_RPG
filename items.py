@@ -1,20 +1,13 @@
 """
-Items module for RPG Game
-Defines all item types: Weapons, Armor, Consumables
-Provides a scalable base for adding new item types
+Items module for RPG Game.
+Defines all item types: Weapons, Armor, Consumables.
 """
-
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Union
 
 if TYPE_CHECKING:
     from Character.Character_RPG import Character
 
-# ==============================
-# BASE ITEM CLASSES
-# ==============================
-
-class Items:
     """
     Base class for all items in the game
     
@@ -22,11 +15,12 @@ class Items:
         name (str): Display name of the item
         value (int): Gold/coin value of the item
     """
-    
+class Item:
+    """Base class for all items."""
     def __init__(self, name: str, value: int):
         self.name = name
         self.value = value
-    
+
     def __repr__(self):
         return f"{self.__class__.__name__}(name='{self.name}', value={self.value})"
 
@@ -35,7 +29,6 @@ class Items:
 # WEAPON CLASS
 # ==============================
 
-class Weapon(Items):
     """
     Weapon items that increase player attack power
     
@@ -52,16 +45,14 @@ class Weapon(Items):
         self.weapon_type = weapon_type
         self.damage = damage
         self.rarity = rarity
-    
-    def __repr__(self):
-        return f"Weapon(name='{self. name}', type='{self.weapon_type}', damage={self.damage})"
 
+    def __repr__(self):
+        return f"Weapon(name='{self.name}', type='{self.weapon_type}', damage={self.damage})"
 
 # ==============================
 # ARMOR CLASS
 # ==============================
 
-class Armor(Items):
     """
     Armor items that increase player defense
     
@@ -73,19 +64,13 @@ class Armor(Items):
         rarity (str): Rarity tier
     """
     
-    def __init__(self, name: str, defense: int, defense_type, value: int, rarity: str = "Common"):
         super().__init__(name, value)
         self.defense = defense
         self.defense_type = defense_type
         self.rarity = rarity
-    
+
     def __repr__(self):
-        return f"Armor(name='{self.name}', defense={self. defense})"
-
-
-# ==============================
-# CONSUMABLE INTERFACE
-# ==============================
+        return f"Armor(name='{self.name}', defense={self.defense})"
 
 class Consumable(ABC):
     """
@@ -94,13 +79,7 @@ class Consumable(ABC):
     """
     
     @abstractmethod
-    def uses(self, entity: 'Character'):
-        """
-        Apply the consumable's effect to an entity
-        
-        Args:
-            entity: The character/entity using the consumable
-        """
+    def use(self, entity: 'Character') -> None:
         pass
 
 
@@ -108,7 +87,6 @@ class Consumable(ABC):
 # HEALTH POTION CLASS
 # ==============================
 
-class Health_Potions(Items, Consumable):
     """
     Health restoration potions
     
@@ -122,7 +100,6 @@ class Health_Potions(Items, Consumable):
         super().__init__(name, value)
         self.heals = heals
     
-    def uses(self, entity: 'Character'):
         """
         Heal the target entity
         
@@ -134,24 +111,17 @@ class Health_Potions(Items, Consumable):
         actual_heal = entity.hp - old_hp
         print(f"{entity.name} drank {self.name} and healed {actual_heal} HP (HP: {entity.hp}/{entity.max_hp})")
 
-
-# ==============================
-# PREDEFINED ITEMS
-# ==============================
-
-# Weapons
-Short_Sword = Weapon("Short Sword", "Sharp", 5, 10, "Common")
-Short_bow = Weapon("Short Bow", "Ranged", 4, 8, "Common")
-Long_Sword = Weapon("Long Sword", "Sharp", 12, 35, "Uncommon")
+# Predefined Items (factories or constants for immutable logic)
+ShortSword = Weapon("Short Sword", "Sharp", 5, 10, "Common")
+ShortBow = Weapon("Short Bow", "Ranged", 4, 8, "Common")
+LongSword = Weapon("Long Sword", "Sharp", 12, 35, "Uncommon")
 Mace = Weapon("Mace", "Blunt", 8, 25, "Common")
 
-# Armor
-Wizards_Robe = Armor("Wizard's Robe", 2, "Magic", 10, "Common")
-Leather_Armor = Armor("Leather Armor", 3, ["Sharp", "Blunt"], 5, "Common")
-Iron_Armor = Armor("Iron Armor", 12, ["Sharp", "Blunt"], 50, "Rare")
+WizardsRobe = Armor("Wizard's Robe", 2, "Magic", 10, "Common")
+LeatherArmor = Armor("Leather Armor", 3, ["Sharp", "Blunt"], 5, "Common")
+IronArmor = Armor("Iron Armor", 12, ["Sharp", "Blunt"], 50, "Rare")
 
-# Potions
-Small_HPotion = Health_Potions("Small Health Potion", 10, 25)
-Medium_HPotion = Health_Potions("Medium Health Potion", 20, 35)
-Large_HPotion = Health_Potions("Large Health Potion", 30, 50)
-XL_HPotion = Health_Potions("XL Health Potion", 40, 80)
+SmallHPotion = HealthPotion("Small Health Potion", 10, 25)
+MediumHPotion = HealthPotion("Medium Health Potion", 20, 35)
+LargeHPotion = HealthPotion("Large Health Potion", 30, 50)
+XLHPotion = HealthPotion("XL Health Potion", 40, 80)

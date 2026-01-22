@@ -1,19 +1,9 @@
 """
-Enemy classes for RPG Game
-Defines all enemy types with unique behaviors and abilities
+Enemy classes for RPG Game.
+Defines all enemy types with unique behaviors.
 """
-
-from Character.Character_RPG import Character
-from typing import TYPE_CHECKING
-import random
-
-if TYPE_CHECKING:
-    from Character.Character_RPG import Player
-
-
-# ==============================
-# BASE ENEMY CLASS
-# ==============================
+from Character.Character_RPG import Character, Player
+from config import ENEMY_STATS, BOSS_STATS
 
 class Enemy(Character):
     """
@@ -26,10 +16,9 @@ class Enemy(Character):
     
     def __init__(self, name: str, hp: int, attack: int, defense: int, exp_reward: int):
         super().__init__(name, hp, attack, defense)
-        self. exp_reward = exp_reward
+        self.exp_reward = exp_reward
         self.defeated_count = 0
     
-    def scale_difficulty(self, factor: float = 1.0) -> dict:
         """
         Scale enemy stats by difficulty factor
         
@@ -39,107 +28,99 @@ class Enemy(Character):
         Returns:
             dict: Scaled stats
         """
-        return {
-            "hp": int(self.max_hp * factor),
-            "attack": int(self.attack_power * factor),
-            "defense": int(self.defense * factor)
-        }
+    def scale_difficulty(self, factor: float = 1.0) -> None:
+        self.max_hp = int(self.max_hp * factor)
+        self.hp = self.max_hp
+        self.attack_power = int(self.attack_power * factor)
+        self.defense = int(self.defense * factor)
     
-    def defeated(self, player: 'Player'):
         """
         Handle enemy defeat - award EXP to player
         
         Args:
             player: The victorious player
         """
+    def defeated(self, player: Player):
         self.defeated_count += 1
         player.exp += self.exp_reward
         print(f"🏆 {self.name} defeated! {player.name} wins!")
         print(f"💫 {player.name} gained {self.exp_reward} EXP\n")
 
+# Normal Enemies
+class GoblinGrunt(Enemy):
+    def __init__(self):
+        stats = ENEMY_STATS['goblin']
+        super().__init__("Goblin Grunt", stats['hp'], stats['attack'], stats['defense'], stats['exp'])
 
 # ==============================
 # NORMAL ENEMIES
 # ==============================
-
-Goblin_Grunt = Enemy("Goblin Grunt", 45, 10, 2, 15)
-Spider = Enemy("Cave Spider", 20, 7, 1, 8)
-Skeleton = Enemy("Skeleton", 30, 10, 2, 11)
-Zombie = Enemy("Zombie", 35, 10, 2, 13)
-
-# ==============================
-# BOSS ENEMIES
-# ==============================
-
-class Wolf(Enemy):
-    """
-    Boss enemy with bleeding attack
-    Inflicts 'bleeding' status effect on hit
-    """
+class CaveSpider(Enemy):
     def __init__(self):
-        super().__init__("Alpha Wolf", 75, 20, 5, 25)
-    
-    def attack(self, target):
-        super().attack(target)
-        target.status_effects.append("bleeding")
-        print(f"🩸 {target.name} is bleeding!")
+        stats = ENEMY_STATS['spider']
+        super().__init__("Cave Spider", stats['hp'], stats['attack'], stats['defense'], stats['exp'])
 
-
-class Ogre(Enemy):
-    """
-    Boss enemy with weakening attack
-    Inflicts 'weakened' status effect, reducing target stats
-    """
+class Skeleton(Enemy):
     def __init__(self):
-        super().__init__("Ogre Brute", 80, 15, 5, 30)
-    
-    def attack(self, target):
-        super().attack(target)
-        target.status_effects.append("weakened")
-        print(f"💢 {target.name}'s stats are temporarily reduced (weakened)!")
+        stats = ENEMY_STATS['skeleton']
+        super().__init__("Skeleton", stats['hp'], stats['attack'], stats['defense'], stats['exp'])
 
-
-class Vampire(Enemy):
-    """
-    Boss enemy with life drain
-    Heals for 30% of attack damage dealt
-    """
+class Zombie(Enemy):
     def __init__(self):
-        super().__init__("Vampire Lord", 65, 30, 5, 35)
+        stats = ENEMY_STATS['zombie']
+        super().__init__("Zombie", stats['hp'], stats['attack'], stats['defense'], stats['exp'])
+
+# Boss Enemies
+class WolfBoss(Enemy):
+    def __init__(self):
+        stats = BOSS_STATS['wolf']
+        super().__init__("Alpha Wolf", stats['hp'], stats['attack'], stats['defense'], stats['exp'])
     
-    def attack(self, target):
+    def attack(self, target: Character) -> int:
+        dmg = super().attack(target)
+        if isinstance(target, Player):
+            target.status_effects.append("bleeding")
+            print(f"🩸 {target.name} is bleeding!")
+        return dmg
+
+class OgreBoss(Enemy):
+    def __init__(self):
+        stats = BOSS_STATS['ogre']
+        super().__init__("Ogre Brute", stats['hp'], stats['attack'], stats['defense'], stats['exp'])
+    
+    def attack(self, target: Character) -> int:
+        dmg = super().attack(target)
+        if isinstance(target, Player):
+            target.status_effects.append("weakened")
+            print(f"💢 {target.name}'s stats are temporarily reduced!")
+        return dmg
+
+class VampireBoss(Enemy):
+    def __init__(self):
+        stats = BOSS_STATS['vampire']
+        super().__init__("Vampire Lord", stats['hp'], stats['attack'], stats['defense'], stats['exp'])
+    
+    def attack(self, target: Character) -> int:
         damage = super().attack(target)
         heal = int(damage * 0.3)
         self.hp = min(self.max_hp, self.hp + heal)
-        print(f"🧛 {self.name} drains blood!  HP recovered {heal} (HP: {self.hp}/{self. max_hp})")
+        print(f"🧛 {self.name} drains blood! HP recovered {heal} (HP: {self.hp}/{self.max_hp})")
+        return damage
 
-
-# ==============================
-# FINAL BOSS
-# ==============================
-
-class Demon(Enemy):
-    """
-    Final boss with multiple debilitating effects
-    - Inflicts severe bleeding
-    - Inflicts severe weakening
-    - Life drains 50% of damage
-    """
+class DemonBoss(Enemy):
     def __init__(self):
-        super().__init__("Demon King", 100, 30, 3, 50)
+        stats = BOSS_STATS['demon']
+        super().__init__("Demon King", stats['hp'], stats['attack'], stats['defense'], stats['exp'])
     
-    def attack(self, target):
+    def attack(self, target: Character) -> int:
         damage = super().attack(target)
+        if isinstance(target, Player):
+            target.status_effects.append("bleeding_demon")
+            print(f"🩸 {target.name} is severely bleeding!")
+            target.status_effects.append("weakened_demon")
+            print(f"💢 {target.name}'s stats are severely reduced!")
         
-        # Apply severe bleeding
-        target.status_effects.append("bleeding_demon")
-        print(f"🩸 {target.name} is severely bleeding!")
-        
-        # Apply severe weakening
-        target.status_effects.append("weakened_demon")
-        print(f"💢 {target.name}'s stats are severely reduced!")
-        
-        # Life drain
         heal = int(damage * 0.5)
         self.hp = min(self.max_hp, self.hp + heal)
         print(f"😈 {self.name} drains life force and restores {heal} HP!")
+        return damage

@@ -1,41 +1,33 @@
 """
-Main game loop for Text-Based RPG
-Handles menu system, game flow, and player interactions
+Main game loop for Text-Based RPG.
 """
-
-from Character.Character_RPG import Player
-from Character.Enemy_RPG import *
-from items import *
-from Character.Role import Warrior, Mage, Archer, Healer, Assassin
-from save_game_RPG import save_game, load_game
-from Shop import ShopFacade
-from dungeon import Dungeon
-from config import GameConfig
+import time
+import random
+from typing import Optional
 
 from colorama import Fore, Style, init
-init(autoreset=True)
-
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
 from rich.panel import Panel
 from rich.text import Text
 from rich.table import Table
 
-import time
-import random
-from typing import Optional
+# Local Imports - NESTED STRUCTURE
+from Character.Character_RPG import Player
+from Character.Enemy_RPG import GoblinGrunt, CaveSpider, Skeleton, Zombie, Enemy
+from items import HealthPotion, Weapon, Armor
+from Character.Role import Warrior, Mage, Archer, Healer, Assassin
+from save_game_RPG import save_game, load_game
+from Shop import ShopFacade
+from dungeon import Dungeon
+from config import CONFIG
 
-
-# ==============================
-# GLOBAL STATE
-# ==============================
-
+init(autoreset=True)
 console = Console()
 player: Optional[Player] = None
 
-
 # ==============================
-# UI FUNCTIONS
+# UI HELPERS
 # ==============================
 
 def print_header(text: str, style: str = "cyan"):
@@ -46,19 +38,18 @@ def print_header(text: str, style: str = "cyan"):
         text: Header text
         style: Color style (cyan, yellow, red, etc.)
     """
-    separator = "=" * GameConfig.SEPARATOR_LENGTH
+    """Print a formatted header matching original design."""
+    separator = "=" * CONFIG.UI.SEPARATOR_LENGTH
     print(Fore.YELLOW + separator + Style.RESET_ALL)
-    print(getattr(Fore, style. upper()) + Style.BRIGHT + text. center(GameConfig.SEPARATOR_LENGTH) + Style.RESET_ALL)
-    print(Fore.YELLOW + separator + Style. RESET_ALL)
-
+    print(getattr(Fore, style.upper()) + Style.BRIGHT + text.center(CONFIG.UI.SEPARATOR_LENGTH) + Style.RESET_ALL)
+    print(Fore.YELLOW + separator + Style.RESET_ALL)
 
 def print_separator():
-    """Print a simple separator line"""
-    print(Fore. YELLOW + "-" * GameConfig.SEPARATOR_LENGTH + Style.RESET_ALL)
-
+    """Print a simple separator line."""
+    print(Fore.YELLOW + "-" * CONFIG.UI.SEPARATOR_LENGTH + Style.RESET_ALL)
 
 def show_loading_screen():
-    """Display animated loading screen with progress bar"""
+    """Display animated loading screen with progress bar (Original UI)."""
     console.clear()
     
     title = """
@@ -66,7 +57,7 @@ def show_loading_screen():
     ║                                                       ║
     ║   ██████╗ ██████╗  ██████╗                            ║
     ║   ██╔══██╗██╔══██╗██╔════╝                            ║
-    ║   ██████╔╝██████╔╝██║  ███╗                           ║
+    ║   ██████╔╝████���█╔╝██║  ███╗                           ║
     ║   ██╔══██╗██╔═══╝ ██║   ██║                           ║
     ║   ██║  ██║██║     ╚██████╔╝                           ║
     ║   ╚═╝  ╚═╝╚═╝      ╚═════╝                            ║
@@ -79,7 +70,6 @@ def show_loading_screen():
     console.print(title, style="bold cyan")
     console.print("\n")
     
-    # Loading messages
     loading_messages = [
         "Forging legendary weapons...",
         "Summoning ancient monsters...",
@@ -106,12 +96,12 @@ def show_loading_screen():
         
         for msg in loading_messages:
             progress.update(task, description=f"[cyan]{msg}")
-            time.sleep(random.uniform(GameConfig.LOADING_DELAY_MIN, GameConfig.LOADING_DELAY_MAX))
+            time.sleep(random.uniform(CONFIG.UI.LOADING_DELAY_MIN, CONFIG.UI.LOADING_DELAY_MAX))
             progress.advance(task)
     
     console.print("\n")
     success_panel = Panel(
-        Text("✨ Game loaded successfully!  ✨", justify="center", style="bold green"),
+        Text("✨ Game loaded successfully! ✨", justify="center", style="bold green"),
         border_style="green",
         padding=(1, 2)
     )
@@ -119,131 +109,84 @@ def show_loading_screen():
     time.sleep(1)
     console.clear()
 
+def read_int(prompt: str, min_val: int = None, max_val: int = None) -> Optional[int]:
+    try:
+        val = int(input(Fore.CYAN + prompt + Style.RESET_ALL))
+        if min_val is not None and val < min_val: return None
+        if max_val is not None and val > max_val: return None
+        return val
+    except ValueError:
+        return None
 
-def display_status(player: Player):
-    """
-    Display player status in a formatted table
+# ==============================
+# GAME LOGIC HELPERS
+# ==============================
+
+def battle(player_char: Player, enemy: Enemy):
+    print_header(f"⚔️  {player_char.name} VS {enemy.name}", "red")
     
-    Args:
-        player: Player to display stats for
-    """
+    while player_char.is_alive() and enemy.is_alive():
+        print(Fore.CYAN + "\n[Enter] Attack | [E] Inventory | [F] Status" + Style.RESET_ALL)
+        choice = input(Fore.CYAN + "➤ " + Style.RESET_ALL).strip().lower()
+        
+        if choice == 'e':
+            _handle_inventory_logic()
+            continue
+        elif choice == 'f':
+            display_status(player_char)
+            continue
+        
+        player_char.attack(enemy)
+        print_separator()
+        
+        if enemy.is_alive():
+            enemy.attack(player_char)
+            player_char.update_status_effects()
+        
+        print(Fore.GREEN + f"💚 {player_char.name} HP: {player_char.hp}/{player_char.max_hp}")
+        print(Fore.RED + f"💔 {enemy.name} HP: {enemy.hp}/{enemy.max_hp}")
+        print_separator()
+    
+    if player_char.is_alive():
+        player_char.level_up()
+
+def display_status(p: Player):
     print_separator()
-    print(Fore. CYAN + Style.BRIGHT + "📜 CHARACTER STATUS". center(GameConfig.SEPARATOR_LENGTH) + Style.RESET_ALL)
-    print_separator()
+    print(Fore.CYAN + Style.BRIGHT + "📜 CHARACTER STATUS".center(CONFIG.UI.SEPARATOR_LENGTH))
     
     table = Table(show_header=False, box=None)
     table.add_column("Stat", style="cyan")
     table.add_column("Value", style="white")
     
-    stats = player.get_stats_display()
-    
-    table.add_row("Name", stats['name'])
-    table.add_row("HP", f"{stats['hp']}/{stats['max_hp']}")
-    table.add_row("ATK", str(stats['attack']))
-    table.add_row("DEF", str(stats['defense']))
-    table.add_row("Weapon", stats['weapon'])
-    table.add_row("Armor", stats['armor'])
-    table.add_row("Level", str(stats['level']))
-    table.add_row("EXP", stats['exp'])
-    table.add_row("Coins", f"💰 {stats['coins']}")
-    table.add_row("Role", stats['role'])
-    table.add_row("Status Effects", str(stats['status_effects']) if stats['status_effects'] else "None")
+    stats = p.get_stats_display()
+    for k, v in stats.items():
+        table.add_row(k.title(), str(v))
     
     console.print(table)
     print_separator()
 
-
 # ==============================
-# GAME SYSTEMS
+# SUB-MENUS
 # ==============================
 
-def battle(player: Player, enemy):
-    """
-    Handle turn-based combat between player and enemy
-    
-    Args:
-        player: Player character
-        enemy: Enemy character
-    """
-    print_header(f"⚔️  {player.name} VS {enemy.name}", "red")
-    
-    while player.is_alive() and enemy.is_alive():
-        print(Fore.CYAN + "\n[Enter] Attack | [E] Inventory | [F] Status" + Style.RESET_ALL)
-        choice = input(Fore.CYAN + "➤ " + Style.RESET_ALL).strip(). lower()
-        
-        if choice == 'e':
-            inventory_menu()
-            continue
-        elif choice == 'f':
-            display_status(player)
-            continue
-        
-        # Player attacks
-        player. attack(enemy)
-        print_separator()
-        
-        # Check if enemy died
-        if not enemy.is_alive():
-            break
-        
-        # Enemy attacks back
-        enemy.attack(player)
-        
-        # Apply status effects to player
-        player.update_status_effects()
-        
-        # Display HP bars
-        print(Fore.GREEN + f"💚 {player.name} HP: {player.hp}/{player.max_hp}" + Style.RESET_ALL)
-        print(Fore.RED + f"💔 {enemy.name} HP: {enemy.hp}/{enemy.max_hp}" + Style.RESET_ALL)
-        print_separator()
-    
-    # Level up check after battle
-    if player.is_alive():
-        player.level_up()
-
-
-def drop_item(player: Player, enemy, drop_chance: float = 0.5):
-    """
-    Randomly drop items from defeated enemy
-    
-    Args:
-        player: Player to receive items
-        enemy: Defeated enemy
-        drop_chance: Probability of drop (0.0 to 1.0)
-    """
-    if random.random() < drop_chance:
-        possible_drops = [
-            Short_Sword, Short_bow, Long_Sword, Mace,
-            Wizards_Robe, Leather_Armor,
-            Small_HPotion, Medium_HPotion
-        ]
-        dropped_item = random.choice(possible_drops)
-        
-        # Try to add to inventory
-        if player.inventory.add_item(dropped_item):
-            item_name = getattr(dropped_item, "name", str(dropped_item))
-            print(Fore.GREEN + f"🎁 {enemy.name} dropped {item_name}!" + Style.RESET_ALL)
-
-
-def inventory_menu():
-    """Interactive inventory management menu"""
-    global player
-    
-    if player is None:
-        print(Fore.RED + "⚠️  Create a character first!" + Style. RESET_ALL)
+def _handle_inventory_logic():
+    if not player:
+        print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
         return
     
-    if not player.inventory.items:
-        print(Fore. YELLOW + "📦 Inventory is empty!" + Style.RESET_ALL)
-        return
+    handlers = {
+        1: lambda: player.inventory.list_items(),
+        2: _inv_drop_item,
+        3: _inv_equip_use,
+        4: _inv_show_desc,
+        5: _inv_sort,
+    }
     
-    running = True
-    
-    while running:
+    while True:
         if not player.inventory.items:
-            print(Fore.YELLOW + "📦 Inventory is now empty!  Closing menu..." + Style.RESET_ALL)
+            print(Fore.YELLOW + CONFIG.UI.MSG_INVENTORY_EMPTY)
             break
-        
+            
         print_header("🎒 INVENTORY MENU", "magenta")
         print("1) Show Inventory")
         print("2) Drop Item")
@@ -253,261 +196,169 @@ def inventory_menu():
         print("6) Exit Inventory")
         print_separator()
         
-        try:
-            inv_choice = int(input(Fore.CYAN + "➤ Choose Action: " + Style.RESET_ALL))
+        choice = read_int("➤ Choose Action: ", 1, 6)
+        if choice == 6 or choice is None:
+            print(Fore.YELLOW + "Closing inventory..." + Style.RESET_ALL)
+            break
             
-            if inv_choice == 1:
-                # Show inventory
-                print_separator()
-                player.inventory.list_items()
-                print_separator()
-            
-            elif inv_choice == 2:
-                # Drop item
-                player.inventory.list_items()
-                idx = int(input("➤ Choose item's index to remove: "))
-                selected_item = player.inventory.get_item_by_index(idx)
-                if selected_item:
-                    player.inventory.remove_item(selected_item)
-                    print(Fore.GREEN + "✅ Item removed." + Style.RESET_ALL)
-                else:
-                    print(Fore.RED + "❌ Invalid index!" + Style.RESET_ALL)
-            
-            elif inv_choice == 3:
-                # Equip/use item
-                print_separator()
-                print("Choose an item to equip/use:")
-                player.inventory.list_items()
-                print_separator()
-                
-                try:
-                    item_choice = int(input("➤ Enter the item number (or 0 to cancel): "))
-                    if item_choice == 0:
-                        continue
-                    
-                    selected_item = player.inventory.get_item_by_index(item_choice)
-                    
-                    if selected_item is None:
-                        print(Fore.RED + "❌ Invalid choice!" + Style.RESET_ALL)
-                        continue
-                    
-                    if isinstance(selected_item, Health_Potions):
-                        player.inventory.use_consumable(selected_item, player)
-                        print(Fore.GREEN + "🧪 Potion used!" + Style.RESET_ALL)
-                    elif isinstance(selected_item, Weapon):
-                        player.equip_weapon(selected_item)
-                        print(Fore. GREEN + "⚔️  Weapon equipped!" + Style. RESET_ALL)
-                    elif isinstance(selected_item, Armor):
-                        player.equip_armor(selected_item)
-                        print(Fore.GREEN + "🛡️  Armor equipped!" + Style.RESET_ALL)
-                    else:
-                        print(Fore.RED + "❌ This item cannot be used." + Style.RESET_ALL)
-                
-                except (ValueError, IndexError):
-                    print(Fore.RED + "❌ Invalid choice!" + Style.RESET_ALL)
-            
-            elif inv_choice == 4:
-                # Show item description
-                player.inventory.list_items()
-                idx = int(input("➤ Enter item's index: "))
-                selected_item = player.inventory.get_item_by_index(idx)
-                
-                if selected_item:
-                    print_separator()
-                    stats = []
-                    for attr in ["damage", "defense", "heals"]:
-                        if hasattr(selected_item, attr):
-                            stats.append(f"{attr. title()}: +{getattr(selected_item, attr)}")
-                    
-                    stat_text = " | ".join(stats) if stats else "No Bonus"
-                    rarity = getattr(selected_item, "rarity", "Common")
-                    print(f"{selected_item.name} | {stat_text} | 💰 {selected_item.value} | {rarity}")
-                    print_separator()
-                else:
-                    print(Fore.RED + "❌ Invalid index!" + Style.RESET_ALL)
-            
-            elif inv_choice == 5:
-                # Sort inventory
-                print("Sort by: 1) Name 2) Value")
-                sort_choice = int(input("➤ Choose sorting method: "))
-                if sort_choice == 1:
-                    player.inventory.sort_items(by_name=True)
-                    print(Fore.GREEN + "✅ Inventory sorted by name." + Style.RESET_ALL)
-                elif sort_choice == 2:
-                    player.inventory.sort_items(by_name=False)
-                    print(Fore.GREEN + "✅ Inventory sorted by value." + Style.RESET_ALL)
-                else:
-                    print(Fore.RED + "❌ Invalid sorting choice!" + Style.RESET_ALL)
-            
-            elif inv_choice == 6:
-                # Exit
-                running = False
-                print(Fore.YELLOW + "Closing inventory..." + Style.RESET_ALL)
-        
-        except (ValueError, IndexError):
-            print(Fore.RED + "❌ Invalid input!" + Style.RESET_ALL)
+        handlers.get(choice, lambda: print(CONFIG.UI.MSG_INVALID_CHOICE))()
 
-def role_selection_menu():
-    """Handle role/class selection for player"""
+def _inv_drop_item():
+    player.inventory.list_items()
+    idx = read_int("➤ Choose item's index to remove: ")
+    if idx:
+        item = player.inventory.get_item_by_index(idx)
+        if item:
+            player.inventory.remove_item(item)
+            print(Fore.GREEN + "✅ Item removed.")
+
+def _inv_equip_use():
+    player.inventory.list_items()
+    idx = read_int("➤ Enter the item number (or 0 to cancel): ")
+    if not idx: return
+    
+    item = player.inventory.get_item_by_index(idx)
+    if not item: return
+
+    if isinstance(item, HealthPotion):
+        if player.inventory.use_consumable(item, player):
+            print(Fore.GREEN + "🧪 Potion used!")
+    elif isinstance(item, Weapon):
+        player.equip_weapon(item)
+        print(Fore.GREEN + "⚔️  Weapon equipped!")
+    elif isinstance(item, Armor):
+        player.equip_armor(item)
+        print(Fore.GREEN + "🛡️  Armor equipped!")
+    else:
+        print(Fore.RED + "❌ This item cannot be used.")
+
+def _inv_show_desc():
+    player.inventory.list_items()
+    idx = read_int("➤ Enter item's index: ")
+    item = player.inventory.get_item_by_index(idx) if idx else None
+    if item:
+        print(f"{item.name} | Val: {item.value} | {getattr(item, 'rarity', 'Common')}")
+
+def _inv_sort():
+    choice = read_int("1) Name 2) Value: ", 1, 2)
+    if choice == 1: 
+        player.inventory.sort_items(True)
+        print(Fore.GREEN + "✅ Inventory sorted by name.")
+    elif choice == 2: 
+        player.inventory.sort_items(False)
+        print(Fore.GREEN + "✅ Inventory sorted by value.")
+
+# ==============================
+# MAIN HANDLERS
+# ==============================
+
+def _handle_start_game():
     global player
-    
     if player is None:
-        print(Fore.RED + "⚠️  Start the game first!" + Style.RESET_ALL)
+        name = input("➤ Enter your name (or 'back' to return): ")
+        if name.lower() == "back": return
+        player = Player(name)
+        print(Fore.GREEN + f"✨ Player {player.name} has been created!")
+    else:
+        enemy = random.choice([GoblinGrunt(), CaveSpider(), Skeleton(), Zombie()])
+        battle(player, enemy)
+        if not player.is_alive():
+             player.defeated(enemy)
+             player.hp = player.max_hp
+
+def _handle_shop():
+    if not player:
+        print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
         return
+    facade = ShopFacade()
+    facade.display_shop_menu(player)
     
-    if player.level < GameConfig.ROLE_UNLOCK_LEVEL:
-        print(Fore.RED + f"⚠️  You need to be level {GameConfig.ROLE_UNLOCK_LEVEL} to choose a role!  (Current: {player.level})" + Style.RESET_ALL)
-        return
-    
-    if player.role is not None:
-        print(Fore.YELLOW + f"ℹ️  You already have a role: {player.role.__class__.__name__}" + Style.RESET_ALL)
-        return
-    
-    print_header("🎭 CHOOSE YOUR ROLE", "magenta")
-    print("1) Warrior  - High defense and HP tank")
-    print("2) Mage     - Maximum attack, low defense")
-    print("3) Archer   - Balanced ranged fighter")
-    print("4) Healer   - Support with modest bonuses")
-    print("5) Assasin  - High Attack, low defense")
-    print("5) Assasin  - High damage, low defense")
-    print("6) Back")
-    print_separator()
-    
-    try:
-        choice_role = int(input(Fore.CYAN + "➤ Select role number: " + Style.RESET_ALL))
+    while True:
+        choice = read_int("➤ Enter your choice: ", 1, 7)
+        if not choice: break
         
-        role_map = {
-            1: Warrior,
-            2: Mage,
-            3: Archer,
-            4: Healer,
-            5: Assassin
-        }
+        if not facade.visit_shop(choice, player):
+            break
         
-        if choice_role == 6:
-            return
+        # Redisplay menu after returning from a specific shop
+        facade.display_shop_menu(player)
+
+def _handle_dungeon():
+    if not player:
+        print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
+        return
         
-        role_class = role_map.get(choice_role)
-        if role_class:
-            player.choose_role(role_class())
-        else:
-            print(Fore.RED + "❌ Invalid role choice." + Style.RESET_ALL)
-    
-    except ValueError:
-        print(Fore.RED + "❌ Invalid input!" + Style.RESET_ALL)
-
-
-def combat_scenario():
-    """Run a standard combat scenario with random enemies and bosses"""
-    global player
-    
-    if player is None:
-        print(Fore.RED + "⚠️  Create a character first!" + Style.RESET_ALL)
-        return
-    
-    print(Fore.CYAN + f"\n🌟 Welcome, {player.name}!\n" + Style.RESET_ALL)
-    
-    # Normal enemy encounter
-    enemy_list = [Goblin_Grunt, Spider, Skeleton, Zombie]
-    random_enemy = random.choice(enemy_list)
-    battle(player, random_enemy)
-    
-    if not random_enemy.is_alive():
-        random_enemy.defeated(player)
-        drop_item(player, random_enemy, GameConfig.NORMAL_DROP_CHANCE)
-    
-    if not player.is_alive():
-        player.defeated(random_enemy)
-        player.hp = player.max_hp
-        player.status_effects = []
-        return
-    
-    # Boss encounter
-    boss_list = [Wolf(), Ogre(), Vampire()]
-    random_boss = random. choice(boss_list)
-    print_header("👹 BOSS FIGHT", "red")
-    battle(player, random_boss)
-    
-    if not player.is_alive():
-        player.defeated(random_boss)
-        player.hp = player.max_hp
-        player.status_effects = []
-        return
-    
-    if not random_boss.is_alive():
-        random_boss.defeated(player)
-        print(Fore.GREEN + f"🏆 {random_boss.name} defeated! {player.name} wins!" + Style.RESET_ALL)
-        drop_item(player, random_boss, GameConfig. BOSS_DROP_CHANCE)
-    
-    # Final boss
-    demon_boss = Demon()
-    print_header("🔥 FINAL BOSS FIGHT 🔥", "red")
-    battle(player, demon_boss)
-    
-    if not player.is_alive():
-        player.defeated(demon_boss)
-        player.hp = player.max_hp
-        player.status_effects = []
-        return
-    
-    if not demon_boss.is_alive():
-        demon_boss. defeated(player)
-        print(Fore.GREEN + Style.BRIGHT + "🎉 CONGRATULATIONS! YOU DEFEATED THE DEMON KING!  🎉" + Style. RESET_ALL)
-        drop_item(player, demon_boss, GameConfig.FINAL_BOSS_DROP_CHANCE)
-
-
-def dungeon_mode():
-    """Enter procedurally generated dungeon"""
-    global player
-    
-    if player is None:
-        print(Fore.RED + "⚠️  Create a character first!" + Style.RESET_ALL)
-        return
-    
     print_header("🏰 DUNGEON MODE", "magenta")
     print("Choose difficulty:")
     print("1) Easy   (0.8x difficulty)")
     print("2) Normal (1.0x difficulty)")
     print("3) Hard   (1.5x difficulty)")
-    print("4) Back")
     
-    try:
-        diff_choice = int(input(Fore.CYAN + "➤ " + Style.RESET_ALL))
-        
-        difficulty_map = {1: 0.8, 2: 1.0, 3: 1.5}
-        difficulty = difficulty_map.get(diff_choice)
-        
-        if difficulty is None:
-            return
-        
-        # Generate dungeon
-        dungeon = Dungeon(
-            width=GameConfig.DEFAULT_DUNGEON_WIDTH,
-            height=GameConfig.DEFAULT_DUNGEON_HEIGHT,
-            depth=1,
-            seed=None,
-            difficulty=difficulty
-        )
-        
-        print(Fore.YELLOW + "🏰 Entering dungeon..." + Style.RESET_ALL)
-        success = dungeon.explore_from(player, battle)
-        
-        if not success:
-            player.defeated(Enemy("Dungeon", 0, 0, 0, 0))
-            player.hp = player.max_hp
-            player.status_effects = []
+    diff_map = {1: 0.8, 2: 1.0, 3: 1.5}
+    choice = read_int("➤ ", 1, 3)
+    if not choice: return
     
-    except ValueError:
-        print(Fore.RED + "❌ Invalid input!" + Style. RESET_ALL)
+    dungeon = Dungeon(difficulty=diff_map[choice])
+    print(Fore.YELLOW + "🏰 Entering dungeon..." + Style.RESET_ALL)
+    
+    if not dungeon.explore_from(player, battle):
+        player.defeated(Enemy("Dungeon", 0,0,0,0))
+        player.hp = player.max_hp
 
+def _handle_role():
+    if not player: 
+        print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
+        return
+    if player.level < CONFIG.PLAYER.ROLE_UNLOCK_LEVEL:
+        print(Fore.RED + f"⚠️  Need level {CONFIG.PLAYER.ROLE_UNLOCK_LEVEL}!" + Style.RESET_ALL)
+        return
+    if player.role:
+        print(Fore.YELLOW + "ℹ️  You already have a role." + Style.RESET_ALL)
+        return
+        
+    roles = {1: Warrior, 2: Mage, 3: Archer, 4: Healer, 5: Assassin}
+    print_header("🎭 CHOOSE YOUR ROLE", "magenta")
+    print("1) Warrior  - High defense and HP tank")
+    print("2) Mage     - Maximum attack, low defense")
+    print("3) Archer   - Balanced ranged fighter")
+    print("4) Healer   - Support with modest bonuses")
+    print("5) Assassin - High Attack, low defense")
+    print("6) Back")
+    
+    choice = read_int("➤ Select role number: ", 1, 6)
+    if choice and choice != 6: 
+        player.choose_role(roles[choice]())
+
+def _handle_save():
+    if player: save_game(player)
+    else: print(Fore.RED + "⚠️  No player to save!" + Style.RESET_ALL)
+
+def _handle_load():
+    global player
+    loaded = load_game()
+    if loaded: 
+        player = loaded
+        print(Fore.GREEN + f"✅ Welcome back, {player.name}!")
+
+def _handle_status():
+    if player: display_status(player)
+    else: print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
 
 # ==============================
-# MAIN GAME LOOP
+# MAIN LOOP
 # ==============================
 
 def game_loop():
-    """Main game loop - central menu system"""
-    global player
+    handlers = {
+        1: _handle_start_game,
+        2: _handle_status,
+        3: _handle_role,
+        4: _handle_shop,
+        5: _handle_inventory_logic,
+        6: _handle_save,
+        7: _handle_load,
+        8: _handle_dungeon,
+    }
     
     while True:
         print_header("⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️", "cyan")
@@ -522,95 +373,17 @@ def game_loop():
         print("9. Exit ❌")
         print_separator()
         
-        try:
-            choice = int(input(Fore.CYAN + "➤ Enter your choice: " + Style. RESET_ALL))
-        except ValueError:
-            print(Fore. RED + "❌ Invalid choice!" + Style.RESET_ALL)
-            continue
+        choice = read_int("➤ Enter your choice: ", 1, 9)
         
-        # ===== OPTION 1: Start Game =====
-        if choice == 1:
-            if player is None:
-                name = input("➤ Enter your name (or 'back' to return): ")
-                if name.lower() == "back":
-                    continue
-                player = Player(
-                    name,
-                    start_hp=GameConfig. PLAYER_START_HP,
-                    start_attack=GameConfig.PLAYER_START_ATTACK,
-                    start_defense=GameConfig.PLAYER_START_DEFENSE,
-                    start_coins=GameConfig. PLAYER_START_COINS
-                )
-                print(Fore.GREEN + f"✨ Player {player.name} has been created!" + Style.RESET_ALL)
-            else:
-                combat_scenario()
-        
-        # ===== OPTION 2: Show Status =====
-        elif choice == 2:
-            if player is not None:
-                display_status(player)
-            else:
-                print(Fore. RED + "⚠️  You don't have a character yet.  Please create one first." + Style.RESET_ALL)
-        
-        # ===== OPTION 3: Choose Role =====
-        elif choice == 3:
-            role_selection_menu()
-        
-        # ===== OPTION 4: Shop =====
-        elif choice == 4:
-            if player:
-                shop_facade = ShopFacade()
-                shopping = True
-                
-                while shopping:
-                    shop_facade.display_shop_menu(player)
-                    try:
-                        shop_choice = int(input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL))
-                        shopping = shop_facade.visit_shop(shop_choice, player)
-                    except ValueError:
-                        print(Fore.RED + "❌ Invalid input!" + Style.RESET_ALL)
-            else:
-                print(Fore.RED + "⚠️ Start the game first before visiting the shop!" + Style.RESET_ALL)
-                
-        # ===== OPTION 5: Inventory =====
-        elif choice == 5:
-            inventory_menu()
-        
-        # ===== OPTION 6: Save Game =====
-        elif choice == 6:
-            if player:
-                save_game(player)
-            else:
-                print(Fore.RED + "⚠️  No player to save!" + Style.RESET_ALL)
-        
-        # ===== OPTION 7: Load Game =====
-        elif choice == 7:
-            loaded_player = load_game()
-            if loaded_player:
-                player = loaded_player
-                print(Fore.GREEN + f"✅ Welcome back, {player.name}!" + Style.RESET_ALL)
-        
-        # ===== OPTION 8: Dungeon =====
-        elif choice == 8:
-            dungeon_mode()
-        
-        # ===== OPTION 9: Exit =====
-        elif choice == 9:
+        if choice == 9: 
             print(Fore.YELLOW + "\n🎮 Exiting game..." + Style.RESET_ALL)
+            print_header("👋 THANK YOU FOR PLAYING", "cyan")
             break
-        
+            
+        if choice in handlers:
+            handlers[choice]()
         else:
-            print(Fore. RED + "❌ Invalid choice!  Please choose 1-9." + Style. RESET_ALL)
-    
-    # Exit message
-    print_header("👋 THANK YOU FOR PLAYING", "cyan")
-    print(Fore.CYAN + "Made by: Edbert Chandra, Kindy Lim, Louis Fortino". center(GameConfig.SEPARATOR_LENGTH) + Style.RESET_ALL)
-    print(Fore.YELLOW + "=" * GameConfig.SEPARATOR_LENGTH + Style.RESET_ALL)
-
-
-# ==============================
-# ENTRY POINT
-# ==============================
+            print(CONFIG.UI.MSG_INVALID_CHOICE)
 
 if __name__ == "__main__":
     show_loading_screen()

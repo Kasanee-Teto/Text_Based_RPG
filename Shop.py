@@ -1,6 +1,3 @@
-# ==============================
-# SHOP SYSTEM WITH FACADE PATTERN
-# ==============================
 """
 Shop system for RPG Game with Facade Pattern implementation. 
 Manages multiple specialized shops with a unified interface. 
@@ -147,16 +144,11 @@ class Shop(ABC):
             List of formatted stat strings
         """
         stats = []
-        stat_attributes = {
-            "damage": "Damage",
-            "defense": "Defense",
-            "heals": "Heals"
-        }
-        
-        for attr, display_name in stat_attributes.items():
-            if hasattr(item, attr):
-                value = getattr(item, attr)
-                stats.append(f"{display_name}: +{value}")
+        # Updated to match refactored attribute names in items.py (using getattr for safety)
+        if hasattr(item, "damage"):
+            stats.append(f"Damage: +{item.damage}")
+        if hasattr(item, "defense"):
+            stats.append(f"Defense: +{item.defense}")
         
         return stats
 
@@ -301,9 +293,6 @@ class shop_potion(Shop):
     def stock_health_potions(self) -> None:
         """Stock health restoration potions - various sizes."""
         self.stock_items([
-            Health_Potions("Small Potion", 25, 30),
-            Health_Potions("Medium Potion", 50, 60),
-            Health_Potions("Large Potion", 90, 100),
             Health_Potions("Mega Potion", 130, 150),
         ])
 

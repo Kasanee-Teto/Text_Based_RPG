@@ -1,11 +1,5 @@
-"""
-Inventory management system for RPG Game
-Handles item storage, sorting, and manipulation
-"""
-
 from typing import List, Optional
-from items import Items
-
+from items import Item, Consumable
 
 class Inventory:
     """
@@ -27,121 +21,44 @@ class Inventory:
         self.max_capacity = max_capacity
     
     def is_full(self) -> bool:
-        """Check if inventory has reached capacity"""
-        if self.max_capacity is None:
-            return False
-        return len(self.items) >= self.max_capacity
     
-    def add_item(self, item: Items) -> bool:
-        """
-        Add an item to the inventory
-        
-        Args:
-            item: Item object to add
-            
-        Returns:
-            bool: True if added successfully, False if inventory full
-        """
-        if self. is_full():
-            print("Inventory is full!  Cannot add more items.")
+    def add_item(self, item: Item) -> bool:
+        if self.is_full():
+            print("Inventory is full!")
             return False
-        
         self.items.append(item)
-        item_name = getattr(item, 'name', 'Item')
-        print(f"{item_name} has been added to the inventory.")
+        print(f"{item.name} added to inventory.")
         return True
     
-    def remove_item(self, item: Items) -> bool:
-        """
-        Remove an item from the inventory
-        
-        Args:
-            item: Item object to remove
-            
-        Returns:
-            bool: True if removed, False if not found
-        """
+    def remove_item(self, item: Item) -> bool:
         if item in self.items:
-            self. items.remove(item)
-            item_name = getattr(item, 'name', 'Item')
-            print(f"{item_name} has been removed from the inventory.")
+            self.items.remove(item)
             return True
-        else:
-            item_name = getattr(item, 'name', 'Item')
-            print(f"{item_name} is not in the inventory.")
-            return False
+        return False
     
     def list_items(self):
-        """Display all items in inventory with index numbers"""
         if not self.items:
             print("Inventory is empty.")
             return
-        
         print("Inventory items:")
         for idx, item in enumerate(self.items, 1):
-            item_name = getattr(item, 'name', 'Unknown Item')
-            item_value = getattr(item, 'value', 'Unknown Value')
-            print(f"{idx}. {item_name} (Value: {item_value})")
+            print(f"{idx}. {item.name} (Value: {item.value})")
     
     def sort_items(self, by_name: bool = True):
-        """
-        Sort inventory items
-        
-        Args:
-            by_name: If True, sort alphabetically by name. 
-                    If False, sort by value (descending)
-        """
         if by_name:
-            self.items.sort(key=lambda x: getattr(x, 'name', ''))
+            self.items.sort(key=lambda x: x.name)
         else:
-            self.items.sort(key=lambda x: getattr(x, 'value', 0), reverse=True)
+            self.items.sort(key=lambda x: x.value, reverse=True)
     
-    def use_consumable(self, item: Items, entity) -> bool:
-        """
-        Use a consumable item on an entity
-        
-        Args:
-            item: The consumable item to use
-            entity: Target character/entity
-            
-        Returns:
-            bool: True if used successfully
-        """
-        if item not in self.items:
-            item_name = getattr(item, 'name', 'Item')
-            print(f"{item_name} is not in the inventory.")
-            return False
-        
-        try:
-            item.uses(entity)
+    def use_consumable(self, item: Item, entity) -> bool:
+        if item not in self.items: return False
+        if isinstance(item, Consumable):
+            item.use(entity)
             self.items.remove(item)
             return True
-        except AttributeError:
-            print("This item can't be used.")
-            return False
+        return False
     
-    def get_item_by_index(self, index: int) -> Optional[Items]:
-        """
-        Get item by its display index (1-based)
-        
-        Args:
-            index: Display index (1 to len(items))
-            
-        Returns:
-            Item if found, None otherwise
-        """
+    def get_item_by_index(self, index: int) -> Optional[Item]:
         if 1 <= index <= len(self.items):
             return self.items[index - 1]
         return None
-    
-    def count_items(self) -> int:
-        """Return the number of items in inventory"""
-        return len(self.items)
-    
-    def __len__(self) -> int:
-        """Allow len() to be called on inventory"""
-        return len(self.items)
-    
-    def __bool__(self) -> bool:
-        """Allow inventory to be used in boolean context"""
-        return len(self.items) > 0

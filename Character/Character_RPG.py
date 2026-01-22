@@ -3,18 +3,16 @@ Abstract Factory implementation for RPG characters.
 Converted from direct instantiation to an Abstract Factory pattern
 without changing responsibilities or behaviors.
 """
-
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, List
 import math
 from inventory import Inventory
+from config import CONFIG
 
 if TYPE_CHECKING:
     from items import Weapon, Armor
-    from Role import RoleStrategy
-
-
+    from Character.Role import RoleStrategy
 
 class Character:
     """
@@ -35,11 +33,9 @@ class Character:
         self.defense = defense
     
     def is_alive(self) -> bool:
-        """Check if character is still alive"""
         return self.hp > 0
     
     def take_damage(self, damage: int):
-        """Reduce HP by damage amount (minimum 0)"""
         self.hp -= max(0, damage)
         if self.hp < 0:
             self.hp = 0
@@ -55,28 +51,24 @@ class Character:
         print(f"{self.name} attacks {target.name} and deals {damage} damage!")
         return damage
 
-
-
 class Player(Character):
     """
     Player character with inventory, leveling, equipment, and role systems
     """
-    def __init__(self, name: str, start_hp: int = 100, start_attack: int = 8, 
-                 start_defense: int = 2, start_coins: int = 200):
         super().__init__(name, hp=start_hp, attack=start_attack, defense=start_defense)
-        self.exp = 0
-        self.level = 1
-        self.exp_needed = 100
+        self.exp = CONFIG.PLAYER.START_EXP
+        self.level = CONFIG.PLAYER.START_LEVEL
+        self.exp_needed = CONFIG.PLAYER.BASE_EXP_NEEDED
         self.role: Optional["RoleStrategy"] = None
-        self.status_effects = []
+        self.status_effects: List[str] = []
         self.equipped_weapon: Optional["Weapon"] = None
         self.equipped_armor: Optional["Armor"] = None
         self.inventory = Inventory()
         self.coins = start_coins
-        self._original_attack = None
-        self._original_defense = None
+        self._original_attack: Optional[int] = None
+        self._original_defense: Optional[int] = None
+        self.crit_rate: float = 0.0
     
-    # --- Progression ---
     def gain_exp(self, amount: int):
         self.exp += amount
         self.level_up()
@@ -84,18 +76,19 @@ class Player(Character):
     def level_up(self):
         while self.exp >= self.exp_needed:
             self.level += 1
-            self.max_hp += 20
-            self.hp = min(self.max_hp, self.hp + 20)  # Heal on level up
-            self.attack_power += 5
-            self.defense += 2
+            self.max_hp += CONFIG.PLAYER.LEVEL_UP_HP_BONUS
+            self.hp = min(self.max_hp, self.hp + CONFIG.PLAYER.LEVEL_UP_HP_BONUS)
+            self.attack_power += CONFIG.PLAYER.LEVEL_UP_ATTACK_BONUS
+            self.defense += CONFIG.PLAYER.LEVEL_UP_DEFENSE_BONUS
             self.exp -= self.exp_needed
             self.exp_needed += int(self.level * math.sqrt(self.exp_needed))
-            print(f"🎉 {self.name} leveled up!  Now level {self.level}.")
-            if self.level == 5 and self.role is None:
-                print(f"{self.name} can now choose a role (Warrior, Mage, Archer, Healer)!")
+            print(f"🎉 {self.name} leveled up! Now level {self.level}.")
+            
+            if self.level == CONFIG.PLAYER.ROLE_UNLOCK_LEVEL and self.role is None:
+                print(f"{self.name} can now choose a role!")
     
     def choose_role(self, role: "RoleStrategy"):
-        if self.level >= 5 and self.role is None:
+        if self.level >= CONFIG.PLAYER.ROLE_UNLOCK_LEVEL and self.role is None:
             self.role = role
             role.apply_bonus(self)
             print(f"{self.name} became a {role.__class__.__name__}!")
@@ -107,82 +100,73 @@ class Player(Character):
         if weapon not in self.inventory.items:
             print("Weapon not in inventory!")
             return
-        if self.equipped_weapon is None:
-            print(f"{self.name} equipped {weapon.name}")
-            self.inventory.remove_item(weapon)
-            self.equipped_weapon = weapon
-            self.attack_power += getattr(weapon, "damage", 0)
-        else:
+        if self.equipped_weapon:
             print(f"{self.name} swapped {self.equipped_weapon.name} with {weapon.name}")
-            self.attack_power -= getattr(self.equipped_weapon, "damage", 0)
+            self.attack_power -= self.equipped_weapon.damage
             self.inventory.add_item(self.equipped_weapon)
-            self.inventory.remove_item(weapon)
-            self.equipped_weapon = weapon
-            self.attack_power += getattr(weapon, "damage", 0)
+        else:
+            print(f"{self.name} equipped {weapon.name}")
+            
+        self.inventory.remove_item(weapon)
+        self.equipped_weapon = weapon
+        self.attack_power += weapon.damage
     
     def equip_armor(self, armor: "Armor"):
         if armor not in self.inventory.items:
             print("Armor not in inventory!")
             return
-        if self.equipped_armor is None:
-            print(f"{self.name} equipped {armor.name}")
-            self.inventory.remove_item(armor)
-            self.equipped_armor = armor
-            self.defense += getattr(armor, "defense", 0)
-        else:
+        if self.equipped_armor:
             print(f"{self.name} swapped {self.equipped_armor.name} with {armor.name}")
-            self.defense -= getattr(self.equipped_armor, "defense", 0)
+            self.defense -= self.equipped_armor.defense
             self.inventory.add_item(self.equipped_armor)
-            self.inventory.remove_item(armor)
-            self.equipped_armor = armor
-            self.defense += getattr(armor, "defense", 0)
-    
-    # --- Combat outcomes ---
+        else:
+            print(f"{self.name} equipped {armor.name}")
+            
+        self.inventory.remove_item(armor)
+        self.equipped_armor = armor
+        self.defense += armor.defense
+
     def defeated(self, enemy):
-        if self._original_attack is not None:
-            self.attack_power = self._original_attack
-            self._original_attack = None
-        if self._original_defense is not None:
-            self.defense = self._original_defense
-            self._original_defense = None
+        self._reset_temp_stats()
         self.status_effects = []
-        print(f"💀 {enemy.name} has killed {self.name}!  Come back when you are stronger!")
+        print(f"💀 {enemy.name} has killed {self.name}! Come back when you are stronger!")
     
-    def update_status_effects(self):
+    def _reset_temp_stats(self):
         if self._original_attack is not None:
             self.attack_power = self._original_attack
             self._original_attack = None
         if self._original_defense is not None:
             self.defense = self._original_defense
             self._original_defense = None
+
+    def update_status_effects(self):
+        self._reset_temp_stats()
         
         if "bleeding" in self.status_effects:
-            bleed_damage = 3
-            self.hp = max(0, self.hp - bleed_damage)
-            print(f"🩸 {self.name} suffers from bleeding and loses {bleed_damage} HP.")
+            self._apply_bleed(CONFIG.STATUS.BLEED_DAMAGE)
         elif "bleeding_demon" in self.status_effects:
-            bleed_damage_demon = 5
-            self.hp = max(0, self.hp - bleed_damage_demon)
-            print(f"🩸 {self.name} suffers from severe bleeding and loses {bleed_damage_demon} HP.")
+            self._apply_bleed(CONFIG.STATUS.BLEED_DAMAGE_DEMON, "severely")
         
         if "weakened" in self.status_effects:
-            self._original_attack = self.attack_power
-            self._original_defense = self.defense
-            weakened_atk = max(1, int(self.attack_power * 0.8))
-            weakened_def = max(1, int(self.defense * 0.8))
-            print(f"💢 {self.name} is weakened!  ATK {self.attack_power}→{weakened_atk}, DEF {self.defense}→{weakened_def}")
-            self.attack_power = weakened_atk
-            self.defense = weakened_def
+            self._apply_weaken(CONFIG.STATUS.WEAKENED_MULTIPLIER)
         elif "weakened_demon" in self.status_effects:
-            self._original_attack = self.attack_power
-            self._original_defense = self.defense
-            weakened_atk_demon = max(1, int(self.attack_power * 0.6))
-            weakened_def_demon = max(1, int(self.defense * 0.6))
-            print(f"💢 {self.name} is severely weakened! ATK {self.attack_power}→{weakened_atk_demon}, DEF {self.defense}→{weakened_def_demon}")
-            self.attack_power = weakened_atk_demon
-            self.defense = weakened_def_demon
-    
-    # --- UI helpers ---
+            self._apply_weaken(CONFIG.STATUS.WEAKENED_DEMON_MULTIPLIER, "severely")
+
+    def _apply_bleed(self, amount: int, severity: str = ""):
+        self.hp = max(0, self.hp - amount)
+        desc = f"suffers from {severity} bleeding" if severity else "suffers from bleeding"
+        print(f"🩸 {self.name} {desc} and loses {amount} HP.")
+
+    def _apply_weaken(self, multiplier: float, severity: str = ""):
+        self._original_attack = self.attack_power
+        self._original_defense = self.defense
+        new_atk = max(1, int(self.attack_power * multiplier))
+        new_def = max(1, int(self.defense * multiplier))
+        desc = f"is {severity} weakened" if severity else "is weakened"
+        print(f"💢 {self.name} {desc}! ATK {self.attack_power}→{new_atk}, DEF {self.defense}→{new_def}")
+        self.attack_power = new_atk
+        self.defense = new_def
+
     def get_stats_display(self) -> dict:
         return {
             "name": self.name,
