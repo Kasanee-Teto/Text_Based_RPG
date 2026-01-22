@@ -90,7 +90,12 @@ class Dungeon:
         coords = [(x, y) for x in range(self.width) for y in range(self.height)]
         self.start_pos = random.choice(coords)
         coords.remove(self.start_pos)
-        self.exit_pos = random.choice(coords)
+        
+        # Handle edge case where there's only 1 room
+        if len(coords) > 0:
+            self.exit_pos = random.choice(coords)
+        else:
+            self.exit_pos = self.start_pos
         
         # Configure meta flags
         start_room = self.get_room(*self.start_pos)
@@ -104,10 +109,16 @@ class Dungeon:
         # 2. Fill content for other rooms
         for y in range(self.height):
             for x in range(self.width):
+                room = self.map[y][x]
+                
+                # Set is_exit flag before generating content
+                if (x, y) == self.exit_pos:
+                    room.is_exit = True
+                    room.description = "You see a faint light. It might be the exit."
+                
                 if (x, y) == self.start_pos:
                     continue
                 
-                room = self.map[y][x]
                 self._generate_room_content(room)
                 if not room.is_exit and not room.is_entrance:
                     self._assign_description(room)

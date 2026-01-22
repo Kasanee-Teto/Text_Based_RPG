@@ -1,5 +1,5 @@
 from main import print_header, print_separator
-from config import GameConfig
+from config import UIConfig
 
 
 def test_print_header_outputs_text(capsys):
@@ -11,4 +11,4 @@ def test_print_header_outputs_text(capsys):
 def test_print_separator_outputs_dashes(capsys):
     print_separator()
     out = capsys.readouterr().out
-    assert "-" * GameConfig.SEPARATOR_LENGTH in out
+    assert "-" * UIConfig.SEPARATOR_LENGTH in out

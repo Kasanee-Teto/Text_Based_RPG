@@ -14,8 +14,9 @@ from rich.table import Table
 
 # Local Imports - NESTED STRUCTURE
 from Character.Character_RPG import Player
-from Character.Enemy_RPG import GoblinGrunt, CaveSpider, Skeleton, Zombie, Enemy
-from items import HealthPotion, Weapon, Armor
+from Character.Enemy_RPG import GoblinGrunt, CaveSpider, Skeleton, Zombie, Enemy, WolfBoss, OgreBoss, VampireBoss, DemonBoss
+from items import (HealthPotion, Weapon, Armor, ShortSword, ShortBow, LongSword, Mace,
+                   WizardsRobe, LeatherArmor, IronArmor, SmallHPotion, MediumHPotion, LargeHPotion, XLHPotion)
 from Character.Role import Warrior, Mage, Archer, Healer, Assassin
 from save_game_RPG import save_game, load_game
 from Shop import ShopFacade
@@ -117,6 +118,34 @@ def read_int(prompt: str, min_val: int = None, max_val: int = None) -> Optional[
 # GAME LOGIC HELPERS
 # ==============================
 
+def _drop_loot(player_char: Player, enemy: Enemy):
+    """Handle item drops after defeating an enemy"""
+    is_boss = isinstance(enemy, (WolfBoss, OgreBoss, VampireBoss))
+    is_demon = isinstance(enemy, DemonBoss)
+    
+    if is_demon:
+        drop_chance = CONFIG.DROP_CHANCE_FINAL_BOSS
+    elif is_boss:
+        drop_chance = CONFIG.DROP_CHANCE_BOSS
+    else:
+        drop_chance = CONFIG.DROP_CHANCE_NORMAL
+    
+    if random.random() <= drop_chance:
+        loot_pool = []
+        
+        if is_demon:
+            loot_pool = [IronArmor, LongSword, XLHPotion, LargeHPotion]
+        elif is_boss:
+            loot_pool = [LongSword, Mace, WizardsRobe, LeatherArmor, LargeHPotion, MediumHPotion]
+        else:
+            loot_pool = [ShortSword, ShortBow, LeatherArmor, SmallHPotion, MediumHPotion]
+        
+        dropped_item = random.choice(loot_pool)
+        player_char.inventory.add_item(dropped_item)
+        print(Fore.GREEN + f"💎 {enemy.name} dropped: {dropped_item.name}!" + Style.RESET_ALL)
+    else:
+        print(Fore.YELLOW + f"💨 {enemy.name} dropped nothing." + Style.RESET_ALL)
+
 def battle(player_char: Player, enemy: Enemy):
     print_header(f"⚔️  {player_char.name} VS {enemy.name}", "red")
     
@@ -143,7 +172,9 @@ def battle(player_char: Player, enemy: Enemy):
         print_separator()
     
     if player_char.is_alive():
+        enemy.defeated(player_char)
         player_char.level_up()
+        _drop_loot(player_char, enemy)
 
 def display_status(p: Player):
     print_separator()
@@ -255,11 +286,28 @@ def _handle_start_game():
         player = Player(name)
         print(Fore.GREEN + f"✨ Player {player.name} has been created!")
     else:
-        enemy = random.choice([GoblinGrunt, CaveSpider, Skeleton, Zombie])
+        enemy = random.choice([GoblinGrunt(), CaveSpider(), Skeleton(), Zombie()])
         battle(player, enemy)
+        
         if not player.is_alive():
-             player.defeated(enemy)
-             player.hp = player.max_hp
+            player.defeated(enemy)
+            player.hp = player.max_hp
+            return
+        
+        enemy = random.choice([WolfBoss(), OgreBoss(), VampireBoss()])
+        battle(player, enemy)
+        
+        if not player.is_alive():
+            player.defeated(enemy)
+            player.hp = player.max_hp
+            return
+        
+        enemy = DemonBoss()
+        battle(player, enemy)
+        
+        if not player.is_alive():
+            player.defeated(enemy)
+            player.hp = player.max_hp
 
 def _handle_shop():
     if not player:

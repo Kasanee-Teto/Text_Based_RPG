@@ -33,7 +33,7 @@ def test_health_potion_uses_heals_up_to_max_hp():
     p = DummyChar()
     potion = HealthPotion("Small Potion", value=5, heals=15)
     p.take_damage(20)  # hp -> 30
-    potion.uses(p)
+    potion.use(p)
     assert p.hp == 45  # 30 + 15, under max
-    potion.uses(p)
+    potion.use(p)
     assert p.hp == p.max_hp  # capped at max_hp

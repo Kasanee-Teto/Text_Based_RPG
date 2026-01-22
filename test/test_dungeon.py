@@ -9,7 +9,7 @@ def test_dungeon_generation_size_and_exit_flag():
     d = Dungeon(width=3, height=4, seed=42)
     assert len(d.map) == 4
     assert len(d.map[0]) == 3
-    exit_room = d.get_room(2, 3)
+    exit_room = d.get_room(*d.exit_pos)
     assert exit_room.is_exit is True
 
 
@@ -44,7 +44,8 @@ def test_handle_enemies_calls_battle_callback(monkeypatch):
             self.name = "Dummy"
 
     room = d.get_room(0, 0)
-    room.enemies = [DummyEnemy(), DummyEnemy()]
+    room.enemy = DummyEnemy()
+    room.event_type = d.RoomEventType.ENEMY if hasattr(d, 'RoomEventType') else None
 
     calls = []
 
@@ -55,16 +56,16 @@ def test_handle_enemies_calls_battle_callback(monkeypatch):
     # Avoid random loot drop to keep deterministic
     monkeypatch.setattr(random, "random", lambda: 1.0)
 
-    survived = d._handle_enemies(room, player, battle_callback)
+    survived = d._handle_combat(room, player, battle_callback)
     assert survived is True
-    assert calls == ["Dummy", "Dummy"]
-    assert room.enemies == []  # emptied
+    assert calls == ["Dummy"]
+    assert room.enemy is None  # cleared
 
 
 def test_spawn_content_with_seed_deterministic(monkeypatch):
     # Ensure deterministic content placement
     d = Dungeon(width=3, height=3, seed=123, difficulty=1.0)
-    enemies_count = sum(len(r.enemies) for row in d.map for r in row)
+    enemies_count = sum(1 if r.enemy else 0 for row in d.map for r in row)
     treasure_count = sum(len(r.treasure) for row in d.map for r in row)
     # At least some content spawned with this seed
     assert enemies_count >= 1

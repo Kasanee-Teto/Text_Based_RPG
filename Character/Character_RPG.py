@@ -91,6 +91,7 @@ class Player(Character):
         self.exp_needed = 100
         self.role: Optional[RoleStrategy] = None
         self.status_effects: list[str] = []
+        self.applied_status_effects: set[str] = set()
         self.equipped_weapon: Optional["Weapon"] = None
         self.equipped_armor: Optional["Armor"] = None
         self.inventory = inventory_factory()
@@ -177,21 +178,16 @@ class Player(Character):
             self.defense = self._original_defense
             self._original_defense = None
         self.status_effects = []
+        self.applied_status_effects = set()
         print(f"💀 {enemy.name} has killed {self.name}!  Come back when you are stronger!")
 
     def update_status_effects(self):
-        # Restore base stats before reapplying debuffs
-        if self._original_attack is not None:
-            self.attack_power = self._original_attack
-            self._original_attack = None
-        if self._original_defense is not None:
-            self.defense = self._original_defense
-            self._original_defense = None
-
         for effect in list(self.status_effects):
-            handler = self._status_registry.get(effect)
-            if handler:
-                handler()
+            if effect not in self.applied_status_effects:
+                handler = self._status_registry.get(effect)
+                if handler:
+                    handler()
+                    self.applied_status_effects.add(effect)
 
     # ---------------- Status effect handlers (SRP/OCP) ----------------
     def _apply_bleeding(self):
