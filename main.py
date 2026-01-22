@@ -221,7 +221,7 @@ def drop_item(player: Player, enemy, drop_chance: float = 0.5):
         
         # Try to add to inventory
         if player.inventory.add_item(dropped_item):
-            item_name = getattr(dropped_item, "name", str(dropped_item))
+            item_name = dropped_item.name
             print(Fore.GREEN + f"🎁 {enemy.name} dropped {item_name}!" + Style.RESET_ALL)
 
 
@@ -314,14 +314,19 @@ def inventory_menu():
                 
                 if selected_item:
                     print_separator()
-                    stats = []
-                    for attr in ["damage", "defense", "heals"]:
-                        if hasattr(selected_item, attr):
-                            stats.append(f"{attr. title()}: +{getattr(selected_item, attr)}")
-                    
-                    stat_text = " | ".join(stats) if stats else "No Bonus"
-                    rarity = getattr(selected_item, "rarity", "Common")
-                    print(f"{selected_item.name} | {stat_text} | 💰 {selected_item.value} | {rarity}")
+                    # Use get_description method if available (Open-Closed Principle)
+                    if hasattr(selected_item, 'get_description'):
+                        print(selected_item.get_description())
+                    else:
+                        # Fallback for items without get_description
+                        stats = []
+                        for attr in ["damage", "defense", "heals"]:
+                            if hasattr(selected_item, attr):
+                                stats.append(f"{attr.title()}: +{getattr(selected_item, attr)}")
+                        
+                        stat_text = " | ".join(stats) if stats else "No Bonus"
+                        rarity = getattr(selected_item, "rarity", "Common")
+                        print(f"{selected_item.name} | {stat_text} | 💰 {selected_item.value} | {rarity}")
                     print_separator()
                 else:
                     print(Fore.RED + "❌ Invalid index!" + Style.RESET_ALL)
