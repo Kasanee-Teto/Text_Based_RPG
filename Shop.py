@@ -14,7 +14,7 @@ Architecture:
 """
 
 from colorama import Fore, Style, init
-from items import Weapon, Armor, Health_Potions
+from items import Weapon, Armor, HealthPotion
 from typing import Optional, Dict, List, Tuple, Callable
 from abc import ABC
 
@@ -293,7 +293,7 @@ class shop_potion(Shop):
     def stock_health_potions(self) -> None:
         """Stock health restoration potions - various sizes."""
         self.stock_items([
-            Health_Potions("Mega Potion", 130, 150),
+            HealthPotion("Mega Potion", 130, 150),
         ])
 
 

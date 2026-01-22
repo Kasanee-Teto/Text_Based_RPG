@@ -6,10 +6,10 @@ class Inventory:
     Manages a collection of items for a character
     
     Attributes:
-        items (List[Items]): List of item objects
+        items (List[Item]): List of item objects
         max_capacity (int): Maximum number of items (optional limit)
     """
-    
+
     def __init__(self, max_capacity: Optional[int] = None):
         """
         Initialize an empty inventory
@@ -17,10 +17,11 @@ class Inventory:
         Args:
             max_capacity: Optional maximum item limit (None = unlimited)
         """
-        self. items: List[Items] = []
+        self. items: List[Item] = []
         self.max_capacity = max_capacity
     
     def is_full(self) -> bool:
+        return self.max_capacity is not None and len(self.items) >= self.max_capacity
     
     def add_item(self, item: Item) -> bool:
         if self.is_full():
@@ -47,7 +48,7 @@ class Inventory:
     def sort_items(self, by_name: bool = True):
         if by_name:
             self.items.sort(key=lambda x: x.name)
-        else:
+        else:   
             self.items.sort(key=lambda x: x.value, reverse=True)
     
     def use_consumable(self, item: Item, entity) -> bool:
