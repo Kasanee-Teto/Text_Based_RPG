@@ -9,7 +9,7 @@ def test_is_alive_and_take_damage():
     c.take_damage(5)
     assert c.hp == 5
     assert c.is_alive() is True
-    c.take_damage(10)  # overkill
+    c.take_damage(10) 
     assert c.hp == 0
     assert c.is_alive() is False
 
@@ -23,5 +23,5 @@ def test_attack_uses_defense_and_min_zero():
 
     defender2 = Character("Peasant", hp=8, attack=1, defense=2)
     dmg2 = attacker.attack(defender2)
-    assert dmg2 == 3  # 5 - 2
+    assert dmg2 == 3  
     assert defender2.hp == 5
