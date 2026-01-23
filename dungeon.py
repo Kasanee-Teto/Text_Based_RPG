@@ -1,9 +1,6 @@
 """
 Dungeon generation and exploration system.
-Refactored for SOLID:
-- SRP: Logic separated from UI and Data Generation.
-- DIP: Dependencies (UI, Spawning) are injected via interfaces.
-- OCP: Spawning logic is pluggable via Strategy pattern.
+Refactored for SOLID + Depth System + Exit Restrictions + Confirmation.
 """
 import random
 from enum import Enum, auto
@@ -28,13 +25,16 @@ class DungeonPresenter(Protocol):
     def show_entrance_msg(self, depth: int) -> None: ...
     def show_exit_msg(self, reward: int) -> None: ...
     def show_room(self, room_desc: str, room_summary: str, map_str: str, x: int, y: int, has_key: bool) -> None: ...
+    def show_map_legend(self) -> None: ... # New
     def show_trap_trigger(self, trap_name: str, damage: int, player_name: str, status: Optional[str]) -> None: ...
     def show_combat_start(self, enemy_name: str) -> None: ...
     def show_treasure_found(self, item_name: str) -> None: ...
-    def show_retreat_msg(self) -> None: ...
-    def show_key_found(self) -> None: ... # New
-    def show_exit_locked(self) -> None: ... # New
-    def show_game_complete(self) -> None: ... # New
+    def show_key_found(self) -> None: ...
+    def show_exit_locked(self) -> None: ...
+    def show_game_complete(self) -> None: ...
+    def show_retreat_penalty(self, penalty: int) -> None: ...
+    def show_cannot_retreat(self) -> None: ...
+    def ask_exit_confirmation(self, is_retreat: bool) -> bool: ... # New
     def get_movement_input(self, available_moves: List[str]) -> Optional[str]: ...
 
 class SpawnStrategy(Protocol):
@@ -56,7 +56,7 @@ class Room:
         self.visited = False
         self.is_exit = False
         self.is_entrance = False
-        self.has_key = False # New property
+        self.has_key = False
         
         self.event_type: RoomEventType = RoomEventType.EMPTY
         self.enemy: Any = None
@@ -67,7 +67,7 @@ class Room:
     
     def summary(self) -> str:
         parts = []
-        if self.is_entrance: parts.append("Start Point")
+        if self.is_entrance: parts.append("Entrance (Exit to Town)")
         
         if self.enemy: parts.append(f"⚔️ Enemy: {self.enemy.name}")
         elif self.treasure:
@@ -75,9 +75,9 @@ class Room:
             parts.append(f"💎 Treasure: {names}")
         elif self.trap: parts.append(f"⚠️ Trap: {self.trap['name']}")
         
-        if self.has_key: parts.append("🗝️ Rusty Key") # New
+        if self.has_key: parts.append("🗝️ Rusty Key")
             
-        if self.is_exit: parts.append("🚪 Exit (Locked)")
+        if self.is_exit: parts.append("🚪 Dungeon Exit (Locked)")
             
         if not parts: parts.append("✓ Nothing here.")
         return " | ".join(parts)
@@ -93,11 +93,8 @@ class Dungeon:
         self._spawner = spawner
         self._presenter = presenter
         
-        # Dynamic Map Size (Max 15x15)
-        # Increases size every 2 levels roughly
         scale_factor = int(depth * 0.5)
         self.width = min(5 + scale_factor, 15)
-        # Make it rectangular sometimes by varying height slightly
         self.height = min(5 + scale_factor + random.randint(0, 2), 15)
         
         if seed is not None:
@@ -106,8 +103,6 @@ class Dungeon:
         self.map: List[List[Room]] = self._generate_grid()
         self.start_pos: Tuple[int, int] = (0, 0)
         self.exit_pos: Tuple[int, int] = (0, 0)
-        
-        # State tracking for this session
         self.player_has_key = False
         
         self._generate_layout()
@@ -122,49 +117,40 @@ class Dungeon:
 
     def _generate_layout(self):
         coords = [(x, y) for x in range(self.width) for y in range(self.height)]
-        
-        # 1. Place Entrance
         self.start_pos = random.choice(coords)
         coords.remove(self.start_pos)
         start_room = self.get_room(*self.start_pos)
         start_room.is_entrance = True
-        start_room.visited = True # Start room is always visited
-        start_room.description = "Dungeon entrance: cold stones and the smell of decay."
+        start_room.visited = True
+        start_room.description = "Dungeon entrance: you see the light from the surface."
 
-        # 2. Place Exit (Furthest point logic is better, but random is acceptable per requirements)
         if coords:
             self.exit_pos = random.choice(coords)
             coords.remove(self.exit_pos)
         else:
-            self.exit_pos = self.start_pos # Fallback for 1x1 map (unlikely)
+            self.exit_pos = self.start_pos
             
         exit_room = self.get_room(*self.exit_pos)
         exit_room.is_exit = True
-        exit_room.description = "A heavy iron door blocks the way out."
+        exit_room.description = "A heavy iron door blocks the way deeper."
 
-        # 3. Place Key (Must be in a room that is NOT entrance and NOT exit)
         if coords:
             key_pos = random.choice(coords)
             key_room = self.get_room(*key_pos)
             key_room.has_key = True
             key_room.description = "You spot something shiny in the corner."
         else:
-            # Fallback: Give key automatically if map is too small
             self.player_has_key = True 
 
-        # 4. Fill content for other rooms
         for y in range(self.height):
             for x in range(self.width):
                 room = self.map[y][x]
                 if (x, y) == self.start_pos: continue
-                
                 self._generate_room_content(room)
-                # Ensure description is set if not already set by special events
                 if not room.is_exit and not room.is_entrance and not room.has_key:
                     self._assign_description(room)
 
     def _generate_room_content(self, room: Room):
-        # Boss Logic: Fixed depths
         if room.is_exit:
             if self.depth == 20:
                 self._spawn_boss_final(room)
@@ -172,15 +158,12 @@ class Dungeon:
             elif self.depth in [5, 10, 15]:
                 self._spawn_boss(room)
                 return
-            # Normal exit room has chance for normal boss
             elif random.random() < CONFIG.DUNGEON.SPAWN_RATE_BOSS:
                 self._spawn_boss(room)
                 return
 
-        # Don't overwrite Key room content logic completely, allow enemies ON TOP of key
-        # Standard Roll
         roll = random.random()
-        difficulty_modifier = 1.0 + (self.depth * 0.1) # Difficulty scales with depth
+        difficulty_modifier = 1.0 + (self.depth * 0.1)
         
         if roll < CONFIG.DUNGEON.SPAWN_RATE_ENEMY:
             self._spawn_enemy(room, difficulty_modifier)
@@ -239,11 +222,8 @@ class Dungeon:
 
     def _get_room_symbol(self, room: Room, is_player: bool, reveal_visited: bool) -> str:
         if is_player: return "P"
-        
-        # Logic: Exit hidden until visited
-        if room.is_exit:
-            return "E" if room.visited else "?"
-            
+        if room.is_entrance: return "⌂" # Door/Home ASCII for Entrance
+        if room.is_exit: return "E" if room.visited else "?"
         if not reveal_visited or not room.visited: return "?"
         
         if room.enemy: return "M"
@@ -262,52 +242,62 @@ class Dungeon:
             room = self.get_room(x, y)
             room.visited = True
             
-            # Key Logic
             if room.has_key and not self.player_has_key:
                 self.player_has_key = True
-                room.has_key = False # Remove key from room
+                room.has_key = False
                 self._presenter.show_key_found()
 
             map_str = self._generate_map_string((x, y), reveal_visited=True)
             self._presenter.show_room(room.description, room.summary(), map_str, x, y, self.player_has_key)
+            self._presenter.show_map_legend()
             
             if not self._resolve_room_event(room, player, battle_callback):
                 return False  # Died
             
+            # EXIT CHECK (Progress to next depth)
             if room.is_exit:
                 if self._handle_exit(player):
                     return True # Success
-                # If handle_exit returns False, it means locked, continue loop
             
+            # MOVEMENT
             next_pos = self._prompt_movement(x, y)
-            if not next_pos:
-                break # Quit
+            
+            # RETREAT CHECK (Leave dungeon via Entrance)
+            if next_pos is None: # 'Q' pressed
+                if (x, y) == self.start_pos:
+                    if self._presenter.ask_exit_confirmation(is_retreat=True):
+                        # Apply Retreat Penalty (20% of coins)
+                        penalty = int(player.coins * 0.2)
+                        player.coins = max(0, player.coins - penalty)
+                        player.cleanup_status_effects()
+                        self._presenter.show_retreat_penalty(penalty)
+                        return False
+                    else:
+                        continue # Cancelled retreat
+                else:
+                    self._presenter.show_cannot_retreat()
+                    continue 
+
             x, y = next_pos
             
-        self._presenter.show_retreat_msg()
-        return False # Did not complete dungeon
+        return False
 
     def _resolve_room_event(self, room: Room, player: Player, battle_cb: Callable) -> bool:
         if room.event_type == RoomEventType.TRAP and room.trap:
             return self._handle_trap(room, player)
-        
         if room.event_type == RoomEventType.ENEMY and room.enemy:
             return self._handle_combat(room, player, battle_cb)
-            
         if room.event_type == RoomEventType.TREASURE and room.treasure:
             self._handle_treasure(room, player)
-            
         return True
 
     def _handle_trap(self, room: Room, player: Player) -> bool:
         trap = room.trap
-        damage = int(trap.get("damage", 0) * (1 + self.depth * 0.1)) # Scale trap damage
+        damage = int(trap.get("damage", 0) * (1 + self.depth * 0.1))
         status = trap.get("status")
         
         player.take_damage(damage)
-        if status:
-            player.status_effects.append(status)
-            
+        if status: player.status_effects.append(status)
         self._presenter.show_trap_trigger(trap["name"], damage, player.name, status)
         
         room.trap = None
@@ -318,7 +308,6 @@ class Dungeon:
         enemy = room.enemy
         self._presenter.show_combat_start(enemy.name)
         battle_cb(player, enemy)
-        
         if player.is_alive():
             room.enemy = None
             room.event_type = RoomEventType.EMPTY
@@ -333,16 +322,23 @@ class Dungeon:
         room.event_type = RoomEventType.EMPTY
 
     def _handle_exit(self, player: Player) -> bool:
+        """Returns True if player proceeds to next level, False if stays or locked."""
         if not self.player_has_key:
             self._presenter.show_exit_locked()
             return False
         
+        # Ask for confirmation before proceeding
+        if not self._presenter.ask_exit_confirmation(is_retreat=False):
+            return False
+
         if self.depth == 20:
             self._presenter.show_game_complete()
         else:
             reward = int(50 * self.depth)
             player.coins += reward
             self._presenter.show_exit_msg(reward)
+            
+        player.cleanup_status_effects()
         return True
 
     def _prompt_movement(self, x: int, y: int) -> Optional[Tuple[int, int]]:

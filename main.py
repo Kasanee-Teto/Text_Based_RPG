@@ -55,6 +55,12 @@ class ConsoleDungeonPresenter:
         print(f"   {room_desc}")
         print(f"   {room_summary}")
 
+    def show_map_legend(self):
+        print(Fore.CYAN + "\n[LEGEND]" + Style.RESET_ALL)
+        print("P: Player  | ⌂: Entrance (Exit) | E: Exit (Deep)")
+        print("M: Monster | T: Treasure | !: Trap | K: Key")
+        print(".: Empty   | ?: Unknown")
+
     def show_trap_trigger(self, trap_name: str, damage: int, player_name: str, status: Optional[str]):
         print(f"\n⚠️ Trap triggered: {trap_name}!")
         print(f"💥 {player_name} took {damage} damage!")
@@ -86,16 +92,36 @@ class ConsoleDungeonPresenter:
         print("The world is safe once more.")
         print("=" * 50 + Style.RESET_ALL)
 
+    def show_retreat_penalty(self, penalty: int):
+        print(Fore.RED + "\n💨 You fled the dungeon!" + Style.RESET_ALL)
+        print(Fore.RED + f"💸 The cost of cowardice: -{penalty} coins." + Style.RESET_ALL)
+
+    def show_cannot_retreat(self):
+        print(Fore.RED + "\n⛔ You can only retreat from the Entrance (⌂)!" + Style.RESET_ALL)
+
+    def ask_exit_confirmation(self, is_retreat: bool) -> bool:
+        if is_retreat:
+            print(Fore.YELLOW + "\n⚠️  WARNING: Fleeing will cost you 20% of your gold!" + Style.RESET_ALL)
+            prompt = "Are you sure you want to FLEE to the surface? (y/n): "
+        else:
+            prompt = "\n🚪 The path is open. Proceed to the next depth? (y/n): "
+            
+        while True:
+            choice = input(prompt).strip().lower()
+            if choice == 'y': return True
+            if choice == 'n': return False
+            print("Invalid input. Please enter 'y' or 'n'.")
+
     def get_movement_input(self, available_moves: List[str]) -> Optional[str]:
-        print("\n🧭 Available moves:", ", ".join(available_moves) + " | (Q)uit")
+        print("\n🧭 Available moves:", ", ".join(available_moves) + " | (Q)uit/Retreat")
         choice = input("➤ Move (N/S/E/W) or Q: ").strip().lower()
         return choice
 
+# ... (Rest of main.py logic remains structurally same, only imports/presenter calls changed as per above) ...
+
 class GameSpawnStrategy:
     """Concrete strategy for spawning game entities based on depth."""
-    
     def create_enemy(self, depth: int) -> Any:
-        # Scale enemy types slightly with depth
         choice = random.random()
         if depth < 5:
             if choice < 0.4: enemy = CaveSpider()
@@ -106,17 +132,12 @@ class GameSpawnStrategy:
             elif choice < 0.6: enemy = Skeleton()
             else: enemy = Zombie()
         else:
-            # Harder enemies appear more often deep down
             if choice < 0.2: enemy = Skeleton()
             else: enemy = Zombie()
-            
         return enemy
 
     def create_boss(self, depth: int) -> Any:
-        # Depth determines specific boss difficulty tiers if we had them,
-        # for now random pool but scaled in Dungeon class
-        boss = random.choice([WolfBoss(), OgreBoss(), VampireBoss()])
-        return boss
+        return random.choice([WolfBoss(), OgreBoss(), VampireBoss()])
 
     def create_final_boss(self, depth: int) -> Any:
         return DemonBoss()
@@ -136,7 +157,6 @@ class GameSpawnStrategy:
 # ==============================
 # UI HELPERS (Unchanged)
 # ==============================
-
 def print_header(text: str, style: str = "cyan"):
     separator = "=" * CONFIG.UI.SEPARATOR_LENGTH
     print(Fore.YELLOW + separator + Style.RESET_ALL)
@@ -147,11 +167,41 @@ def print_separator():
     print(Fore.YELLOW + "-" * CONFIG.UI.SEPARATOR_LENGTH + Style.RESET_ALL)
 
 def show_loading_screen():
-    # ... (Keep existing implementation) ...
-    pass 
+    console.clear()
+    title = """
+    ╔═══════════════════════════════════════════════════════╗
+    ║                                                       ║
+    ║   ██████╗ ██████╗  ██████╗                            ║
+    ║   ██╔══██╗██╔══██╗██╔════╝                            ║
+    ║   ██████╔╝██████╔╝██║  ███╗                           ║
+    ║   ██╔══██╗██╔═══╝ ██║   ██║                           ║
+    ║   ██║  ██║██║     ╚██████╔╝                           ║
+    ║   ╚═╝  ╚═╝╚═╝      ╚═════╝                            ║
+    ║                                                       ║
+    ║        A D V E N T U R E   A W A I T S                ║
+    ║                                                       ║
+    ╚═══════════════════════════════════════════════════════╝
+    """
+    console.print(title, style="bold cyan")
+    console.print("\n")
+    loading_messages = ["Loading game assets...", "Preparing dungeon...", "Initializing systems..."]
+    with Progress(
+        SpinnerColumn(spinner_name="dots"),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(complete_style="green", finished_style="bold green"),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        TimeRemainingColumn(),
+        console=console,
+    ) as progress:
+        task = progress.add_task("[cyan]Loading...", total=len(loading_messages))
+        for msg in loading_messages:
+            progress.update(task, description=f"[cyan]{msg}")
+            time.sleep(random.uniform(CONFIG.UI.LOADING_DELAY_MIN, CONFIG.UI.LOADING_DELAY_MAX))
+            progress.advance(task)
+    console.print("\n")
+    console.clear()
 
 def read_int(prompt: str, min_val: int = None, max_val: int = None) -> Optional[int]:
-    # ... (Keep existing implementation) ...
     try:
         val = int(input(Fore.CYAN + prompt + Style.RESET_ALL))
         if min_val is not None and val < min_val: return None
@@ -161,14 +211,11 @@ def read_int(prompt: str, min_val: int = None, max_val: int = None) -> Optional[
         return None
 
 # ==============================
-# GAME LOGIC HELPERS (Unchanged)
+# GAME LOGIC HELPERS
 # ==============================
-
 def _drop_loot(player_char: Player, enemy: Enemy):
-    # ... (Keep existing implementation) ...
     is_boss = isinstance(enemy, (WolfBoss, OgreBoss, VampireBoss))
     is_demon = isinstance(enemy, DemonBoss)
-    
     if is_demon: drop_chance = CONFIG.DROP_CHANCE_FINAL_BOSS
     elif is_boss: drop_chance = CONFIG.DROP_CHANCE_BOSS
     else: drop_chance = CONFIG.DROP_CHANCE_NORMAL
@@ -185,7 +232,6 @@ def _drop_loot(player_char: Player, enemy: Enemy):
         print(Fore.YELLOW + f"💨 {enemy.name} dropped nothing." + Style.RESET_ALL)
 
 def battle(player_char: Player, enemy: Enemy):
-    # ... (Keep existing implementation) ...
     print_header(f"⚔️  {player_char.name} VS {enemy.name}", "red")
     while player_char.is_alive() and enemy.is_alive():
         print(Fore.CYAN + "\n[Enter] Attack | [E] Inventory | [F] Status" + Style.RESET_ALL)
@@ -215,22 +261,17 @@ def display_status(p: Player):
     table = Table(show_header=False, box=None)
     table.add_column("Stat", style="cyan")
     table.add_column("Value", style="white")
-    
     stats = p.get_stats_display()
-    # Add Depth to status display
     table.add_row("Current Depth", str(p.current_depth if hasattr(p, 'current_depth') else 1))
-    
     for k, v in stats.items():
         table.add_row(k.title(), str(v))
     console.print(table)
     print_separator()
 
 # ==============================
-# SUB-MENUS (Unchanged except Inventory)
+# SUB-MENUS
 # ==============================
-
 def _handle_inventory_logic():
-    # ... (Keep existing implementation) ...
     if not player:
         print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
         return
@@ -253,7 +294,6 @@ def _handle_inventory_logic():
         handlers.get(choice, lambda: print(CONFIG.UI.MSG_INVALID_CHOICE))()
 
 def _inv_drop_item():
-    # ... (Keep existing implementation) ...
     player.inventory.list_items()
     idx = read_int("➤ Choose item's index to remove: ")
     if idx:
@@ -261,7 +301,6 @@ def _inv_drop_item():
         if item: player.inventory.remove_item(item)
 
 def _inv_equip_use():
-    # ... (Keep existing implementation) ...
     player.inventory.list_items()
     idx = read_int("➤ Enter the item number (or 0 to cancel): ")
     if not idx: return
@@ -280,14 +319,12 @@ def _inv_equip_use():
         print(Fore.RED + "❌ This item cannot be used.")
 
 def _inv_show_desc():
-    # ... (Keep existing implementation) ...
     player.inventory.list_items()
     idx = read_int("➤ Enter item's index: ")
     item = player.inventory.get_item_by_index(idx) if idx else None
     if item: print(f"ℹ️  {item.get_description()}")
 
 def _inv_sort():
-    # ... (Keep existing implementation) ...
     choice = read_int("1) Name 2) Value: ", 1, 2)
     if choice == 1: 
         player.inventory.sort_items(True)
@@ -299,13 +336,11 @@ def _inv_sort():
 # ==============================
 # MAIN HANDLERS
 # ==============================
-
 def _handle_start_game():
     global player
     if player is None:
         name = input("➤ Enter your name (or 'back' to return): ")
         if name.lower() == "back": return
-        # Ensure new player starts at depth 1
         player = Player(name)
         player.current_depth = 1 
         print(Fore.GREEN + f"✨ Player {player.name} has been created!")
@@ -313,7 +348,6 @@ def _handle_start_game():
         print(Fore.YELLOW + "ℹ️  Player already exists! Go to Dungeon to continue your journey." + Style.RESET_ALL)
 
 def _handle_shop():
-    # ... (Keep existing implementation) ...
     if not player:
         print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
         return
@@ -330,7 +364,6 @@ def _handle_dungeon():
         print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
         return
     
-    # Ensure backward compatibility for save files that might lack current_depth
     if not hasattr(player, 'current_depth'):
         player.current_depth = 1
         
@@ -341,7 +374,7 @@ def _handle_dungeon():
         print(Fore.GREEN + "🎉 You have already conquered the dungeon!" + Style.RESET_ALL)
         return
 
-    # COMPOSITION ROOT: Wire up dependencies
+    # COMPOSITION ROOT
     presenter = ConsoleDungeonPresenter()
     spawner = GameSpawnStrategy()
     
@@ -355,23 +388,21 @@ def _handle_dungeon():
     
     if success:
         if player.current_depth == 20:
-            # Game complete
-            player.current_depth += 1 # Mark as done
-            # Optionally reset game or credits here
+            player.current_depth += 1
         else:
             player.current_depth += 1
             print(Fore.GREEN + f"💪 Depth increased! Next level: {player.current_depth}" + Style.RESET_ALL)
-            # Autosave on floor completion
             save_game(player)
     else:
-        # Player died or retreated
         if not player.is_alive():
-            print(Fore.RED + "☠️ You died in the dungeon..." + Style.RESET_ALL)
+            penalty = int(player.coins * 0.5)
+            player.coins = max(0, player.coins - penalty)
+            print(Fore.RED + f"\n☠️ You died in the dungeon..." + Style.RESET_ALL)
+            print(Fore.RED + f"💸 You lost {penalty} coins in the chaos." + Style.RESET_ALL)
             player.hp = player.max_hp
-            # Depth does not increase on death
+            player.cleanup_status_effects()
 
 def _handle_role():
-    # ... (Keep existing implementation) ...
     if not player: 
         print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
         return
@@ -406,17 +437,14 @@ def _handle_status():
     else: print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
 
 # ==============================
-# MAIN LOOP (Unchanged)
+# MAIN LOOP
 # ==============================
-
 def game_loop():
-    # ... (Keep existing implementation) ...
     handlers = {
         1: _handle_start_game, 2: _handle_status, 3: _handle_role,
         4: _handle_shop, 5: _handle_inventory_logic, 6: _handle_save,
         7: _handle_load, 8: _handle_dungeon,
     }
-    
     while True:
         print_header("⚔️  WELCOME TO THE RPG ADVENTURE  ⚔️", "cyan")
         print("1. Start Game\n2. Show Status\n3. Choose Role\n4. Shop 🛒\n5. Inventory 🎒\n6. Save Game 💾\n7. Load Game 📂\n8. Dungeon 🏰\n9. Exit ❌")

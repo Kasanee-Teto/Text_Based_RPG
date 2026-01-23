@@ -1,10 +1,10 @@
 """
 Character module dengan penerapan prinsip SOLID:
 - SRP: Pisah tanggung jawab status effect handler dan equipment handler.
-- OCP: Status effect & role bonus berbasis registry/mapping agar mudah ditambah tanpa ubah logika inti.
-- LSP: Subclass Character (Player/Enemy) mempertahankan kontrak attack/take_damage.
-- ISP: Interface kecil (protocol) untuk efek/status.
-- DIP: Dependensi Inventory bisa di-inject (inventory_factory) dan role via RoleStrategy interface.
+- OCP: Status effect & role bonus berbasis registry/mapping.
+- LSP: Subclass Character (Player/Enemy) mempertahankan kontrak.
+- ISP: Interface kecil untuk efek/status.
+- DIP: Dependensi Inventory bisa di-inject.
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -74,7 +74,6 @@ class RoleBonus:
 class Player(Character):
     """
     Player dengan leveling, equipment, status effect, dan role (SRP: core state & public API).
-    DIP: inventory_factory dapat di-inject untuk testing/mocking.
     """
     def __init__(
         self,
@@ -89,6 +88,7 @@ class Player(Character):
         self.exp = 0
         self.level = 1
         self.exp_needed = 100
+        self.current_depth = 1
         self.role: Optional[RoleStrategy] = None
         self.status_effects: list[str] = []
         self.applied_status_effects: set[str] = set()
@@ -98,10 +98,9 @@ class Player(Character):
         self.coins = start_coins
         self._original_attack = None
         self._original_defense = None
-        self.crit_rate: float = 0.0  # untuk Assassin; menjaga LSP/ISP
-        self.current_depth: int = 1 
+        self.crit_rate: float = 0.0
 
-        # Registries (OCP): tambah efek baru cukup tambah entry.
+        # Registries
         self._status_registry: Dict[str, Callable[[], None]] = {
             "bleeding": self._apply_bleeding,
             "bleeding_demon": self._apply_bleeding_demon,
@@ -172,6 +171,11 @@ class Player(Character):
 
     # ---------------- Combat outcomes ----------------
     def defeated(self, enemy):
+        self.cleanup_status_effects()
+        print(f"💀 {enemy.name} has killed {self.name}!  Come back when you are stronger!")
+
+    def cleanup_status_effects(self):
+        """Removes all status effects and restores original stats."""
         if self._original_attack is not None:
             self.attack_power = self._original_attack
             self._original_attack = None
@@ -180,7 +184,6 @@ class Player(Character):
             self._original_defense = None
         self.status_effects = []
         self.applied_status_effects = set()
-        print(f"💀 {enemy.name} has killed {self.name}!  Come back when you are stronger!")
 
     def update_status_effects(self):
         for effect in list(self.status_effects):
@@ -190,7 +193,7 @@ class Player(Character):
                     handler()
                     self.applied_status_effects.add(effect)
 
-    # ---------------- Status effect handlers (SRP/OCP) ----------------
+    # ---------------- Status effect handlers ----------------
     def _apply_bleeding(self):
         bleed_damage = 3
         self.hp = max(0, self.hp - bleed_damage)
@@ -202,20 +205,22 @@ class Player(Character):
         print(f"🩸 {self.name} suffers from severe bleeding and loses {bleed_damage_demon} HP.")
 
     def _apply_weakened(self):
-        self._original_attack = self.attack_power
-        self._original_defense = self.defense
-        weakened_atk = max(1, int(self.attack_power * 0.8))
-        weakened_def = max(1, int(self.defense * 0.8))
+        if self._original_attack is None: self._original_attack = self.attack_power
+        if self._original_defense is None: self._original_defense = self.defense
+        
+        weakened_atk = max(1, int(self._original_attack * 0.8))
+        weakened_def = max(1, int(self._original_defense * 0.8))
         print(f"💢 {self.name} is weakened!  ATK {self.attack_power}→{weakened_atk}, DEF {self.defense}→{weakened_def}")
         self.attack_power = weakened_atk
         self.defense = weakened_def
 
     def _apply_weakened_demon(self):
-        self._original_attack = self.attack_power
-        self._original_defense = self.defense
-        weakened_atk_demon = max(1, int(self.attack_power * 0.6))
-        weakened_def_demon = max(1, int(self.defense * 0.6))
-        print(f"💢 {self.name} is severely weakened! ATK {self.attack_power}→{weakened_atk_demon}, DEF {self.defense}→{weakened_def_demon}")
+        if self._original_attack is None: self._original_attack = self.attack_power
+        if self._original_defense is None: self._original_defense = self.defense
+
+        weakened_atk_demon = max(1, int(self._original_attack * 0.6))
+        weakened_def_demon = max(1, int(self._original_defense * 0.6))
+        print(f"💢 {self.name} is severely weakened! ATK {self.attack_power}���{weakened_atk_demon}, DEF {self.defense}→{weakened_def_demon}")
         self.attack_power = weakened_atk_demon
         self.defense = weakened_def_demon
 
@@ -237,41 +242,15 @@ class Player(Character):
             "crit_rate": getattr(self, "crit_rate", 0.0),
         }
 
-
-# ------------------------------
-# Abstract Factory (DIP)
-# ------------------------------
-
+# ... (Factories remain unchanged) ...
 class CharacterFactory(ABC):
     @abstractmethod
     def create_character(self, name: str, hp: int, attack: int, defense: int) -> Character: ...
     @abstractmethod
-    def create_player(
-        self,
-        name: str,
-        start_hp: int = 100,
-        start_attack: int = 8,
-        start_defense: int = 2,
-        start_coins: int = 200,
-    ) -> Player: ...
-
+    def create_player(self, name: str, start_hp: int = 100, start_attack: int = 8, start_defense: int = 2, start_coins: int = 200) -> Player: ...
 
 class DefaultRPGFactory(CharacterFactory):
     def create_character(self, name: str, hp: int, attack: int, defense: int) -> Character:
         return Character(name=name, hp=hp, attack=attack, defense=defense)
-
-    def create_player(
-        self,
-        name: str,
-        start_hp: int = 100,
-        start_attack: int = 8,
-        start_defense: int = 2,
-        start_coins: int = 200,
-    ) -> Player:
-        return Player(
-            name=name,
-            start_hp=start_hp,
-            start_attack=start_attack,
-            start_defense=start_defense,
-            start_coins=start_coins,
-        )
+    def create_player(self, name: str, start_hp: int = 100, start_attack: int = 8, start_defense: int = 2, start_coins: int = 200) -> Player:
+        return Player(name=name, start_hp=start_hp, start_attack=start_attack, start_defense=start_defense, start_coins=start_coins)
