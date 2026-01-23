@@ -1,7 +1,5 @@
 import pytest
-
-from Character.Character_RPG import Character
-
+from Character.Character_RPG import Character, Player
 
 def test_is_alive_and_take_damage():
     c = Character("Goblin", hp=10, attack=3, defense=1)
@@ -12,7 +10,6 @@ def test_is_alive_and_take_damage():
     c.take_damage(10) 
     assert c.hp == 0
     assert c.is_alive() is False
-
 
 def test_attack_uses_defense_and_min_zero():
     attacker = Character("Orc", hp=20, attack=5, defense=1)
@@ -25,3 +22,8 @@ def test_attack_uses_defense_and_min_zero():
     dmg2 = attacker.attack(defender2)
     assert dmg2 == 3  
     assert defender2.hp == 5
+
+def test_player_initialization_defaults():
+    p = Player("Hero")
+    assert p.hp == 100
+    assert p.current_depth == 1  # New field check

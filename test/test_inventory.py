@@ -1,10 +1,9 @@
 from inventory import Inventory
+from items import Item
 
-
-class DummyItem:
+class DummyItem(Item):
     def __init__(self, name):
-        self.name = name
-
+        super().__init__(name, 10)
 
 def test_add_and_remove_items():
     inv = Inventory()

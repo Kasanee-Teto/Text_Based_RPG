@@ -99,6 +99,7 @@ class Player(Character):
         self._original_attack = None
         self._original_defense = None
         self.crit_rate: float = 0.0  # untuk Assassin; menjaga LSP/ISP
+        self.current_depth: int = 1 
 
         # Registries (OCP): tambah efek baru cukup tambah entry.
         self._status_registry: Dict[str, Callable[[], None]] = {
