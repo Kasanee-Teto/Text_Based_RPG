@@ -1,10 +1,10 @@
 """
 Character module dengan penerapan prinsip SOLID:
-- SRP: Pisah tanggung jawab status effect handler dan equipment handler.
-- OCP: Status effect & role bonus berbasis registry/mapping.
-- LSP: Subclass Character (Player/Enemy) mempertahankan kontrak.
-- ISP: Interface kecil untuk efek/status.
-- DIP: Dependensi Inventory bisa di-inject.
+- SRP: Pisah tanggung jawab status effect handler & equipment handler.
+- OCP: Status effect via registry (tambah efek tanpa ubah loop).
+- LSP: Player/Enemy tetap substitutable.
+- ISP: Protocol kecil untuk Role/Status.
+- DIP: Inventory di-inject via factory, Role via interface.
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -17,26 +17,16 @@ if TYPE_CHECKING:
     from items import Weapon, Armor
     from Role import RoleStrategy
 
-# ------------------------------
-# Protocols / Interfaces (ISP)
-# ------------------------------
-
+# ---------- Interfaces (ISP) ----------
 class StatusEffectApplier(Protocol):
     def apply(self, player: "Player") -> None: ...
-
 
 class RoleStrategy(Protocol):
     def apply_bonus(self, player: "Player") -> None: ...
 
-
-# ------------------------------
-# Domain Models
-# ------------------------------
-
+# ---------- Domain Models ----------
 class Character:
-    """
-    Base class untuk semua karakter (SRP: status dasar & aksi dasar).
-    """
+    """Base karakter (SRP: state + aksi dasar)."""
     def __init__(self, name: str, hp: int, attack: int, defense: int):
         self.name = name
         self.hp = hp
@@ -62,7 +52,6 @@ class Character:
         print(f"{self.name} attacks {target.name} and deals {damage} damage!")
         return damage
 
-
 @dataclass(frozen=True)
 class RoleBonus:
     attack: int = 0
@@ -70,10 +59,10 @@ class RoleBonus:
     hp: int = 0
     crit_rate: float = 0.0
 
-
 class Player(Character):
     """
-    Player dengan leveling, equipment, status effect, dan role (SRP: core state & public API).
+    Player dengan leveling, equipment, status effect, role.
+    DIP: inventory_factory bisa di-inject untuk testing/mocking.
     """
     def __init__(
         self,
@@ -98,9 +87,9 @@ class Player(Character):
         self.coins = start_coins
         self._original_attack = None
         self._original_defense = None
-        self.crit_rate: float = 0.0
+        self.crit_rate: float = 0.0  # untuk Assassin
 
-        # Registries
+        # OCP: registry efek status
         self._status_registry: Dict[str, Callable[[], None]] = {
             "bleeding": self._apply_bleeding,
             "bleeding_demon": self._apply_bleeding_demon,
@@ -108,7 +97,7 @@ class Player(Character):
             "weakened_demon": self._apply_weakened_demon,
         }
 
-    # ---------------- Leveling ----------------
+    # ------ Leveling ------
     def gain_exp(self, amount: int):
         self.exp += amount
         self.level_up()
@@ -134,7 +123,7 @@ class Player(Character):
         else:
             print("Can't select role yet!  Must be level 5 with no current role.")
 
-    # ---------------- Equipment ----------------
+    # ------ Equipment ------
     def equip_weapon(self, weapon: "Weapon"):
         if weapon not in self.inventory.items:
             print("Weapon not in inventory!")
@@ -169,13 +158,12 @@ class Player(Character):
             self.equipped_armor = armor
             self.defense += getattr(armor, "defense", 0)
 
-    # ---------------- Combat outcomes ----------------
+    # ------ Combat outcomes ------
     def defeated(self, enemy):
         self.cleanup_status_effects()
         print(f"💀 {enemy.name} has killed {self.name}!  Come back when you are stronger!")
 
     def cleanup_status_effects(self):
-        """Removes all status effects and restores original stats."""
         if self._original_attack is not None:
             self.attack_power = self._original_attack
             self._original_attack = None
@@ -186,6 +174,7 @@ class Player(Character):
         self.applied_status_effects = set()
 
     def update_status_effects(self):
+        # Re-apply hanya yang belum diaplikasikan di tick ini
         for effect in list(self.status_effects):
             if effect not in self.applied_status_effects:
                 handler = self._status_registry.get(effect)
@@ -193,7 +182,7 @@ class Player(Character):
                     handler()
                     self.applied_status_effects.add(effect)
 
-    # ---------------- Status effect handlers ----------------
+    # ------ Status handlers ------
     def _apply_bleeding(self):
         bleed_damage = 3
         self.hp = max(0, self.hp - bleed_damage)
@@ -207,7 +196,6 @@ class Player(Character):
     def _apply_weakened(self):
         if self._original_attack is None: self._original_attack = self.attack_power
         if self._original_defense is None: self._original_defense = self.defense
-        
         weakened_atk = max(1, int(self._original_attack * 0.8))
         weakened_def = max(1, int(self._original_defense * 0.8))
         print(f"💢 {self.name} is weakened!  ATK {self.attack_power}→{weakened_atk}, DEF {self.defense}→{weakened_def}")
@@ -217,14 +205,13 @@ class Player(Character):
     def _apply_weakened_demon(self):
         if self._original_attack is None: self._original_attack = self.attack_power
         if self._original_defense is None: self._original_defense = self.defense
-
         weakened_atk_demon = max(1, int(self._original_attack * 0.6))
         weakened_def_demon = max(1, int(self._original_defense * 0.6))
-        print(f"💢 {self.name} is severely weakened! ATK {self.attack_power}���{weakened_atk_demon}, DEF {self.defense}→{weakened_def_demon}")
+        print(f"💢 {self.name} is severely weakened! ATK {self.attack_power}→{weakened_atk_demon}, DEF {self.defense}→{weakened_def_demon}")
         self.attack_power = weakened_atk_demon
         self.defense = weakened_def_demon
 
-    # ---------------- UI helpers ----------------
+    # ------ UI helpers (dipertahankan demi kompatibilitas main.py) ------
     def get_stats_display(self) -> dict:
         return {
             "name": self.name,
@@ -242,7 +229,7 @@ class Player(Character):
             "crit_rate": getattr(self, "crit_rate", 0.0),
         }
 
-# ... (Factories remain unchanged) ...
+# ---------- Abstract Factory (DIP) ----------
 class CharacterFactory(ABC):
     @abstractmethod
     def create_character(self, name: str, hp: int, attack: int, defense: int) -> Character: ...
