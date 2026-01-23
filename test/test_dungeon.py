@@ -13,10 +13,12 @@ class MockPresenter:
     def __init__(self):
         self.messages = []
         self.input_queue = []
+        self.confirm_response = True  # Default to confirming actions
 
     def show_entrance_msg(self, depth: int): self.messages.append("entrance")
     def show_exit_msg(self, reward: int): self.messages.append("exit_unlocked")
     def show_room(self, desc, summary, map_str, x, y, has_key): self.messages.append("show_room")
+    def show_map_legend(self): self.messages.append("legend") # New
     def show_trap_trigger(self, name, damage, player, status): self.messages.append("trap")
     def show_combat_start(self, name): self.messages.append("combat")
     def show_treasure_found(self, name): self.messages.append("treasure")
@@ -24,7 +26,13 @@ class MockPresenter:
     def show_key_found(self): self.messages.append("key_found")
     def show_exit_locked(self): self.messages.append("exit_locked")
     def show_game_complete(self): self.messages.append("game_complete")
+    def show_retreat_penalty(self, penalty): self.messages.append("retreat_penalty") # New
+    def show_cannot_retreat(self): self.messages.append("cannot_retreat") # New
     
+    def ask_exit_confirmation(self, is_retreat: bool) -> bool: # New
+        self.messages.append("ask_confirm")
+        return self.confirm_response
+
     def get_movement_input(self, available_moves: List[str]) -> Optional[str]:
         if self.input_queue: return self.input_queue.pop(0)
         return 'q'
@@ -101,6 +109,8 @@ def test_exit_locked_mechanic():
 
 def test_exit_unlocked_mechanic():
     presenter = MockPresenter()
+    presenter.confirm_response = True # Simulate user saying "Yes"
+    
     d = Dungeon(MockSpawner(), presenter, depth=1, seed=1)
     p = Player("Tester")
     
@@ -110,6 +120,7 @@ def test_exit_unlocked_mechanic():
     # Try to exit
     success = d._handle_exit(p)
     assert success is True
+    assert "ask_confirm" in presenter.messages
     assert "exit_unlocked" in presenter.messages
     assert p.coins > 200 # Should have gained reward
 
@@ -130,11 +141,12 @@ def test_explore_finds_key():
     if key_x != -1:
         d.player_has_key = False # Reset just in case
         d.start_pos = (key_x, key_y) # Teleport start to key
-        presenter.input_queue = ['q'] # Quit immediately after start
+        presenter.input_queue = ['q', 'y'] # Quit immediately after start, confirm retreat
         
         d.explore_from(p, lambda pl, en: None)
         assert d.player_has_key is True
         assert "key_found" in presenter.messages
+        assert "legend" in presenter.messages # Check legend display
 
 def test_handle_trap_scaling():
     spawner = MockSpawner()

@@ -37,6 +37,7 @@ from colorama import Fore, Style, init
 from items import Weapon, Armor, HealthPotion
 from typing import Optional, Dict, List, Tuple, Protocol, Any
 from abc import ABC, abstractmethod
+from config import CONFIG 
 
 init(autoreset=True)
 
@@ -50,21 +51,10 @@ class ShopInterface(Protocol):
     Interface for shop operations.
     ISP: Small, focused interface with only essential shop methods.
     """
-    def add_item(self, item: Any) -> None:
-        """Add an item to the shop."""
-        ...
-    
-    def get_items(self) -> List[Any]:
-        """Get all items in the shop."""
-        ...
-    
-    def get_item_count(self) -> int:
-        """Get the number of items."""
-        ...
-    
-    def get_shop_name(self) -> str:
-        """Get the shop name."""
-        ...
+    def add_item(self, item: Any) -> None: ...
+    def get_items(self) -> List[Any]: ...
+    def get_item_count(self) -> int: ...
+    def get_shop_name(self) -> str: ...
 
 
 class DisplayStrategy(ABC):
@@ -211,11 +201,6 @@ class Shop(ABC):
     SRP: Only manages inventory, delegates display and transactions.
     LSP: All subclasses can substitute this base class.
     DIP: Depends on abstractions (DisplayStrategy, not concrete implementations).
-    
-    Attributes:
-        _inventory (List): Items available for purchase
-        _shop_name (str): Display name of the shop
-        _display_strategy (DisplayStrategy): How items are displayed
     """
 
     def __init__(
@@ -223,13 +208,6 @@ class Shop(ABC):
         shop_name: str = "General Shop",
         display_strategy: Optional[DisplayStrategy] = None
     ):
-        """
-        Initialize a shop with dependency injection.
-        
-        Args:
-            shop_name: Display name for the shop
-            display_strategy: Strategy for displaying items (DIP)
-        """
         self._inventory: List[Any] = []
         self._shop_name = shop_name
         # DIP: Depend on abstraction, with default concrete implementation
@@ -263,10 +241,6 @@ class Shop(ABC):
     def show_items(self, category_name: Optional[str] = None) -> None:
         """
         Display all items using the injected display strategy.
-        
-        Args:
-            category_name: Optional custom header name
-        
         SRP: Delegates display logic to DisplayStrategy
         """
         display_name = category_name or self._shop_name
@@ -287,41 +261,25 @@ class shop_sword(Shop):
     def __init__(self, display_strategy: Optional[DisplayStrategy] = None):
         super().__init__("⚔️ Sword Shop", display_strategy)
 
-    def stock_sword_dagger(self) -> None:
-        """Stock dagger category weapons."""
+    def stock_all(self) -> None:
+        """Stock all sword categories."""
         self.stock_items([
             Weapon("Swiftfang", "Dagger", 12, 70),
             Weapon("Shadow Pierce", "Dagger", 20, 110),
             Weapon("Silent Fang", "Dagger", 17, 95),
             Weapon("Ironbite", "Dagger", 10, 55),
             Weapon("Storm Edge", "Dagger", 25, 140),
-        ])
-
-    def stock_sword_katana(self) -> None:
-        """Stock katana category weapons."""
-        self.stock_items([
             Weapon("Kurohana", "Katana", 20, 100),
             Weapon("Tsukikage", "Katana", 30, 140),
             Weapon("Akatsuki Blade", "Katana", 35, 170),
             Weapon("Ryuuzan", "Katana", 18, 90),
             Weapon("Hikarimaru", "Katana", 28, 130),
-        ])
-
-    def stock_sword_great_sword(self) -> None:
-        """Stock great sword category weapons."""
-        self.stock_items([
             Weapon("Titanbreaker", "Great Sword", 22, 120),
             Weapon("Oblivion Fang", "Great Sword", 35, 170),
             Weapon("Dragon's Wrath", "Great Sword", 45, 210),
             Weapon("Judgment Edge", "Great Sword", 18, 95),
             Weapon("Gravemourn", "Great Sword", 30, 150),
         ])
-
-    def stock_all(self) -> None:
-        """Stock all sword categories."""
-        self.stock_sword_dagger()
-        self.stock_sword_katana()
-        self.stock_sword_great_sword()
 
 
 class shop_bow(Shop):
@@ -430,8 +388,6 @@ class ShopConfiguration:
     """
     SRP: Only responsible for shop configuration management.
     OCP: Open for extension - new shops can be registered without modification.
-    
-    Manages shop type mappings and menu configuration.
     """
     
     def __init__(self):
@@ -461,40 +417,16 @@ class ShopConfiguration:
     def get_shop_type_by_menu(self, menu_choice: int) -> Optional[str]:
         """Map menu number to shop type."""
         return self._menu_mapping.get(menu_choice)
-    
-    def get_all_shop_types(self) -> List[str]:
-        """Get list of all available shop types."""
-        return list(self._shop_configs.keys())
-    
-    def register_shop(
-        self, 
-        shop_type: str, 
-        shop_class: type, 
-        stock_methods: List[str], 
-        display_name: str,
-        menu_position: Optional[int] = None
-    ) -> None:
-        """
-        Register a new shop type (OCP: extension without modification).
-        
-        Example:
-            config.register_shop('jewelry', shop_jewelry, ['stock_rings'], '💍 Jewelry Shop', 7)
-        """
-        self._shop_configs[shop_type] = (shop_class, stock_methods, display_name)
-        if menu_position:
-            self._menu_mapping[menu_position] = shop_type
 
 
 # ==============================
-# PURCHASE SERVICE (SRP + DIP)
+# SERVICES (SRP + DIP)
 # ==============================
 
 class PurchaseService:
     """
     SRP: Only responsible for coordinating purchase operations.
     DIP: Depends on abstractions (PurchaseValidator, TransactionProcessor).
-    
-    Coordinates validation and transaction processing.
     """
     
     def __init__(
@@ -502,31 +434,15 @@ class PurchaseService:
         validator: Optional[PurchaseValidator] = None,
         processor: Optional[TransactionProcessor] = None
     ):
-        """
-        Initialize with dependency injection.
-        
-        Args:
-            validator: Purchase validator (defaults to CoinPurchaseValidator)
-            processor: Transaction processor (defaults to StandardTransactionProcessor)
-        """
         self._validator = validator or CoinPurchaseValidator()
         self._processor = processor or StandardTransactionProcessor()
     
     def handle_purchase(self, shop: ShopInterface, player: Any) -> bool:
-        """
-        Coordinate the complete purchase flow.
-        
-        Args:
-            shop: Shop to purchase from
-            player: Player making the purchase
-            
-        Returns:
-            True to continue shopping
-        """
+        """Coordinate the complete purchase flow."""
         try:
+            print(Fore.CYAN + "Enter 0 to return to menu." + Style.RESET_ALL)
             choice_prompt = (
-                f"{Fore.CYAN}➤ Select item number to buy "
-                f"(0 to return): {Style.RESET_ALL}"
+                f"{Fore.CYAN}➤ Select item number to buy: {Style.RESET_ALL}"
             )
             buy_choice = int(input(choice_prompt))
             
@@ -559,9 +475,6 @@ class PurchaseService:
         except ValueError:
             print(Fore.RED + "❌ Invalid input! Please enter a number." + Style.RESET_ALL)
             return True
-        except (IndexError, AttributeError) as e:
-            print(Fore.RED + f"❌ Error processing purchase: {e}" + Style.RESET_ALL)
-            return True
     
     def _display_purchase_error(self, player: Any, item: Any, error_msg: str) -> None:
         """Display purchase error information."""
@@ -574,6 +487,55 @@ class PurchaseService:
         print(Fore.RED + f"📉 Short by: {shortage} coins" + Style.RESET_ALL)
 
 
+class SalesService:
+    """
+    SRP: Responsible for handling item sales logic.
+    Separated from PurchaseService to adhere to Single Responsibility Principle.
+    """
+    def handle_sale(self, player: Any) -> bool:
+        """
+        Manage the selling process loop.
+        Returns: True to return to shop menu, False if exit requested (though usually returns True).
+        """
+        while True:
+            items = player.inventory.items
+            if not items:
+                print(Fore.YELLOW + "\n📦 Your inventory is empty! Nothing to sell." + Style.RESET_ALL)
+                return True
+
+            print(Fore.YELLOW + f"\n{'=' * 60}" + Style.RESET_ALL)
+            print(Fore.CYAN + Style.BRIGHT + "💰 SELL ITEMS".center(60) + Style.RESET_ALL)
+            print(Fore.YELLOW + f"{'=' * 60}" + Style.RESET_ALL)
+            print(Fore.WHITE + f"Current Coins: {player.coins}" + Style.RESET_ALL)
+            print("-" * 60)
+
+            # List items with calculated sell prices
+            for i, item in enumerate(items, 1):
+                sell_price = int(item.value * CONFIG.SELL_PRICE_MULTIPLIER)
+                print(f"{i}. {item.name} | Value: {item.value} -> Sell Price: {Fore.GREEN}{sell_price}{Style.RESET_ALL}")
+            
+            print("-" * 60)
+            print(Fore.CYAN + "Enter 0 to return to shop menu." + Style.RESET_ALL)
+            
+            try:
+                choice = int(input("➤ Select item number to sell: "))
+                if choice == 0: return True
+                
+                if 1 <= choice <= len(items):
+                    item = items[choice - 1]
+                    sell_price = int(item.value * CONFIG.SELL_PRICE_MULTIPLIER)
+                    
+                    player.coins += sell_price
+                    player.inventory.remove_item(item)
+                    
+                    print(Fore.GREEN + f"\n✅ Sold {item.name} for {sell_price} coins!" + Style.RESET_ALL)
+                    print(Fore.YELLOW + f"💰 New Balance: {player.coins}" + Style.RESET_ALL)
+                else:
+                    print(Fore.RED + "❌ Invalid selection!" + Style.RESET_ALL)
+            except ValueError:
+                print(Fore.RED + "❌ Invalid input!" + Style.RESET_ALL)
+
+
 # ==============================
 # SHOP FACTORY (SRP + DIP)
 # ==============================
@@ -582,17 +544,9 @@ class ShopFactory:
     """
     SRP: Only responsible for creating and initializing shop instances.
     DIP: Depends on ShopConfiguration abstraction.
-    
-    Factory pattern for shop creation.
     """
     
     def __init__(self, config: ShopConfiguration):
-        """
-        Initialize factory with configuration.
-        
-        Args:
-            config: Shop configuration for creating shops
-        """
         self._config = config
     
     def create_shop(
@@ -600,16 +554,7 @@ class ShopFactory:
         shop_type: str,
         display_strategy: Optional[DisplayStrategy] = None
     ) -> Optional[ShopInterface]:
-        """
-        Create and stock a shop instance.
-        
-        Args:
-            shop_type: Type of shop to create
-            display_strategy: Optional custom display strategy
-            
-        Returns:
-            Fully stocked shop instance or None
-        """
+        """Create and stock a shop instance."""
         shop_config = self._config.get_shop_config(shop_type)
         if not shop_config:
             return None
@@ -636,68 +581,57 @@ class ShopFacade:
         self,
         config: Optional[ShopConfiguration] = None,
         purchase_service: Optional[PurchaseService] = None,
+        sales_service: Optional[SalesService] = None,
         shop_factory: Optional[ShopFactory] = None
     ):
         """
         Initialize facade with dependency injection.
-        
-        Args:
-            config: Shop configuration (defaults to standard)
-            purchase_service: Service for handling purchases
-            shop_factory: Factory for creating shops
+        Added SalesService dependency.
         """
         self._config = config or ShopConfiguration()
         self._purchase_service = purchase_service or PurchaseService()
+        self._sales_service = sales_service or SalesService()
         self._shop_factory = shop_factory or ShopFactory(self._config)
         self._current_shop: Optional[ShopInterface] = None
     
     def display_shop_menu(self, player: Any) -> None:
-        """
-        Display the main shop selection menu.
-        
-        Args:
-            player: Player instance for displaying coins
-        """
+        """Display the main shop selection menu."""
         print(Fore.YELLOW + "=" * 60 + Style.RESET_ALL)
         print(Fore.CYAN + Style.BRIGHT + "🛒 WELCOME TO THE SHOP".center(60) + Style.RESET_ALL)
         print(Fore.YELLOW + "=" * 60 + Style.RESET_ALL)
-        print("1) ⚔️  Sword Shop     - Melee weapons (Daggers, Katanas, Great Swords)")
-        print("2) 🛡️  Armor Shop     - Defensive equipment (Light & Heavy armor)")
-        print("3) 🏹 Bow Shop       - Ranged weapons (Tech Bows)")
-        print("4) 📜 Grimoire Shop  - Magic spell books (Elemental grimoires)")
-        print("5) 💫 Staff Shop     - Support weapons (Healing staves)")
-        print("6) 💊 Potion Shop    - Consumables (Health restoration)")
-        print("7) 🚪 Exit Shop")
+        print("1) ⚔️  Sword Shop     - Melee weapons")
+        print("2) 🛡️  Armor Shop     - Defensive equipment")
+        print("3) 🏹 Bow Shop       - Ranged weapons")
+        print("4) 📜 Grimoire Shop  - Magic spell books")
+        print("5) 💫 Staff Shop     - Support weapons")
+        print("6) 💊 Potion Shop    - Consumables")
+        print("7) 💰 Sell Items     - Convert items to coins")  # New Option
+        print("8) 🚪 Exit Shop")
         print(Fore.YELLOW + "-" * 60 + Style.RESET_ALL)
         print(Fore.GREEN + f"💰 Your Coins: {player.coins}" + Style.RESET_ALL)
         print(Fore.YELLOW + "-" * 60 + Style.RESET_ALL)
     
     def visit_shop(self, shop_choice: int, player: Any) -> bool:
         # Exit option
-        if shop_choice == 7:
+        if shop_choice == 8:
             print(Fore.YELLOW + "👋 Thank you for visiting! Come again soon!" + Style.RESET_ALL)
             return False
+        
+        # Handle Sell Option
+        if shop_choice == 7:
+            return self._sales_service.handle_sale(player)
         
         # Get shop type from menu choice
         shop_type = self._config.get_shop_type_by_menu(shop_choice)
         if not shop_type:
-            print(Fore.RED + "❌ Invalid choice! Please select 1-7." + Style.RESET_ALL)
+            print(Fore.RED + "❌ Invalid choice! Please select 1-8." + Style.RESET_ALL)
             return True
         
         # Handle the shop interaction
         return self._handle_shop_interaction(shop_type, player)
     
     def _handle_shop_interaction(self, shop_type: str, player: Any) -> bool:
-        """
-        Coordinate the complete shop interaction flow.
-        
-        Args:
-            shop_type: Type of shop to visit
-            player: Player instance
-            
-        Returns:
-            True to continue shopping
-        """
+        """Coordinate the complete shop interaction flow."""
         # Create shop using factory
         self._current_shop = self._shop_factory.create_shop(shop_type)
         
@@ -710,58 +644,3 @@ class ShopFacade:
         
         # Handle purchase using purchase service
         return self._purchase_service.handle_purchase(self._current_shop, player)
-    
-    def get_shop_by_type(self, shop_type: str) -> Optional[ShopInterface]:
-        """
-        Get a fully stocked shop instance by type.
-        
-        Args:
-            shop_type: Type identifier ('sword', 'bow', etc.)
-            
-        Returns:
-            Stocked shop instance or None
-        """
-        return self._shop_factory.create_shop(shop_type)
-
-
-# ==============================
-# CONVENIENCE FUNCTIONS (Factory Functions)
-# ==============================
-
-def create_shop_facade() -> ShopFacade:
-    """
-    Factory function to create a ShopFacade with default configuration.
-    
-    Returns:
-        Configured ShopFacade instance with all dependencies
-        
-    Example:
-        facade = create_shop_facade()
-        facade.display_shop_menu(player)
-    """
-    config = ShopConfiguration()
-    purchase_service = PurchaseService()
-    shop_factory = ShopFactory(config)
-    return ShopFacade(config, purchase_service, shop_factory)
-
-
-def create_custom_shop_facade(
-    config: Optional[ShopConfiguration] = None,
-    display_strategy: Optional[DisplayStrategy] = None,
-    validator: Optional[PurchaseValidator] = None,
-    processor: Optional[TransactionProcessor] = None
-) -> ShopFacade:
-    """
-    Factory function to create a fully customized ShopFacade.
-    
-    DIP: All dependencies can be injected for maximum flexibility.
-    
-    Args:
-        config: Custom shop configuration
-        display_strategy: Custom display strategy for all shops
-        validator: Custom purchase validator
-        processor: Custom transaction processor
-    """
-    shop_config = config or ShopConfiguration()
-    purchase_service = PurchaseService(validator, processor)
-    shop_factory = ShopFactory(shop_config)

@@ -1,6 +1,27 @@
 """
 Dungeon generation and exploration system.
-Refactored for SOLID + Depth System + Exit Restrictions + Confirmation.
+
+SOLID Principles Applied:
+    1. Single Responsibility Principle (SRP):
+       - Dungeon: Only manages map state and exploration flow logic.
+       - Room: Stores room data.
+       - DungeonPresenter: Handles all UI/Output.
+       - SpawnStrategy: Handles entity creation logic.
+    2. Open/Closed Principle (OCP):
+       - New room types or generation logic can be added by extending methods without breaking existing ones.
+       - Spawn logic is pluggable via SpawnStrategy.
+    3. Dependency Inversion Principle (DIP):
+       - Dungeon depends on interfaces (SpawnStrategy, DungeonPresenter) not concrete implementations.
+       - Allows easy mocking for tests.
+    4. Interface Segregation Principle (ISP):
+       - Presenter and Strategy protocols define focused interfaces for UI and Spawning.
+
+Design Patterns:
+    - Strategy Pattern: Used for Spawning (GameSpawnStrategy) to vary difficulty/content generation.
+    - Model-View-Presenter (MVP): 
+        - Model: Dungeon/Room classes.
+        - View: ConsoleDungeonPresenter (in main.py).
+        - Presenter: Logic inside Dungeon.explore_from coordinating Model and View.
 """
 import random
 from enum import Enum, auto
@@ -25,7 +46,7 @@ class DungeonPresenter(Protocol):
     def show_entrance_msg(self, depth: int) -> None: ...
     def show_exit_msg(self, reward: int) -> None: ...
     def show_room(self, room_desc: str, room_summary: str, map_str: str, x: int, y: int, has_key: bool) -> None: ...
-    def show_map_legend(self) -> None: ... # New
+    def show_map_legend(self) -> None: ... 
     def show_trap_trigger(self, trap_name: str, damage: int, player_name: str, status: Optional[str]) -> None: ...
     def show_combat_start(self, enemy_name: str) -> None: ...
     def show_treasure_found(self, item_name: str) -> None: ...
@@ -34,7 +55,7 @@ class DungeonPresenter(Protocol):
     def show_game_complete(self) -> None: ...
     def show_retreat_penalty(self, penalty: int) -> None: ...
     def show_cannot_retreat(self) -> None: ...
-    def ask_exit_confirmation(self, is_retreat: bool) -> bool: ... # New
+    def ask_exit_confirmation(self, is_retreat: bool) -> bool: ... 
     def get_movement_input(self, available_moves: List[str]) -> Optional[str]: ...
 
 class SpawnStrategy(Protocol):

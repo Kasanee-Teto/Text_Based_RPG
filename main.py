@@ -1,6 +1,21 @@
 """
 Main game loop for Text-Based RPG.
 Refactored to act as Composition Root, wiring dependencies for Dungeon and Shop.
+
+SOLID Principles Applied:
+    1. Dependency Inversion Principle (DIP):
+       - Main logic acts as the Composition Root.
+       - It initializes concrete implementations (ConsoleDungeonPresenter, GameSpawnStrategy)
+         and injects them into high-level modules (Dungeon).
+    2. Single Responsibility Principle (SRP):
+       - ConsoleDungeonPresenter: Handles only UI output.
+       - GameSpawnStrategy: Handles only entity configuration logic.
+       - Game Loop: Handles only high-level menu flow.
+
+Design Patterns:
+    - Composition Root: This file serves as the entry point where object graphs are constructed.
+    - Strategy Pattern: GameSpawnStrategy defines specific algorithm for content generation.
+    - Facade Pattern: Uses ShopFacade to simplify shop system interaction.
 """
 import time
 import random
@@ -27,6 +42,7 @@ init(autoreset=True)
 console = Console()
 player: Optional[Player] = None
 
+# ... (Rest of the file remains exactly as provided in the previous step) ...
 # ==============================
 # CONCRETE IMPLEMENTATIONS (DIP)
 # ==============================
@@ -116,8 +132,6 @@ class ConsoleDungeonPresenter:
         print("\n🧭 Available moves:", ", ".join(available_moves) + " | (Q)uit/Retreat")
         choice = input("➤ Move (N/S/E/W) or Q: ").strip().lower()
         return choice
-
-# ... (Rest of main.py logic remains structurally same, only imports/presenter calls changed as per above) ...
 
 class GameSpawnStrategy:
     """Concrete strategy for spawning game entities based on depth."""
@@ -354,7 +368,7 @@ def _handle_shop():
     facade = ShopFacade()
     facade.display_shop_menu(player)
     while True:
-        choice = read_int("➤ Enter your choice: ", 1, 7)
+        choice = read_int("➤ Enter your choice: ", 1, 8)
         if not choice: break
         if not facade.visit_shop(choice, player): break
         facade.display_shop_menu(player)
@@ -363,29 +377,17 @@ def _handle_dungeon():
     if not player:
         print(Fore.RED + CONFIG.UI.MSG_CREATE_CHAR_FIRST)
         return
-    
     if not hasattr(player, 'current_depth'):
         player.current_depth = 1
-        
     print_header("🏰 DUNGEON MODE", "magenta")
     print(f"Current Depth: {player.current_depth}")
-    
     if player.current_depth > 20:
         print(Fore.GREEN + "🎉 You have already conquered the dungeon!" + Style.RESET_ALL)
         return
-
-    # COMPOSITION ROOT
     presenter = ConsoleDungeonPresenter()
     spawner = GameSpawnStrategy()
-    
-    dungeon = Dungeon(
-        spawner=spawner,
-        presenter=presenter,
-        depth=player.current_depth
-    )
-    
+    dungeon = Dungeon(spawner=spawner, presenter=presenter, depth=player.current_depth)
     success = dungeon.explore_from(player, battle)
-    
     if success:
         if player.current_depth == 20:
             player.current_depth += 1
